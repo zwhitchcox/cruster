@@ -7,7 +7,7 @@ apt install docker.io -y
 service docker start
 systemctl enable docker
 groupadd docker
-usermod -aG docker ubuntu
+usermod -aG docker ubuntu # change to your username if different
 
 # change cgroups driver to systemd
 cat > /etc/docker/daemon.json <<EOF
