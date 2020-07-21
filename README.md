@@ -37,7 +37,7 @@ Download balenaEtcher from https://etcher.io, and flash the images to your SD ca
 
 ### Initiate Cluster and Join Nodes
 
-tunnel into your master node (you can find the ip address with `nslookup master`, `nslookup slave-1`, `nslookup slave-2`, etc.)
+tunnel into your master node with `ssh pi@master.local`, `ssh pi@slave-1.local`, etc...
 
 initiate with:
 
