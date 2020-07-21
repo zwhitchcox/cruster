@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export HOSTNAME=common # the hostname of the node stored in /etc/hostname
+export GITHUB_USERNAME=zwhitchcox # this will download your github public keys to /root/.ssh/authorized_keys
+
+export NUMSLAVES=4 # number of slave node imgs to make
+    # You have to make different images, because each
+    # node has to have a different host name
+    # It also makes it easier to look up ip addresses with `nslookup slave-1` for example
+
+# Not yet working: export MASTERIP="" # if you want static ip for the master node..
+    #... it will request this from the DHCP server, but it's not guaranteed to be granted
+    # You can find your subnet with `ifconfig -a` on windows and unix
+
+# these you probably shouldn't change
+export HOSTDIR=/host
+export IMGDIR=${HOSTDIR}/imgs

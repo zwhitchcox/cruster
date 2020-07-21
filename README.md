@@ -1,55 +1,78 @@
-### Install Kubernetes on Raspberry Pi
+# Creating a Raspberry Pi Kubernetes Cluster
 
-This process follows the guide here: https://opensource.com/article/20/6/kubernetes-raspberry-pi
+This repo creates a cluster of pi SD card images with kubernetes, docker, etc pre-installed and enabled.
 
-Note: this works only on Raspberry Pi 4 and above
-Note: This is a work in process
+Below are the steps to create an the images to flash to an SD card for a raspberry pi kubernetes cluster
 
-*Download the Ubuntu 64 bit disk image here: https://ubuntu.com/download/raspberry-pi*
+### Install Vagrant
 
-*Burn this image to sd card with https://www.balena.io/etcher/*
+https://www.vagrantup.com/downloads
 
-*Log in to the pi and enable ssh:*
+Vagrant makes things a lot simpler. Alternatively, follow these steps on an ubuntu distro, but I won't provide support for this.
 
-```shell
-sudo service ssh start
-sudo systemctl enable ssh
-NAME=master # name for master/slave node here, e.g. slave-1, slave-2, etc
-sudo echo master > /etc/hostname
-```
 
-*find the ip address of the node from your main computer*
+### Start Vargrant Machine and Create Images
+
+Clone this repo and start vagrant:
 
 ```shell
-nslookup master # enter the name you gave the node here
+git clone https://github.com/zwhitchcox/cluster-pi
+cd cluster-pi
+vagrant up
 ```
 
-*log into the node with the IP address you just found*
+And [adjust the environment variables](/env) to your liking. 
+
+then create the cluster:
 
 ```shell
-ssh ubuntu@YOURIP
+vagrant ssh -c "sudo bash /host/create-cluster.bash"
 ```
 
-*install the kubernetes*
-Note: this will restart your computer when it's done to enable cgroups
+If everything goes to plan, your images should appear in the /imgs directory
 
-```sh
-sudo sh -c "$(curl -fsSL https://raw.github.com/zwhitchcox/cluster-pi/master/common.sh)"
-```
+### Flash the Image to Your SD card(s)
 
-*tunnel back into your node*
+Download balenaEtcher from https://etcher.io, and flash the images to your SD cards.
 
-For master, run:
+### Initiate Cluster and Join Nodes
+
+tunnel into your master node (you can find the ip address with `nslookup master`, `nslookup slave-1`, `nslookup slave-2`, etc.)
+
+initiate with:
 
 ```shell
-sudo kubeadm init --kubernetes-version=v1.18.2  --pod-network-cidr=10.244.0.0/16
+kubeadm init  --pod-network-cidr=10.244.0.0/16
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubeadm token create --print-join-command
 ```
 
-*Then, on slave nodes run the join command that gave you.*
+this will also output the join command that should be run on the slave nodes to join the cluster.
 
-If you need to print out the join command again, you can create a new token:
+So just tunnel into the slave nodes and run that command. you can always get the join command with
 
 ```shell
-sudo kubeadm token create --print-join-command
+kubeadm token create --print-join-command
 ```
+
+
+## Troubleshooting
+
+You can `ssh` into the vagrant machine and mess around with the files to troubleshoot.
+
+The actual code that is run on the pi image is in [common-chroot.bash](/common-chroot.bash), so you can install other packages or adjust things there to your liking.
+
+Just as an overview of what's happening, It all starts in [create-cluster](/create-cluster.bash), and you can follow the logic from there. 
+
+But basically:
+
+1. [img-common-create](/img-common-create.bash) is downlaoding the standard 32-bit raspbian image and expanding the size
+2. [img-mount](/img-mount.bash) mounts the image to `/mnt/common` and makes sure the image is good
+3. [common-provision](/common-provision.bash) is running [common-chroot](/common-chroot.bash) in the chroot. This installs docker, kubernetes, and enables ssh. It also upgrades all the packages.
+4. So then, we just copy that image and change the host name to `master`/`slave`, which is done by [create-cluster](/create-cluster.bash), and then the image is unmounted by [img-unmount](/img-umount.bash).
+
+The two main technologies to understand are qemu and chroot.
+
+#### Using Ubuntu
+
+Alternatively you can manually install using the [ubuntu server image](/ubuntu-64), although I don't recommend it if you're wanting to automate disk image creation, because I could not get `apt` to install the packages in the chroot.
