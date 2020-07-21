@@ -19,6 +19,7 @@ cp ${IMGDIR}/common.img ${IMGDIR}/master.img
 
 START=1
 for (( c=$START; c<=$NUMSLAVES; c++ )) do
+    echo slave-$c > /mnt/common/hostname
     cp ${IMGDIR}/common.img ${IMGDIR}/slave-${c}.img
 done
 

@@ -93,6 +93,7 @@ EOF
   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
   apt update
   
+  apt remove needrestart -y
 
   # Update the apt cache and install kubelet, kubeadm, and kubectl
   # (Output omitted)

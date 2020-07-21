@@ -73,6 +73,8 @@ But basically:
 
 The two main technologies to understand are qemu and chroot.
 
+If you really get stuck, there's always `vagrant destroy`. I have done that many, many times.
+
 #### Using Ubuntu
 
 Alternatively you can manually install using the [ubuntu server image](/ubuntu-64), although I don't recommend it if you're wanting to automate disk image creation, because I could not get `apt` to install the packages in the chroot.
