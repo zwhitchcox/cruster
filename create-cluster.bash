@@ -14,12 +14,12 @@ bash "${HOSTDIR}/img-common-create.bash"
 bash "${HOSTDIR}/img-mount.bash" common
 bash "${HOSTDIR}/common-provision.bash"
 
-echo master > /mnt/common/hostname
+echo master > /mnt/common/etc/hostname
 cp ${IMGDIR}/common.img ${IMGDIR}/master.img
 
 START=1
 for (( c=$START; c<=$NUMSLAVES; c++ )) do
-    echo slave-$c > /mnt/common/hostname
+    echo slave-$c > /mnt/common/etc/hostname
     cp ${IMGDIR}/common.img ${IMGDIR}/slave-${c}.img
 done
 

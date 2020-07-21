@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export HOSTNAME=common # the hostname of the node stored in /etc/hostname
-export GITHUB_USERNAME=zwhitchcox # this will download your github public keys to /root/.ssh/authorized_keys
+export GITHUB_USERNAME=YOUR_USERNAME_HERE # this will download your github public keys to /root/.ssh/authorized_keys
 
 export NUMSLAVES=4 # number of slave node imgs to make
     # You have to make different images, because each
