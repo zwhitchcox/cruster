@@ -27,6 +27,9 @@ mkdir /root/.ssh
 mkdir /home/${USERNAME}/.ssh
 curl https://github.com/${GITHUB_USERNAME}.keys -o /root/.ssh/authorized_keys
 curl https://github.com/${GITHUB_USERNAME}.keys -o /home/${USERNAME}/.ssh/authorized_keys
+chown -R ${USERNAME} /home/${USERNAME}/.ssh
+chmod 600 /home/${USERNAME}/.ssh
+chmod 700 /home/${USERNAME}/.ssh/authorized_keys
 
 # this isn't actually implemented, because I realized 
 # the image already had a default user, pi on it
