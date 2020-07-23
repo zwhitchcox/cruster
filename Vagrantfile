@@ -28,6 +28,6 @@ Vagrant.configure("2") do |config|
   end
   config.vm.provision "shell", inline: <<-SHELL
   apt update
-  apt-get install qemu qemu-user-static binfmt-support zip python3-pip -y
+  apt-get install qemu qemu-user-static binfmt-support zip python3-pip net-tools -y
   SHELL
 end

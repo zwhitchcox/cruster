@@ -5,24 +5,24 @@ import netifaces as ni
 from time import sleep
 import logging
 
-NETWORK_INTERFACE = 'em0'
+NETWORK_INTERFACE = 'enp0s3'
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-def setup_debugging():
-    """
-    Load PyCharm's egg and start a remote debug session.
-    :return: None
-    """
-    import sys
-    sys.path.append('/root/pycharm-debug-py3k.egg')
-    import pydevd
-    pydevd.settrace('192.168.4.47', port=5422, stdoutToServer=True, stderrToServer=True, suspend=False)
+# def setup_debugging():
+#     """
+#     Load PyCharm's egg and start a remote debug session.
+#     :return: None
+#     """
+#     import sys
+#     sys.path.append('/root/pycharm-debug-py3k.egg')
+#     import pydevd
+#     pydevd.settrace('192.168.4.47', port=5422, stdoutToServer=True, stderrToServer=True, suspend=False)
 
 
-setup_debugging()
+# setup_debugging()
 
 
 def get_network_interface_ip_address(interface='eth0'):

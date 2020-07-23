@@ -10,17 +10,20 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-bash "${HOSTDIR}/img-common-create.bash" 
+# bash "${HOSTDIR}/img-common-create.bash" 
 bash "${HOSTDIR}/img-mount.bash" common
-bash "${HOSTDIR}/common-provision.bash"
+# bash "${HOSTDIR}/common-provision.bash"
 
 chroot /mnt/common /bin/bash -c "echo master > /etc/hostname"
+bash "${HOSTDIR}/img-umount.bash" common
 cp ${IMGDIR}/common.img ${IMGDIR}/master.img
 
 START=1
 for (( c=$START; c<=$NUMSLAVES; c++ )) do
+    bash "${HOSTDIR}/img-mount.bash" common
     chroot /mnt/common /bin/bash -c "echo slave-$c > /etc/hostname"
     cp ${IMGDIR}/common.img ${IMGDIR}/slave-${c}.img
+    bash "${HOSTDIR}/img-umount.bash" common
 done
 
-bash "${HOSTDIR}/img-umount.bash" common
+# bash "${HOSTDIR}/img-umount.bash" common
