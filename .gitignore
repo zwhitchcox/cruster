@@ -1,5 +1,5 @@
-/imgs
-/env
+/output
+# /env
 /push.ps1
 /.vagrant
 __pycache__

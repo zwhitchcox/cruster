@@ -9,9 +9,9 @@ fi
 # get environment variables
 source /host/env
 
-mkdir -p ${IMGDIR}
-cd ${IMGDIR}
-if [ ! -f raspbian.zip ] ; then wget -O ${IMGDIR}/raspbian.zip https://downloads.raspberrypi.org/raspios_lite_armhf_latest ; fi
+mkdir -p ${OUTPUT_DIR}
+cd ${OUTPUT_DIR}
+if [ ! -f raspbian.zip ] ; then wget -O ${OUTPUT_DIR}/raspbian.zip https://downloads.raspberrypi.org/raspios_lite_armhf_latest ; fi
 
 # unmount old images
 for d in `find /mnt -maxdepth 1 -mindepth 1 -type d` ; do

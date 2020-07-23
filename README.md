@@ -60,16 +60,16 @@ kubeadm token create --print-join-command
 
 You can `ssh` into the vagrant machine and mess around with the files to troubleshoot.
 
-The actual code that is run on the pi image is in [common-chroot.bash](/common-chroot.bash), so you can install other packages or adjust things there to your liking.
+The actual code that is run on the pi image is in [common-chroot.bash](/common/chroot.bash), so you can install other packages or adjust things there to your liking.
 
 Just as an overview of what's happening, It all starts in [create-cluster](/create-cluster.bash), and you can follow the logic from there. 
 
 But basically:
 
-1. [img-common-create](/img-common-create.bash) is downlaoding the standard 32-bit raspbian image and expanding the size
-2. [img-mount](/img-mount.bash) mounts the image to `/mnt/common` and makes sure the image is good
-3. [common-provision](/common-provision.bash) is running [common-chroot](/common-chroot.bash) in the chroot. This installs docker, kubernetes, and enables ssh. It also upgrades all the packages.
-4. So then, we just copy that image and change the host name to `master`/`slave`, which is done by [create-cluster](/create-cluster.bash), and then the image is unmounted by [img-unmount](/img-umount.bash).
+1. [img-common-create](/img/common-create.bash) is downlaoding the standard 32-bit raspbian image and expanding the size
+2. [img-mount](/img/mount.bash) mounts the image to `/mnt/common` and makes sure the image is good
+3. [common-provision](/common/provision.bash) is running [common-chroot](/common/chroot.bash) in the chroot. This installs docker, kubernetes, and enables ssh. It also upgrades all the packages.
+4. So then, we just copy that image and change the host name to `master`/`slave`, which is done by [create-cluster](/create-cluster.bash), and then the image is unmounted by [img-unmount](/img/umount.bash).
 
 The two main technologies to understand are qemu and chroot.
 
@@ -77,4 +77,4 @@ If you really get stuck, there's always `vagrant destroy`. I have done that many
 
 #### Using Ubuntu
 
-Alternatively you can manually install using the [ubuntu server image](/ubuntu-64), although I don't recommend it if you're wanting to automate disk image creation, because I could not get `apt` to install the packages in the chroot.
+Alternatively you can manually install using the [ubuntu server image](/_ubuntu_64), although I don't recommend it if you're wanting to automate disk image creation, because I could not get `apt` to install the packages in the chroot.

@@ -9,10 +9,6 @@ source /tmp/env
 
 USERNAME="${USERNAME:-pi}"
 GITHUB_USERNAME="${GITHUB_USERNAME:-zwhitchcox}"
-HOSTNAME="${HOSTNAME:-master}"
-
-#set hostname for machine
-echo ${HOSTNAME} > /etc/hostname
 
 apt update
 apt upgrade -y

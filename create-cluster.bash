@@ -10,20 +10,32 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# bash "${HOSTDIR}/img-common-create.bash" 
-bash "${HOSTDIR}/img-mount.bash" common
-# bash "${HOSTDIR}/common-provision.bash"
+mnt() {
+    bash ${HOST_DIR}/img/mount.bash $1
+}
 
-chroot /mnt/common /bin/bash -c "echo master > /etc/hostname"
-bash "${HOSTDIR}/img-umount.bash" common
-cp ${IMGDIR}/common.img ${IMGDIR}/master.img
+umnt() {
+    bash ${HOST_DIR}/img/umount.bash $1
+}
 
-START=1
-for (( c=$START; c<=$NUMSLAVES; c++ )) do
-    bash "${HOSTDIR}/img-mount.bash" common
-    chroot /mnt/common /bin/bash -c "echo slave-$c > /etc/hostname"
-    cp ${IMGDIR}/common.img ${IMGDIR}/slave-${c}.img
-    bash "${HOSTDIR}/img-umount.bash" common
-done
+in_chroot() {
+    chroot /mnt/common /bin/bash -c $1
+}
 
-# bash "${HOSTDIR}/img-umount.bash" common
+# create common
+bash ${HOST_DIR}/common/create-img.bash
+mnt common
+bash ${HOST_DIR}/common/provision.bash
+umnt common
+
+# create master
+cp ${OUTPUT_DIR}/common.img ${OUTPUT_DIR}/master.img
+mnt master
+echo ${HOSTNAME_PREFIX}master > /mnt/master/etc/hostname
+umnt master
+
+# create slave
+cp ${OUTPUT_DIR}/common.img ${OUTPUT_DIR}/slave.img
+mnt slave
+echo ${HOSTNAME_PREFIX}slave > /mnt/slave/etc/hostname
+umnt slave

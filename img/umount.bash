@@ -10,15 +10,15 @@ source /host/env
 
 set -eux
 
-IMGNAME=${1:-raspbian}
+IMG_NAME=${1:-raspbian}
 
 # get loop no
-loopno=$(kpartx -l /host/imgs/${IMGNAME}.img | grep -o [0-9]* | head -n1)
+loopno=$(kpartx -l ${OUTPUT_DIR}/${IMG_NAME}.img | grep -o [0-9]* | head -n1)
 
 # unmount everything
-! umount -lf /mnt/${IMGNAME}/{dev/pts,dev,sys,proc,boot,}
+! umount -lf /mnt/${IMG_NAME}/{dev/pts,dev,sys,proc,boot,}
 
 # unmount loopdevice
 kpartx -d /dev/loop${loopno}
 
-rmdir /mnt/${IMGNAME}
+rmdir /mnt/${IMG_NAME}
