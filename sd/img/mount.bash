@@ -22,17 +22,19 @@ kpartx -v -a ${IMG_NAME}.img
 # check fs
 e2fsck -f "/dev/mapper/loop${loopno}p2"
 
+IMG_MNT_NAME=img
+
 # expand partition
 resize2fs "/dev/mapper/loop${loopno}p2"
-mkdir -p /mnt/${IMG_NAME}
+mkdir -p /mnt/${IMG_MNT_NAME}
 
 # mount partition
-mount -o rw "/dev/mapper/loop${loopno}p2" /mnt/${IMG_NAME}
-mount -o rw "/dev/mapper/loop${loopno}p1" /mnt/${IMG_NAME}/boot
+mount -o rw "/dev/mapper/loop${loopno}p2" /mnt/${IMG_MNT_NAME}
+mount -o rw "/dev/mapper/loop${loopno}p1" /mnt/${IMG_MNT_NAME}/boot
 
 # mount binds
-mount --bind /dev /mnt/${IMG_NAME}/dev/
-mount --bind /sys /mnt/${IMG_NAME}/sys/
-mount --bind /proc /mnt/${IMG_NAME}/proc/
-mount --bind /dev/pts /mnt/${IMG_NAME}/dev/pts
-# mount -B /run /mnt/${IMG_NAME}/run
+mount --bind /dev /mnt/${IMG_MNT_NAME}/dev/
+mount --bind /sys /mnt/${IMG_MNT_NAME}/sys/
+mount --bind /proc /mnt/${IMG_MNT_NAME}/proc/
+mount --bind /dev/pts /mnt/${IMG_MNT_NAME}/dev/pts
+# mount -B /run /mnt/${IMG_MNT_NAME}/run

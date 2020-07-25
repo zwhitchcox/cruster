@@ -31,11 +31,15 @@ umnt common
 # create master
 cp ${OUTPUT_DIR}/common.img ${OUTPUT_DIR}/master.img
 mnt master
+cp ${HOST_DIR}/setup/serve.py /mnt/master/home/pi
 echo ${HOSTNAME_PREFIX}master > /mnt/master/etc/hostname
+cat ${HOST_DIR}/master-chroot.bash | in_chroot -
 umnt master
 
 # create slave
 cp ${OUTPUT_DIR}/common.img ${OUTPUT_DIR}/slave.img
 mnt slave
+cp ${HOST_DIR}/setup/wait.py /mnt/slave/home/pi
 echo ${HOSTNAME_PREFIX}slave > /mnt/slave/etc/hostname
+cat ${HOST_DIR}/slave-chroot.bash | in_chroot -
 umnt slave

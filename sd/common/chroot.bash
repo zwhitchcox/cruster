@@ -59,9 +59,10 @@ cat > /etc/docker/daemon.json <<EOF
 EOF
 
 # enable cgroups limit support
-if [ grep -Fvq 'cgroup_enable' /boot/cmdline.txt ] ; then
-  sed -i '$ s/$/ cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 swapaccount=1/' /boot/cmdline.txt
-fi
+sed -i '$ s/$/ cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 swapaccount=1/' /boot/cmdline.txt
+
+# turn off swapfile
+sudo sed -i "/CONF_SWAPSIZE=/c\CONF_SWAPSIZE=0" /etc/dphys-swapfile 
 
 # allow booting without hdmi cable plugged in
 sed -i '/^#hdmi_force_hotplug=1/s/^#//' /boot/config.txt
@@ -101,3 +102,5 @@ EOF
   # disable regular updates, as can't do manually
   apt-mark hold kubelet kubeadm kubectl
 fi
+
+apt install python3-pip

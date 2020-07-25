@@ -1,8 +1,0 @@
-#!/bin/bash
-
-export HOSTNAME_PREFIX=cp # prefix for the hostname !important this is used to distinguish different clusters!
-export GITHUB_USERNAME=YOURUSERNAMEHERE # this will download your github public keys to /root/.ssh/authorized_keys
-
-# these you probably shouldn't change
-export HOST_DIR=/host
-export OUTPUT_DIR=${HOST_DIR}/output
