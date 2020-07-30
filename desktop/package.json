@@ -16,6 +16,7 @@
     "electron": "^9.1.2",
     "electron-builder": "^22.8.0",
     "electron-is-dev": "^1.2.0",
+    "node-ssdp": "^4.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
@@ -29,7 +30,6 @@
     "eject": "react-scripts eject",
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
     "ebuild": "npm run build && node_modules/.bin/build"
-
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -45,5 +45,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@rescripts/cli": "^0.0.14",
+    "@rescripts/rescript-env": "^0.0.12",
+    "react-app-rewired": "^2.1.6"
   }
 }
