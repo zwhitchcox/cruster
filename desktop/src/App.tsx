@@ -1,19 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import Node from './Node'
 import logo from './logo.svg';
 import './App.css';
 
 declare var ipcRenderer;
 
+const normalizeNodes = arr => {
+  const hash = {}
+  const result = [] as any
+  for (const node of arr) {
+    const url = node["LOCATION"]
+    if (!hash[url]) {
+      hash[url] = true
+      result.push({
+        url,
+      })
+    }
+  }
+  return result
+}
 function App() {
-  const [nodes, setNodes] = useState([])
+  const [nodes, setNodes] = useState([] as any)
   useEffect(() => {
     ipcRenderer.on('node-response', (event, headers)=> {
-      // console.log(headers["ST"])
-      if (/cluster/.test(headers["ST"])) {
-        console.log(headers)
-      }
       if (headers["ST"] && headers["ST"] == "picluster:node") {
-        setNodes(headers["LOCATION"])
+        setNodes(normalizeNodes([
+          ...nodes,
+          headers,
+        ]))
       }
     })
   }, [])
@@ -25,6 +39,8 @@ function App() {
     <div className="App">
       <header className="App-header">
         <button onClick={search}>Search</button>
+        <br />
+        {nodes.map(n => <Node key={n.url} {...n} />)}
       </header>
     </div>
   );
