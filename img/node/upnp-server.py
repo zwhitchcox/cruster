@@ -9,7 +9,7 @@ import requests
 
 SSDP_PORT = 1900
 SSDP_ADDR = '239.255.255.250'
-SERVER_ID = 'Cluster Pi SSDP Server'
+SERVER_ID = 'Cruster SSDP Server'
 SERVICE_PORT = 9090
 INTERFACE_NAMES = ['eth0', 'wlan0']
 
@@ -81,10 +81,10 @@ def discovery_request(headers, host_port):
 
     (host, port) = host_port
 
-    if headers['st'] == "clusterpi:node":
+    if headers['st'] == "cruster:node":
         local_ip_address = get_network_interface_ip_address(INTERFACE_NAMES)
         response = ['HTTP/1.1 200 OK']
-        response.append('ST: clusterpi:node')
+        response.append('ST: cruster:node')
         response.append('USN: uuid:{}::upnp:rootdevice'.format(device_uuid))
         response.append('MAN: local')
         response.append('LOCATION: http://{}:{}'.format(local_ip_address, SERVICE_PORT))

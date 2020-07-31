@@ -41,7 +41,6 @@ const App = () => {
     client.search('clusterpi:node')
     setClicked(true)
   }
-
   useEffect(() => {
     client.on('response', function (headers, statusCode, rinfo) {
       let _messages = ""

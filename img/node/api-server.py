@@ -32,9 +32,16 @@ def write_status(status_text):
   status_fd.write(status_text)
   status_fd.close()
 
+def write_hostname(new_hostname):
+  hostname_fd = open("/etc/hostname", "w+")
+  hostname_fd.write(new_hostname)
+  hostname_fd.close()
+
+
 
 def exec_write(self, cmd):
   self.send_response(HTTPStatus.OK)
+  self.send_header("Access-Control-Allow-Origin", "*")
   self.end_headers()
   process = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
@@ -43,8 +50,6 @@ def exec_write(self, cmd):
   while True:
       output = process.stdout.readline()
       err_output = process.stderr.readline()
-      print(output)
-      print(err_output)
       if output != "":
         self.wfile.write(output.encode('utf-8'))
       if err_output != "":
@@ -52,10 +57,10 @@ def exec_write(self, cmd):
       # Do something else
       return_code = process.poll()
       if return_code is not None:
-          self.wfile.write('RETURN CODE {}'.format(return_code).encode('utf-8'))
+          self.wfile.write('RETURN CODE {}\r\n'.format(return_code).encode('utf-8'))
           # Process has finished, read rest of the output
           for output in process.stdout.readlines():
-              print(output.strip())
+              self.wfile.write(output.encode('utf-8'))
           break
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -66,6 +71,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
       self.end_headers()
       with open('/home/pi/stream/index.html', 'rb') as file:
         self.wfile.write(file.read())
+
     elif self.path == "/join-command":
       stream = os.popen('kubeadm token create --print-join-command')
       output = stream.read()
@@ -77,15 +83,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_response(HTTPStatus.SERVICE_UNAVAILABLE)
         self.end_headers()
         self.wfile.write(b'Not yet ready')
+
     elif self.path == "/status":
       self.send_response(HTTPStatus.OK)
       self.send_header("Access-Control-Allow-Origin", "*")
       self.end_headers()
       self.wfile.write(read_status().encode('utf-8'))
+
+    elif self.path.startswith("/set-hostname"):
+      new_hostname = self.path[14:]
+      exec_write(self, ["hostname", new_hostname])
+      write_hostname(new_hostname)
+      self.wfile.write("Rebooting...\r\n".encode("utf-8"))
+      exec_write(self, ["reboot"])
+
     elif self.path == "/init-master":
       exec_write(self, ['bash', 'kubernetes-init-master.sh'])
+
     elif self.path == "/reset":
-      exec_write( self, ['kubeadm', 'reset', '-f'])
+      exec_write(self, ['kubeadm', 'reset', '-f'])
 
     # if self.path == "/node-info":
   def do_POST(self):
@@ -93,8 +109,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     post_data = self.rfile.read(content_length) # <--- Gets the data itself
     logger.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
         str(self.path), str(self.headers), post_data.decode('utf-8'))
-
-    self.set_response()
+    self.send_response(200)
     self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
 

@@ -48,7 +48,7 @@ client.on('response', function (headers, statusCode, rinfo) {
 });
 
 ipcMain.on('search-nodes', (event, arg) => {
-  client.search('picluster:node');
+  client.search('cruster:node');
 })
 // const { app, BrowserWindow, ipcMain } = require('electron');
 // const isDev = require('electron-is-dev');
