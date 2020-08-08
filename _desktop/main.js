@@ -1,6 +1,4 @@
 const electron = require('electron');
-const fetch = require('node-fetch')
-
 const {ipcMain} = electron
 const app = electron.app;
 const { scanner } = require('./lib/scanner')
@@ -14,7 +12,7 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: isDev ? 900 + 600 : 900,
+    width: 900,
     height: 680,
     webPreferences: {
       nodeIntegration: true,
@@ -44,68 +42,29 @@ app.on('activate', () => {
   }
 });
 
-
-// Node Scanner
-
-const CHECK_INTERVAL = 3 * 1000 // check for new/deleted nodes every 3 seconds
-let nodes = {}
-let _prevNodes = {};
-
 var Client = require('node-ssdp').Client
   , client = new Client();
 
-const getNodeInfo = url => fetch(`${url}/node-info`)
-  .then(r => {
-    if (r.status > 399) {
-      return Promise.reject(`Something went wrong getting the status for ${url}`)
-    }
-    return r.json()
-  })
-  .then(nodeInfo => nodes[url] = {
-    ...nodeInfo,
-    apiResponded: true,
-  })
-  .catch(() => {
-    nodes[url] = {
-      apiResponded: false,
-    }
-  })
+client.on('response', function (headers, statusCode, rinfo) {
+  mainWindow.webContents.send("node-response", headers)
+});
 
-client.on('response', (headers, statusCode, rinfo) => {
-  if (headers["ST"] && headers["ST"] == "cruster:node") {
-    const url = headers["LOCATION"]
-    getNodeInfo(url)
-  }
+ipcMain.on('search-nodes', (event, arg) => {
+  client.search('cruster:node');
 })
 
-const {stringify, parse} = JSON
-const copy = obj => parse(stringify(obj))
-const compare = (obj1, obj2) => stringify(obj1) === stringify(obj2)
-setInterval(() => {
-  client.search('cruster:node')
-  if (!compare(_prevNodes, nodes)) {
-    mainWindow.send('nodes', _prevNodes = copy(nodes))
-  }
-}, CHECK_INTERVAL)
-
-ipcMain.on('send-nodes', (event, arg) => {
-  mainWindow.send('nodes', nodes)
-})
-
-// Drive Scanner
 
 scanner.on('attach', drive => {
   mainWindow.webContents.send("drive-attached", drive)
 })
 
-scanner.on('detach', drive => {
+scanner.on('detach', (...args) => {
   mainWindow.webContents.send("drive-detached", drive)
 })
 
 scanner.on('error', error => {
   mainWindow.webContents.send("scanner-error", drive)
-});
-ipcMain.on('restart-scanner', () => {
   scanner.stop();
-  scanner.start();
-})
+});
+
+scanner.start();

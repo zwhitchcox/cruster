@@ -3,13 +3,12 @@ set -eux
 # get environment variables
 source /host/env
 
-mkdir -p ${OUTPUT_DIR}
 cd ${OUTPUT_DIR}
 
 # extend by 4GB
 dd if=/dev/zero bs=1M count=4096 >> ${OUTPUT_NAME}.img
 loopno=$(kpartx -l ${OUTPUT_NAME}.img | grep -o [0-9]* | head -n1)
-kpartx -v -a ${OUTPUT_NAME}.img
+kpartx -va ${OUTPUT_NAME}.img
 
 # do parted stuff, unmount kpartx, then mount again
 loopdev="/dev/loop${loopno}"

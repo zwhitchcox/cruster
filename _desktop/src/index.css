@@ -136,9 +136,7 @@ h3 {
   transition: all 0.3s;
   position: relative;
   margin-right: .2em;
-  margin-bottom: .4em;
 }
-
 .btn-one:last-child {
   margin-right: 0;
 }

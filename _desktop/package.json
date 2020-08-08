@@ -1,37 +1,37 @@
 {
   "name": "desktop",
   "version": "0.1.0",
+  "homepage": "./",
+  "main": "./main.js",
   "private": true,
-  "main": "main.js",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^26.0.9",
-    "@types/node": "^14.0.27",
-    "@types/react": "^16.9.44",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-router-dom": "^5.1.5",
-    "balena-image-fs": "^7.0.1",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.0",
+    "@types/react-dom": "^16.9.0",
+    "concurrently": "^5.2.0",
+    "electron": "^9.1.2",
+    "electron-builder": "^22.8.0",
     "electron-is-dev": "^1.2.0",
-    "electron-rebuild": "^1.11.0",
     "etcher-sdk": "^4.1.23",
-    "node-fetch": "^2.6.0",
+    "lodash": "^4.17.19",
     "node-ssdp": "^4.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "typescript": "^3.9.7"
+    "typescript": "~3.7.2",
+    "wait-on": "^5.1.0"
   },
   "scripts": {
-    "start-react": "export BROWSER=none && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start-electron": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "start": "concurrently \"npm run start-react\" \"wait-on http://localhost:3000 && electron .\""
+    "start": "concurrently \"react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "ebuild": "npm run build && node_modules/.bin/build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -49,8 +49,8 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^5.3.0",
-    "electron": "^9.1.2",
-    "wait-on": "^5.1.0"
+    "@rescripts/cli": "^0.0.14",
+    "@rescripts/rescript-env": "^0.0.12",
+    "react-app-rewired": "^2.1.6"
   }
 }

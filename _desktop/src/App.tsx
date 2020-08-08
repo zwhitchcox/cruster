@@ -12,42 +12,8 @@ import Flash from './Flash';
 import Clusters from './Clusters';
 
 
-declare var ipcRenderer;
-
-let _drives = {}
-const useDrives = () => {
-  const [drives, _setDrives] = useState({})
-  const setDrives = (drives) => {
-    _setDrives(_drives = drives)
-  }
-  useEffect(() => {
-    ipcRenderer.send('restart-scanner')
-    ipcRenderer.on('drive-attached', (event, drive) => {
-      setDrives({
-        ..._drives,
-        [drive.path]: drive
-      })
-    })
-    ipcRenderer.on('drive-detached', (event, drive) => {
-      const newDrives = {..._drives}
-      delete newDrives[drive.path]
-      setDrives(newDrives)
-    })
-  }, [])
-  return drives
-}
 
 function App() {
-  const drives = useDrives()
-  const [nodes, setNodes] = useState({})
-  useEffect(() => {
-    ipcRenderer.on('nodes', (event, nodes) => {
-      console.log("nodes", nodes)
-
-      setNodes(nodes)
-    })
-    ipcRenderer.send('send-nodes', null)
-  }, [])
 
   return (
     <Router>
@@ -73,10 +39,10 @@ function App() {
       <main>
       <Switch>
         <Route path="/flash">
-          <Flash drives={drives} />
+          <Flash />
         </Route>
         <Route path="/clusters">
-          <Clusters nodes={nodes}/>
+          <Clusters />
         </Route>
       </Switch>
       </main>

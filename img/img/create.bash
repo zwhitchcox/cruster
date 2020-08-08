@@ -12,7 +12,7 @@ if [ ! -f raspbian.zip ] ;then
     rm -f *.img
     wget -O ${OUTPUT_DIR}/raspbian.zip https://downloads.raspberrypi.org/raspios_lite_armhf_latest
     unzip raspbian.zip
-    mv *.img unzipped.img
+    mv *.img raspbian.img
 fi
 
 # unmount old images
@@ -24,4 +24,4 @@ done
 loopno=$(kpartx -l ${OUTPUT_NAME}.img | grep -o [0-9]* | head -n1)
 ! kpartx -d loopdev="/dev/loop${loopno}"
 rm -f ${OUTPUT_NAME}.img
-cp unzipped.img ${OUTPUT_NAME}.img
+cp raspbian.img ${OUTPUT_NAME}.img

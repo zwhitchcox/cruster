@@ -116,4 +116,3 @@ exit 0" >> /etc/rc.local
 echo node > /etc/hostname
 
 echo UNINITIALIZED > /home/${USERNAME}/status
-
