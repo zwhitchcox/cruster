@@ -14,6 +14,7 @@ import Clusters from './Clusters';
 
 declare var ipcRenderer;
 
+
 let _drives = {}
 const useDrives = () => {
   const [drives, _setDrives] = useState({})
@@ -23,10 +24,12 @@ const useDrives = () => {
   useEffect(() => {
     ipcRenderer.send('restart-scanner')
     ipcRenderer.on('drive-attached', (event, drive) => {
-      setDrives({
-        ..._drives,
-        [drive.path]: drive
-      })
+      if (!drive.drive.isSystem) {
+        setDrives({
+          ..._drives,
+          [drive.path]: drive
+        })
+      }
     })
     ipcRenderer.on('drive-detached', (event, drive) => {
       const newDrives = {..._drives}
@@ -42,8 +45,6 @@ function App() {
   const [nodes, setNodes] = useState({})
   useEffect(() => {
     ipcRenderer.on('nodes', (event, nodes) => {
-      console.log("nodes", nodes)
-
       setNodes(nodes)
     })
     ipcRenderer.send('send-nodes', null)

@@ -109,3 +109,10 @@ ipcMain.on('restart-scanner', () => {
   scanner.stop();
   scanner.start();
 })
+
+
+// Writer
+
+ipcMain.on('write', (event, drives) => {
+  console.log("drives", drives)
+})
