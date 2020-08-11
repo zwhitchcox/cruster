@@ -3,7 +3,7 @@ const fetch = require('node-fetch')
 
 const {ipcMain} = electron
 const app = electron.app;
-const { scanner } = require('./lib/scanner')
+// const { scanner } = require('./lib/scanner')
 const BrowserWindow = electron.BrowserWindow;
 
 
@@ -90,29 +90,4 @@ setInterval(() => {
 
 ipcMain.on('send-nodes', (event, arg) => {
   mainWindow.send('nodes', nodes)
-})
-
-// Drive Scanner
-
-scanner.on('attach', drive => {
-  mainWindow.webContents.send("drive-attached", drive)
-})
-
-scanner.on('detach', drive => {
-  mainWindow.webContents.send("drive-detached", drive)
-})
-
-scanner.on('error', error => {
-  mainWindow.webContents.send("scanner-error", drive)
-});
-ipcMain.on('restart-scanner', () => {
-  scanner.stop();
-  scanner.start();
-})
-
-
-// Writer
-
-ipcMain.on('write', (event, drives) => {
-  console.log("drives", drives)
 })
