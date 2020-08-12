@@ -1,1 +1,1 @@
-export const ipFromUrl = ip => ip.replace("http://", "").replace(":9090", "")
+export const ipFromUrl = url => url.replace("http://", "").replace(":9090", "")

@@ -14,12 +14,17 @@ const validateClusterName = name => /^[A-Za-z0-9]([A-Za-z0-9]|-){0,55}$/.test(na
 // necessary because of asynchronous code
 // capturing stale data in closures
 const CreateCluster = ({nodes}) => {
-
-  const uninitialized: any[] = []
+  const uninitialized = Object.entries(nodes)
+    .reduce((prev, [url, node]: any) => {
+      if (node.status === UNINITIALIZED) {
+        prev.push(url)
+      }
+      return prev
+    }, [] as any)
   const [name, setName] = useState("cruster")
   const [cluster, setCluster] = useState({
-    master: ({} as any),
-    slaves: ([] as any),
+    master: "",
+    slaves: [] as string[],
   })
 
   const addNode = url => {
@@ -27,40 +32,34 @@ const CreateCluster = ({nodes}) => {
       ...cluster,
       slaves: [
         ...cluster.slaves,
-        nodes[url],
+        url,
       ]
     })
   }
   const setMaster = url => {
-    if (Object.keys(cluster.master).length !== 0) {
-      if (url === cluster.master.url) return
+    if (cluster.master !== "") {
+      if (url === cluster.master) return
       setCluster({
-        master: nodes[url],
+        master: url,
         slaves: [
-          ...cluster.slaves.filter(n => n.url !== url),
+          ...cluster.slaves.filter(n => n !== url),
           cluster.master,
         ]
       })
     } else {
       setCluster({
         slaves: [
-          ...cluster.slaves.filter(n => n.url !== url),
+          ...cluster.slaves.filter(n => n !== url),
         ],
-        master: nodes[url],
+        master: url,
       })
     }
   }
 
 
-  for (const _node of Object.values(nodes)) {
-    const node: any = _node
-    if (node.status === UNINITIALIZED) {
-      uninitialized.push(node)
-    }
-  }
 
-  const available = uninitialized.filter(n => {
-    return !(cluster.slaves.some(s => s.url === n.url) || cluster.master.url === n.url)
+  const available = uninitialized.filter(url => {
+    return !(cluster.slaves.some(s => s === url) || cluster.master === url)
   })
 
   return (
@@ -68,43 +67,39 @@ const CreateCluster = ({nodes}) => {
       <h3>Create Cluster</h3>
       Cluster Name: <input value={name} onChange={e => setName(e.target.value)} />
       {validateClusterName(name) ? "" : "Invalid Name."}
-      {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""}
       <h4>Cluster Nodes</h4>
-        {/* {Object.values(nodes).length === 0 ? "Couldn't find any nodes..." : ""}
-        {Object.values(nodes).map((n:any) => (
-          <Node
-            key={n.url}
-            {...n}
-            refresh={search}
-          />
-        ))} */}
       <ul className="node-list">
-        {!cluster.master.url ? "" : <ClusterNode
+        {cluster.master === ""  ? "" : <ClusterNode
           {...({
-            ...cluster.master,
+            url: cluster.master,
             setMaster,
             cluster,
+            nodes,
+            addNode,
           })}
         />}
-        {cluster.slaves.map(n => (
+        {cluster.slaves.map(url => (
           <ClusterNode
-            key={n.url}
+            key={url}
             {...({
-              ...n,
+              url,
               setMaster,
               cluster,
+              nodes,
+              addNode,
             })}
           />
         ))}
       </ul>
 
       <h4>Available Nodes:</h4>
+      {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""}
       <ul className="node-list">
-        {available.map(n => (
+        {available.map(url => (
           <AvailableNode
-            key={n.url}
+            key={url}
             {...({
-              ...n,
+              url,
               setMaster,
               addNode,
             })}
@@ -128,12 +123,11 @@ const AvailableNode = ({url, addNode, setMaster}) => {
 }
 
 const ClusterNode = ({url, addNode, setMaster, cluster}) => {
-  console.log(cluster)
   return (
     <li>
       {ipFromUrl(url)}
       <span className="indent-1">
-        {cluster.master.url === url ? "" : <span className="action" onClick={() => setMaster(url)}>Make Master</span>}
+        {cluster.master === url ? "Master" : <span className="action" onClick={() => setMaster(url)}>Make Master</span>}
       </span>
     </li>
   )

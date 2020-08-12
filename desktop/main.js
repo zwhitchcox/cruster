@@ -61,10 +61,11 @@ const getNodeInfo = url => fetch(`${url}/node-info`)
     }
     return r.json()
   })
-  .then(nodeInfo => nodes[url] = {
+  .then(nodeInfo => {
+    nodes[url] = {
     ...nodeInfo,
     apiResponded: true,
-  })
+  }})
   .catch(() => {
     nodes[url] = {
       apiResponded: false,
@@ -81,12 +82,15 @@ client.on('response', (headers, statusCode, rinfo) => {
 const {stringify, parse} = JSON
 const copy = obj => parse(stringify(obj))
 const compare = (obj1, obj2) => stringify(obj1) === stringify(obj2)
-setInterval(() => {
+const check = () => {
   client.search('cruster:node')
   if (!compare(_prevNodes, nodes)) {
     mainWindow.send('nodes', _prevNodes = copy(nodes))
   }
-}, CHECK_INTERVAL)
+  nodes = {}
+  setTimeout(check, CHECK_INTERVAL)
+}
+check()
 
 ipcMain.on('send-nodes', (event, arg) => {
   mainWindow.send('nodes', nodes)

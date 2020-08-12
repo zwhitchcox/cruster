@@ -5,6 +5,7 @@ import logging
 import requests
 import subprocess
 import http.server
+import json
 from http import HTTPStatus
 
 SERVICE_PORT=9090
@@ -21,23 +22,20 @@ consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 logger.addHandler(consoleHandler)
 
-def read_status():
-  status_fd = open("/home/pi/status", "r+")
-  status = status_fd.read()
-  status_fd.close()
-  return status
+def write_file(location, contents):
+  fd = open(location, "w+")
+  fd.write(contents)
+  fd.close()
 
-def write_status(status_text):
-  status_fd = open("/home/pi/status", "w+")
-  status_fd.write(status_text)
-  status_fd.close()
+def read_file(location):
+  fd = open(location, "r+")
+  contents = fd.read()
+  fd.close()
+  return contents.rstrip()
 
-def write_hostname(new_hostname):
-  hostname_fd = open("/etc/hostname", "w+")
-  hostname_fd.write(new_hostname)
-  hostname_fd.close()
-
-
+def set_hostname(hostname):
+  write_file("/etc/hostname", hostname)
+  os.popen("reboot")
 
 def exec_write(self, cmd):
   self.send_response(HTTPStatus.OK)
@@ -64,41 +62,53 @@ def exec_write(self, cmd):
           break
 
 class Handler(http.server.SimpleHTTPRequestHandler):
-  def do_GET(self):
-    if self.path == "/":
-      print("got request for home")
-      self.send_response(HTTPStatus.OK)
-      self.end_headers()
-      with open('/home/pi/stream/index.html', 'rb') as file:
-        self.wfile.write(file.read())
+  def _set_json_headers(self):
+    self.send_response(200)
+    self.send_header('Content-type', 'application/json')
+    self.send_header("Access-Control-Allow-Origin", "*")
+    self.end_headers()
 
-    elif self.path == "/join-command":
+  def _set_text_headers(self):
+    self.send_response(200)
+    self.send_header('Content-type', 'text/plain')
+    self.send_header("Access-Control-Allow-Origin", "*")
+    self.end_headers()
+
+
+  def do_GET(self):
+    if self.path == "/join-command":
       stream = os.popen('kubeadm token create --print-join-command')
       output = stream.read()
       if output != "":
-        self.send_response(HTTPStatus.OK)
+        self.send_response(200)
         self.end_headers()
         self.wfile.write(output.encode('utf-8'))
       else:
-        self.send_response(HTTPStatus.SERVICE_UNAVAILABLE)
+        self.send_response(403)
         self.end_headers()
         self.wfile.write(b'Not yet ready')
 
-    elif self.path == "/status":
-      self.send_response(HTTPStatus.OK)
-      self.send_header("Access-Control-Allow-Origin", "*")
-      self.end_headers()
-      self.wfile.write(read_status().encode('utf-8'))
-
     elif self.path.startswith("/set-hostname"):
+      self._set_text_headers()
       new_hostname = self.path[14:]
-      exec_write(self, ["hostname", new_hostname])
-      write_hostname(new_hostname)
-      self.wfile.write("Rebooting...\r\n".encode("utf-8"))
-      exec_write(self, ["reboot"])
+      self.wfile.write("Will reboot after setting hostname...\r\n".encode("utf-8"))
+      set_hostname(new_hostname)
 
-    elif self.path == "/init-master":
-      exec_write(self, ['bash', 'kubernetes-init-master.sh'])
+    elif self.path == "/node-info":
+      print("node info")
+      self._set_json_headers()
+      hostname = read_file("/etc/hostname")
+      status = read_file("/home/pi/status")
+      self.wfile.write(json.dumps({
+        'hostname': hostname,
+        'status': status,
+      }).encode('utf-8'))
+
+    elif self.path.startswith("/init-master"):
+      self._set_text_headers()
+      prefix = self.path[13:]
+      print(prefix)
+      # exec_write(self, ['bash', '/home/pi/kubernetes-init-master.sh'])
 
     elif self.path == "/reset":
       exec_write(self, ['kubeadm', 'reset', '-f'])
@@ -111,8 +121,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         str(self.path), str(self.headers), post_data.decode('utf-8'))
     self.send_response(200)
     self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
-
-
 
 try:
   socketserver.TCPServer.allow_reuse_address = True
