@@ -13,20 +13,22 @@ const Clusters = ({nodes}) => {
       return prev
     }, [] as string[])
   return (
-    <div className="boxed">
-      <h3>Clusters</h3>
-      {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
+    <div>
       <button onClick={() => setCreatingCluster(!creatingCluster)}>
       Create Cluster
       </button>
       {creatingCluster ? <CreateCluster nodes={nodes}/> : ""}
-      {nonresponsive.length === 0 ? "" : <div>
-        The following ip addresses have a cluster, but the api didn't respond for some reason:
+      <div className="boxed">
+        <h3>Clusters</h3>
+        {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
+        {nonresponsive.length === 0 ? "" : <div>
+          The following ip addresses have a cluster, but the api didn't respond for some reason:
 
-        <ul>
-          {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
-        </ul>
-      </div>}
+          <ul>
+            {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
+          </ul>
+        </div>}
+      </div>
     </div>
   )
 }

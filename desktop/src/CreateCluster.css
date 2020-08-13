@@ -1,3 +1,15 @@
 .node-list li {
   list-style-type: none;
 }
+
+.two-col {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  /* background-color: red; */
+}
+
+.error {
+  color: rgb(255, 150, 150);
+  margin-bottom: 10px;
+}
