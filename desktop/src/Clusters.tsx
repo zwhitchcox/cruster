@@ -14,8 +14,8 @@ const Clusters = ({nodes}) => {
     }, [] as string[])
   return (
     <div>
-      <button onClick={() => setCreatingCluster(!creatingCluster)}>
-      Create Cluster
+      <button className="button-two indent-1" onClick={() => setCreatingCluster(!creatingCluster)}>
+      Create
       </button>
       {creatingCluster ? <CreateCluster nodes={nodes}/> : ""}
       <div className="boxed">

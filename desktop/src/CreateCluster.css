@@ -13,3 +13,23 @@
   color: rgb(255, 150, 150);
   margin-bottom: 10px;
 }
+
+table.node-list {
+  border-collapse: collapse;
+  width: 100%;
+  text-align: left;
+  border: 1px solid white;
+}
+table.node-list td {
+  /* border-spacing: 1em .1em; */
+  border: 1px solid white;
+  padding: .3em;
+  margin: 0;
+  border-spacing: 0;
+}
+
+table.node-list th {
+  padding: .3em;
+  margin: 0;
+  border-spacing: 0;
+}

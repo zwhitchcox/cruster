@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { UNINITIALIZED } from './constants'
 import "./CreateCluster.css"
-import { ipFromUrl } from './util'
+import { ipFromUrl, getHostname } from './util'
+import CreatingCluster from './CreatingCluster'
 
 
-const validateClusterName = name => /^[A-Za-z0-9]([A-Za-z0-9]|-){0,55}$/.test(name)
+const validateClusterName = name => {
+  if (!name.length) return true
+  return /^[A-Za-z0-9]([A-Za-z0-9]|-){0,55}$/.test(name)
+}
 const lastNumIP = ip => Number(ipFromUrl(ip).split('.')[3])
 const sortByIP = (a, b) => lastNumIP(a) - lastNumIP(b)
 
@@ -23,6 +27,7 @@ const validateCluster = (cluster) => {
 // necessary because of asynchronous code
 // capturing stale data in closures
 const CreateCluster = ({nodes}) => {
+  const [isCreating, setIsCreating] = useState(false)
   const [attempted, setAttempted] = useState(false)
   const uninitialized = Object.entries(nodes)
     .reduce((prev, [url, node]: any) => {
@@ -32,12 +37,20 @@ const CreateCluster = ({nodes}) => {
       return prev
     }, [] as any)
   uninitialized.sort(sortByIP)
-  const [name, setName] = useState("cruster")
+  const [clusterName, setClusterName] = useState("cruster")
   const [cluster, setCluster] = useState({
     master: "",
     slaves: [] as string[],
   })
   const clusterErrors = validateCluster(cluster)
+  if (isCreating) {
+    return (
+      <CreatingCluster
+        cluster={cluster}
+        clusterName={clusterName}
+      />
+    )
+  }
 
   const addNode = url => {
     setCluster({
@@ -62,6 +75,7 @@ const CreateCluster = ({nodes}) => {
       })
     }
   }
+
   const setMaster = url => {
     if (cluster.master !== "") {
       if (url === cluster.master) return
@@ -87,8 +101,8 @@ const CreateCluster = ({nodes}) => {
       setAttempted(true)
       return
     }
+    setIsCreating(true)
   }
-
 
   const available = uninitialized.filter(url => {
     return !(cluster.slaves.some(s => s === url) || cluster.master === url)
@@ -102,48 +116,59 @@ const CreateCluster = ({nodes}) => {
         Cluster Name<br />
         <input
           placeholder="Cluster Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
+          value={clusterName}
+          onChange={e => setClusterName(e.target.value)}
         />
-        {validateClusterName(name) ? "" : "Invalid Name."}
+        {validateClusterName(clusterName) ? "" : "Invalid Name."}
         </label>
       </div>
       <h4>Cluster Nodes</h4>
       {!attempted ? "" : clusterErrors.map(err => <div className="error">{err}</div>)}
       {(!cluster.master && !cluster.slaves.length) ? "You have not added any nodes." : <div>
         <table className="node-list">
+          <thead>
+            <tr>
+            <th>ip</th>
+            <th colSpan={2}>actions</th>
+            <th>new hostname</th>
+            </tr>
+          </thead>
           <tbody>
           {cluster.master === ""  ? null : <ClusterNode
             {...({
               url: cluster.master,
               setMaster,
+              clusterName,
               cluster,
               nodes,
               addNode,
               removeNode,
+              index: null,
             })}
           />}
-          {cluster.slaves.map(url => (
+          {cluster.slaves.map((url, index) => (
             <ClusterNode
               key={url}
               {...({
                 url,
+                clusterName,
                 setMaster,
                 cluster,
                 nodes,
                 addNode,
                 removeNode,
+                index,
               })}
             />
           ))}
           </tbody>
         </table>
         <br />
-        <button onClick={launch}>Launch</button>
+        <button className="button-two" onClick={launch}>Launch</button>
       </div>}
       <h4>Available Nodes</h4>
       {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""}
-      <table className="node-list">
+      <table className="available-node-list">
       <tbody>
         {available.map(url => (
           <AvailableNode
@@ -177,7 +202,7 @@ const AvailableNode = ({url, addNode, setMaster}) => {
   )
 }
 
-const ClusterNode = ({url, addNode, removeNode, setMaster, cluster}) => {
+const ClusterNode = ({url, removeNode, setMaster, cluster, clusterName, index}) => {
   return (
     <tr>
       <td>
@@ -185,7 +210,12 @@ const ClusterNode = ({url, addNode, removeNode, setMaster, cluster}) => {
       </td>
       <td>
       <span className="action" onClick={() => removeNode(url)}>Remove</span>
+      </td>
+      <td>
         {cluster.master === url ? " Master" : <span className="action" onClick={() => setMaster(url)}>Make Master</span>}
+      </td>
+      <td>
+        {getHostname({clusterName, cluster, url, index})}
       </td>
     </tr>
   )

@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import './App.css';
 import Clusters from './Clusters';
+import Terminal from './Terminal';
 
 
 declare var ipcRenderer;
@@ -29,6 +30,7 @@ function App() {
     <Router>
     <div className="App">
       <nav>
+        <Terminal />
         <h1>CRUSTER</h1>
         <div className="justified-container">
           <Link to="/image">
