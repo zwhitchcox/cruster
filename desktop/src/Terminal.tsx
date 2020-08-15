@@ -13,9 +13,6 @@ const Term = () => {
       const ws = new WebSocket("ws://localhost:8080")
       const attachAddon = new AttachAddon(ws)
       term.loadAddon(attachAddon)
-      // ws.onmessage = (msg) => {
-      //   term.write(msg.data)
-      // }
       ws.onerror = console.error
     }
   }, [ref])
