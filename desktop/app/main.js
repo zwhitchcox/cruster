@@ -1,5 +1,10 @@
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
 const electron = require('electron');
 const fetch = require('node-fetch')
+const isDev = require('electron-is-dev');
+const { runSSH } = require("./run-ssh.js")
 
 const {ipcMain} = electron
 const app = electron.app;
@@ -7,8 +12,6 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 
-const path = require('path');
-const isDev = require('electron-is-dev');
 
 let mainWindow;
 
@@ -94,4 +97,25 @@ check()
 
 ipcMain.on('send-nodes', (event, arg) => {
   mainWindow.send('nodes', nodes)
+})
+
+let key;
+try {
+key = fs.readFileSync(path.join(os.homedir(), ".ssh", "id_rsa")).toString()
+} catch (e) {
+  console.log("no key")
+}
+ipcMain.on('get-key', (event) => {
+  event.returnValue = key
+})
+
+// SSH Connection
+ipcMain.on('run-cmd', (event, msg) => {
+  const {cmd, host, key} = msg
+  console.log(cmd, host, key)
+  runSSH({
+    cmd,
+    host,
+    key: key,
+  })
 })
