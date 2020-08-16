@@ -1,18 +1,27 @@
-const os = require('os')
-const path = require('path')
-var Client = require('ssh2').Client;
-module.exports.runSSH = ({cmd, host, key}) => {
-var conn = new Client();
+const { ipcMain } = require('electron')
+
+const Client = require('ssh2').Client;
+module.exports.runSSH = ({cmd, host, key, id, mainWindow}) => {
+const conn = new Client();
 conn.on('ready', function() {
-  conn.exec(cmd, function(err, stream) {
+  conn.exec(cmd, { pty: { cols: 80, rows: 24 } }, function(err, stream) {
     if (err) throw err;
     stream.on('close', function(code, signal) {
-      console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
-      conn.end();
+        mainWindow.send('ssh-exit-code', {
+            id,
+            code
+        })
+      conn.end()
     }).on('data', function(data) {
-      console.log('STDOUT: ' + data);
-    }).stderr.on('data', function(data) {
-      console.log('STDERR: ' + data);
+        mainWindow.send('ssh-data', {
+            id,
+            data: data.toString(),
+        })
+    }).stderr.on('data-error', function(data) {
+        mainWindow.send('ssh-error', {
+            id,
+            data: data.toString(),
+        })
     });
   });
 }).connect({
@@ -20,5 +29,5 @@ conn.on('ready', function() {
   port: 22,
   username: 'pi',
   privateKey: key
-});
+})
 }

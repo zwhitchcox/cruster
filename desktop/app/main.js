@@ -5,13 +5,12 @@ const electron = require('electron');
 const fetch = require('node-fetch')
 const isDev = require('electron-is-dev');
 const { runSSH } = require("./run-ssh.js")
+const { interactiveSSH } = require('./interactive-ssh')
 
 const {ipcMain} = electron
 const app = electron.app;
 // const { scanner } = require('./lib/scanner')
 const BrowserWindow = electron.BrowserWindow;
-
-
 
 let mainWindow;
 
@@ -99,6 +98,7 @@ ipcMain.on('send-nodes', (event, arg) => {
   mainWindow.send('nodes', nodes)
 })
 
+// SSH Connection
 let key;
 try {
 key = fs.readFileSync(path.join(os.homedir(), ".ssh", "id_rsa")).toString()
@@ -109,13 +109,25 @@ ipcMain.on('get-key', (event) => {
   event.returnValue = key
 })
 
-// SSH Connection
+// SSH Run
 ipcMain.on('run-cmd', (event, msg) => {
-  const {cmd, host, key} = msg
-  console.log(cmd, host, key)
+  const {cmd, host, key, id} = msg
   runSSH({
+    id,
     cmd,
     host,
-    key: key,
+    key,
+    mainWindow,
+  })
+})
+
+// SSH Interactive
+ipcMain.on('create-interactive', (event, msg) => {
+  const {host, key, id} = msg
+  interactiveSSH({
+    id,
+    host,
+    key,
+    mainWindow,
   })
 })
