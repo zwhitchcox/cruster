@@ -1,0 +1,33 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start-react",
+			"path": "desktop/",
+			"problemMatcher": [],
+			"label": "Start React",
+			"detail": "export BROWSER=none && react-scripts start",
+			"presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+		},
+		{
+			"type": "npm",
+			"script": "start-electron",
+			"path": "desktop/",
+			"problemMatcher": [],
+			"label": "Start Electron",
+			"detail": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
+			"presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+		},
+		{
+			"label": "electron/react",
+			"dependsOn": ["Start React", "Start Electron"]
+		}
+	]
+}

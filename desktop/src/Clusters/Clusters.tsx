@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import "./Clusters.css"
 import CreateCluster from './CreateCluster'
-import { ipFromUrl } from './util'
+import { ipFromUrl } from '../util'
 
 const Clusters = ({nodes}) => {
   const [creatingCluster, setCreatingCluster] = useState(true)
@@ -20,10 +20,8 @@ const Clusters = ({nodes}) => {
       {creatingCluster ? <CreateCluster nodes={nodes}/> : ""}
       <div className="boxed">
         <h3>Clusters</h3>
-        {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
         {nonresponsive.length === 0 ? "" : <div>
           The following ip addresses have a cluster, but the api didn't respond for some reason:
-
           <ul>
             {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
           </ul>

@@ -122,7 +122,7 @@ ipcMain.on('run-cmd', (event, msg) => {
 })
 
 // SSH Interactive
-ipcMain.on('create-interactive', (event, msg) => {
+ipcMain.on('create-interactive', (_, msg) => {
   const {host, key, id} = msg
   interactiveSSH({
     id,

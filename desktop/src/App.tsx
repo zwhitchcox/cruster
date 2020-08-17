@@ -6,11 +6,11 @@ import {
   Link
 } from "react-router-dom";
 import './App.css';
-import Clusters from './Clusters';
+import Clusters from './Clusters/Clusters';
+import Image from './Image/Image'
 // import Terminal from './Terminal';
 // import SSHCmdTerminal from './Terminals/SSHCmdTerminal';
-import SSHTerminal from './Terminals/SSHTerminal';
-
+// import SSHTerminal from './Clusters/Terminals/SSHTerminal';
 
 declare var ipcRenderer;
 
@@ -32,7 +32,6 @@ function App() {
     <Router>
     <div className="App">
       <nav>
-        <SSHTerminal host="192.168.1.85" />
         <h1>CRUSTER</h1>
         <div className="justified-container">
           <Link to="/image">
@@ -52,9 +51,11 @@ function App() {
       </nav>
       <main>
       <Switch>
-
         <Route path="/clusters">
           <Clusters nodes={nodes}/>
+        </Route>
+        <Route path="/image">
+          <Image />
         </Route>
       </Switch>
       </main>

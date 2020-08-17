@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { UNINITIALIZED } from './constants'
+import { UNINITIALIZED } from '../constants'
 import "./CreateCluster.css"
-import { ipFromUrl, getHostname } from './util'
+import { ipFromUrl, getHostname } from '../util'
 import CreatingCluster from './CreatingCluster'
 
 

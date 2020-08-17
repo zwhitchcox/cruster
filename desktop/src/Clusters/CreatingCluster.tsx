@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { getHostname } from './util'
+import { getHostname } from '../util'
 import "./CreatingCluster.css"
 
 const OUTPUT_INIT = "No output to show!"

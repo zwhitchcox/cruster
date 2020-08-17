@@ -14,8 +14,8 @@ module.exports.interactiveSSH = ({host, key, id, mainWindow}) => {
       ipcMain.on('ssh-write', send)
       stream.on('close', (code, signal) => {
         mainWindow.send('ssh-exit-code', {
-            id,
-            code
+          id,
+          code
         })
         ipcMain.off('ssh-write', send)
         conn.end()

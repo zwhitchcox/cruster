@@ -20,8 +20,8 @@ apt install vim tmux -y
 # add public keys
 mkdir -p /root/.ssh
 mkdir -p /home/${USERNAME}/.ssh
-curl https://github.com/${GITHUB_USERNAME}.keys -o /root/.ssh/authorized_keys
-curl https://github.com/${GITHUB_USERNAME}.keys -o /home/${USERNAME}/.ssh/authorized_keys
+# curl https://github.com/${GITHUB_USERNAME}.keys -o /root/.ssh/authorized_keys
+# curl https://github.com/${GITHUB_USERNAME}.keys -o /home/${USERNAME}/.ssh/authorized_keys
 chown -R ${USERNAME} /home/${USERNAME}/.ssh
 
 # this isn't actually implemented, because I realized
