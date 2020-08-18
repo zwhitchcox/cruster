@@ -6,11 +6,14 @@ const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
 const { ipcMain } = require('electron')
 
-const zipOutputPath = path.resolve(__dirname, "downloads", "node.zip")
 const VERSION = "0.0.1"
 
-const downloadImg = async ({downloadID, mainWindow, force}) => {
+const downloadImg = async ({downloadID, mainWindow, force, downloadDir}) => {
   const downloadLocation = `https://github.com/zwhitchcox/cruster/releases/download/${VERSION}/node.zip`
+  if (!await fs.exists(downloadDir)) {
+    await fs.mkdir(downloadDir)
+  }
+  const zipOutputPath = path.resolve(downloadDir, "node.zip")
   if (await fs.exists(zipOutputPath) && !force) {
     mainWindow.send("already-downloaded", {downloadID})
     return

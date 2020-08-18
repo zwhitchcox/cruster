@@ -4,9 +4,11 @@ const path = require('path')
 const electron = require('electron');
 const fetch = require('node-fetch')
 const isDev = require('electron-is-dev');
+const storage = require('electron-json-storage')
 const { runSSH } = require("./run-ssh.js")
 const { interactiveSSH } = require('./interactive-ssh')
 const { downloadImg, unzipImg } = require('./img')
+const { dialog } = require('electron')
 
 const {ipcMain} = electron
 const app = electron.app;
@@ -145,5 +147,40 @@ ipcMain.on('download-image', (event, {downloadID, force}) => {
     mainWindow,
     downloadID,
     force,
+    downloadDir,
   })
+})
+
+const defaultDownloadDir = path.resolve(os.homedir(), "Downloads", "cruster")
+let downloadDir = defaultDownloadDir
+ipcMain.on('get-download-dir', (event) => {
+  event.returnValue = downloadDir
+})
+
+ipcMain.on('change-download-dir', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  })
+  if (!result.canceled) {
+    downloadDir = result.filePaths[0]
+    storage.set("download-dir", downloadDir)
+  }
+  mainWindow.send("download-dir-changed", {downloadDir})
+})
+
+const defaultOutputDir = path.resolve(os.homedir(), "Desktop", "cruster")
+let outputDir = defaultOutputDir
+ipcMain.on('get-output-dir', (event) => {
+  event.returnValue = outputDir
+})
+
+ipcMain.on('change-output-dir', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  })
+  if (!result.canceled) {
+    outputDir = result.filePaths[0]
+    storage.set("output-dir", outputDir)
+  }
+  mainWindow.send("output-dir-changed", {outputDir})
 })

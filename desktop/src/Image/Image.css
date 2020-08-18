@@ -30,3 +30,31 @@
   box-sizing: border-box;
   border-radius: 4px;
 }
+
+
+.dir-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-link {
+  height: 1.2em;
+  width: 1.2em;
+  border-radius:.6em;
+  text-align: center;
+  font-size: 1em;
+  background: white;
+  color: black;
+  display: inline-block;
+}
+
+.text-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-field {
+  width: 100%;
+}
