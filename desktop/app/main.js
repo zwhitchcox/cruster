@@ -6,6 +6,7 @@ const fetch = require('node-fetch')
 const isDev = require('electron-is-dev');
 const { runSSH } = require("./run-ssh.js")
 const { interactiveSSH } = require('./interactive-ssh')
+const { downloadImg, unzipImg } = require('./img')
 
 const {ipcMain} = electron
 const app = electron.app;
@@ -129,5 +130,20 @@ ipcMain.on('create-interactive', (_, msg) => {
     host,
     key,
     mainWindow,
+  })
+})
+
+
+/*
+ *
+ * Image
+ *
+*/
+
+ipcMain.on('download-image', (event, {downloadID, force}) => {
+  downloadImg({
+    mainWindow,
+    downloadID,
+    force,
   })
 })

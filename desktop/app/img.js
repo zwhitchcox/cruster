@@ -1,16 +1,26 @@
 const path = require('path')
 const { download } = require('./util/download')
-const fs = require('fs')
+const fs = require('fs-extra')
 const unzipper = require('unzipper')
 const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
+const { ipcMain } = require('electron')
 
 const zipOutputPath = path.resolve(__dirname, "downloads", "node.zip")
 const VERSION = "0.0.1"
 
-const downloadImg = () => {
+const downloadImg = async ({downloadID, mainWindow, force}) => {
   const downloadLocation = `https://github.com/zwhitchcox/cruster/releases/download/${VERSION}/node.zip`
-  download(downloadLocation, zipOutputPath)
+  if (await fs.exists(zipOutputPath) && !force) {
+    mainWindow.send("already-downloaded", {downloadID})
+    return
+  }
+
+  await download(downloadLocation, zipOutputPath, percentage => {
+    mainWindow.send("download-progress", {downloadID, percentage})
+  })
+
+  mainWindow.send("download-complete", {downloadID})
 }
 
 const imgOutputPath = path.resolve(__dirname, "downloads")
@@ -27,7 +37,6 @@ const addSSHKeysByGithub = async () => {
     await promisify(fs.mkdir)('/home/pi/.ssh')
     await promisify(fs.writeFile)('/home/pi/.ssh/id_rsa', 'this is my key', 'utf8')
     const contents = await promisify(fs.readFile)('/home/pi/.ssh/id_rsa')
-    console.log('contents', contents.toString())
   })
 }
 
