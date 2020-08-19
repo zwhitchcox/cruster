@@ -4,7 +4,7 @@ const fs = require('fs-extra')
 const unzipper = require('unzipper')
 const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
-const { Writable } = require('stream')
+const stream = require('stream')
 const { ipcMain } = require('electron')
 
 const VERSION = "0.0.1"
@@ -28,24 +28,41 @@ const downloadImg = async ({downloadID, mainWindow, force, downloadDir}) => {
 }
 
 const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
+  let lastPercentage = 0
+  let progress = 0
   fs.createReadStream(zipPath)
     .pipe(unzipper.Parse())
-    .on('entry', entry => {
-      const total = entry.vars.uncompressedSize
-      let lastPercentage = 0
-      let progress = 0
-      entry.on('data', chunk => {
-        const percentage = progress / total
-        const diff = percentage - lastPercentage
-        if (diff > .0005) {
-          lastPercentage = percentage
-          mainWindow.send("unzip-progress", {unzipID, percentage: percentage*100})
+    .pipe(stream.Transform({
+      objectMode: true,
+      transform: (entry, e, cb) => {
+        const filename = entry.path;
+        const total = entry.vars.uncompressedSize
+        if (filename === "node.img") {
+          entry
+            .pipe(fs.createWriteStream(path.resolve(outputPath, "node.img")))
+          entry
+            .on('data', chunk => {
+              const percentage = progress / total
+              const diff = percentage - lastPercentage
+              if (diff > .0005) {
+                lastPercentage = percentage
+                mainWindow.send("unzip-progress", {unzipID, percentage: percentage*100})
+              }
+              progress += chunk.length
+            })
+            .on('finish', () => {
+              cb()
+              mainWindow.send('unzip-complete', {unzipID})
+            })
+        } else {
+          entry.autodrain()
         }
-        progress += chunk.length
-      })
+      }
+    }))
 
-      entry.pipe(unzipper.Extract({path: require('os').homedir()}))
-    })
+
+
+
   // const zip = new AdmZip(zipOutputPath)
   // zip.extractEntryTo("node.img", imgOutputPath)
 }

@@ -148,7 +148,6 @@ const Image = () => {
           </p>
         </div>
       )}
-      <br />
       <button onClick={downloadImg}>Create Image</button>
       <br />
       {status !== DOWNLOADING ? "" : <ProgressBar percentage={downloadPercentage} title={DOWNLOADING} />}
