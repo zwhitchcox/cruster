@@ -22,7 +22,7 @@ function download (uri, filename, onProgress) {
         response.on('data', chunk => {
           const percentage = progress / total
           const diff = percentage - lastPercentage
-          if (diff > .005) {
+          if (diff > .00005) {
             lastPercentage = percentage
             onProgress(percentage * 100)
           }

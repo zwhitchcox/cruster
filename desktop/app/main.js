@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const electron = require('electron');
@@ -142,6 +142,8 @@ ipcMain.on('create-interactive', (_, msg) => {
  *
 */
 
+// Download
+
 ipcMain.on('download-image', (event, {downloadID, force}) => {
   downloadImg({
     mainWindow,
@@ -151,8 +153,15 @@ ipcMain.on('download-image', (event, {downloadID, force}) => {
   })
 })
 
-const defaultDownloadDir = path.resolve(os.homedir(), "Downloads", "cruster")
-let downloadDir = defaultDownloadDir
+let downloadDir;
+ ;(async () => {
+  let _downloadDir = path.resolve(os.homedir(), "Downloads")
+  if (await fs.exists(_downloadDir)) {
+    return downloadDir = path.resolve(_downloadDir, "cruster")
+  }
+  downloadDir = path.resolve(os.homedir(), "cruster")
+})()
+
 ipcMain.on('get-download-dir', (event) => {
   event.returnValue = downloadDir
 })
@@ -168,8 +177,44 @@ ipcMain.on('change-download-dir', async () => {
   mainWindow.send("download-dir-changed", {downloadDir})
 })
 
-const defaultOutputDir = path.resolve(os.homedir(), "Desktop", "cruster")
-let outputDir = defaultOutputDir
+// unzip
+
+ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
+  const outputPath = downloadDir
+  const zipPath = path.resolve(downloadDir, "node.zip")
+  if (!force && await fs.exists(path.resolve(outputPath, "node.img"))) {
+    return
+  }
+  unzipImg({
+    zipPath,
+    outputPath,
+    unzipID,
+    mainWindow,
+  })
+})
+
+// output
+
+let outputDir;
+;(async function getOutputDir() {
+  let _outputDir = storage.get("output-dir");
+  if (_outputDir) {
+    return outputDir = _outputDir
+  }
+
+
+  if (await fs.exists(_outputDir = path.resolve(os.homedir(), "Desktop"))) {
+    return outputDir = path.resolve(_outputDir, "cruster")
+  }
+
+
+  if (await fs.exists(_outputDir = path.resolve(os.homedir(), "desktop"))) {
+    return outputDir = path.resolve(_outputDir, "cruster")
+  }
+
+  outputDir = path.resolved(os.homedir(), "cruster")
+})()
+
 ipcMain.on('get-output-dir', (event) => {
   event.returnValue = outputDir
 })
