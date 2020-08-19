@@ -12,7 +12,7 @@ const VERSION = "0.0.1"
 const downloadImg = async ({downloadID, mainWindow, force, downloadDir}) => {
   const downloadLocation = `https://github.com/zwhitchcox/cruster/releases/download/${VERSION}/node.zip`
   if (!await fs.exists(downloadDir)) {
-  await fs.mkdir(downloadDir)
+  await fs.mkdir(downloadDir, {recursive: true})
   }
   const zipOutputPath = path.resolve(downloadDir, "node.zip")
   if (await fs.exists(zipOutputPath) && !force) {
@@ -31,7 +31,6 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
   fs.createReadStream(zipPath)
     .pipe(unzipper.Parse())
     .on('entry', entry => {
-      console.log("entry", entry)
       const total = entry.vars.uncompressedSize
       let lastPercentage = 0
       let progress = 0
@@ -45,7 +44,7 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
         progress += chunk.length
       })
 
-      entry.pipe(unzipper.Extract({path: outputPath}))
+      entry.pipe(unzipper.Extract({path: require('os').homedir()}))
     })
   // const zip = new AdmZip(zipOutputPath)
   // zip.extractEntryTo("node.img", imgOutputPath)

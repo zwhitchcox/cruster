@@ -26,35 +26,19 @@ const Image = () => {
 
   const [forceRedownload, setForceRedownload] = useState(false)
   const [forceReunzip, setForceReunzip] = useState(false)
-  const [downloadDir, setDownloadDir] = useState("")
+  const [crusterDir, setCrusterDir] = useState("")
   useEffect(() => {
-    setDownloadDir(ipcRenderer.sendSync("get-download-dir"))
+    setCrusterDir(ipcRenderer.sendSync("get-cruster-dir"))
   }, [])
 
   useEffect(() => {
-    setDownloadDir(ipcRenderer.sendSync("get-download-dir"))
+    setCrusterDir(ipcRenderer.sendSync("get-cruster-dir"))
   }, [])
 
-  const changeDownloadDir = () => ipcRenderer.send("change-download-dir")
+  const changeCrusterDir = () => ipcRenderer.send("change-cruster-dir")
   useEffect(() => {
-    ipcRenderer.on("download-dir-changed", (event, arg) => {
-      setDownloadDir(arg.downloadDir)
-    })
-  })
-
-  const [outputDir, setOutputDir] = useState("")
-  useEffect(() => {
-    setOutputDir(ipcRenderer.sendSync("get-output-dir"))
-  }, [])
-
-  useEffect(() => {
-    setOutputDir(ipcRenderer.sendSync("get-output-dir"))
-  }, [])
-
-  const changeOutputDir = () => ipcRenderer.send("change-output-dir")
-  useEffect(() => {
-    ipcRenderer.on("output-dir-changed", (event, arg) => {
-      setOutputDir(arg.outputDir)
+    ipcRenderer.on("cruster-dir-changed", (event, arg) => {
+      setCrusterDir(arg.crusterDir)
     })
   })
 
@@ -128,9 +112,9 @@ const Image = () => {
     <div>
       <br />
       <div className="dir-container">
-        <div>Download Directory: &nbsp;{downloadDir}
+        <div>Cruster Directory: &nbsp;{crusterDir}
         </div>
-        <button onClick={changeDownloadDir}>Change</button>
+        <button onClick={changeCrusterDir}>Change</button>
       </div>
       <div className="checkbox-options">
         <label className="checkbox-container indent-1">
@@ -164,23 +148,20 @@ const Image = () => {
           </p>
         </div>
       )}
-      <div className="dir-container">
-        <div>Output Directory: &nbsp;{outputDir}
-        </div>
-        <button  onClick={changeOutputDir}>Change</button>
-      </div>
       <br />
       <button onClick={downloadImg}>Create Image</button>
-      {status !== DOWNLOADING ? "" : <ProgressBar percentage={downloadPercentage} />}
-      {status !== UNZIPPING ? "" : <ProgressBar percentage={unzipPercentage} />}
+      <br />
+      {status !== DOWNLOADING ? "" : <ProgressBar percentage={downloadPercentage} title={DOWNLOADING} />}
+      {status !== UNZIPPING ? "" : <ProgressBar percentage={unzipPercentage} title={UNZIPPING} />}
       <pre>{log}</pre>
     </div>
 
   )
 }
 
-const ProgressBar = ({percentage}) => (
+const ProgressBar = ({percentage, title}) => (
   <>
+  {title ? <div className="progress-title">{title}</div> : ""}
   <div className="progress-bar">
     <div className="progress-percentage">{`${percentage.toPrecision(3)}%`}</div>
     <div className="progress-bar-container">

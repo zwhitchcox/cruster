@@ -142,6 +142,46 @@ ipcMain.on('create-interactive', (_, msg) => {
  *
 */
 
+// directory
+const getDownloadDir = () => {
+  return path.resolve(crusterDir, ".downloads")
+}
+
+let crusterDir;
+;(async function getCrusterDir() {
+  let _crusterDir = storage.get("cruster-dir");
+  if (_crusterDir) {
+    return crusterDir = _crusterDir
+  }
+
+
+  if (await fs.exists(_crusterDir = path.resolve(os.homedir(), "Desktop"))) {
+    return crusterDir = path.resolve(_crusterDir, "cruster")
+  }
+
+
+  if (await fs.exists(_crusterDir = path.resolve(os.homedir(), "desktop"))) {
+    return crusterDir = path.resolve(_crusterDir, "cruster")
+  }
+
+  crusterDir = path.resolved(os.homedir(), "cruster")
+})()
+
+ipcMain.on('get-cruster-dir', (event) => {
+  event.returnValue = crusterDir
+})
+
+ipcMain.on('change-cruster-dir', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  })
+  if (!result.canceled) {
+    crusterDir = result.filePaths[0]
+    storage.set("cruster-dir", crusterDir)
+  }
+  mainWindow.send("cruster-dir-changed", {crusterDir})
+})
+
 // Download
 
 ipcMain.on('download-image', (event, {downloadID, force}) => {
@@ -149,39 +189,16 @@ ipcMain.on('download-image', (event, {downloadID, force}) => {
     mainWindow,
     downloadID,
     force,
-    downloadDir,
+    downloadDir: getDownloadDir(),
   })
 })
 
-let downloadDir;
- ;(async () => {
-  let _downloadDir = path.resolve(os.homedir(), "Downloads")
-  if (await fs.exists(_downloadDir)) {
-    return downloadDir = path.resolve(_downloadDir, "cruster")
-  }
-  downloadDir = path.resolve(os.homedir(), "cruster")
-})()
-
-ipcMain.on('get-download-dir', (event) => {
-  event.returnValue = downloadDir
-})
-
-ipcMain.on('change-download-dir', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory']
-  })
-  if (!result.canceled) {
-    downloadDir = result.filePaths[0]
-    storage.set("download-dir", downloadDir)
-  }
-  mainWindow.send("download-dir-changed", {downloadDir})
-})
 
 // unzip
 
 ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
-  const outputPath = downloadDir
-  const zipPath = path.resolve(downloadDir, "node.zip")
+  const outputPath = getDownloadDir()
+  const zipPath = path.resolve(outputPath, "node.zip")
   if (!force && await fs.exists(path.resolve(outputPath, "node.img"))) {
     return
   }
@@ -191,41 +208,4 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
     unzipID,
     mainWindow,
   })
-})
-
-// output
-
-let outputDir;
-;(async function getOutputDir() {
-  let _outputDir = storage.get("output-dir");
-  if (_outputDir) {
-    return outputDir = _outputDir
-  }
-
-
-  if (await fs.exists(_outputDir = path.resolve(os.homedir(), "Desktop"))) {
-    return outputDir = path.resolve(_outputDir, "cruster")
-  }
-
-
-  if (await fs.exists(_outputDir = path.resolve(os.homedir(), "desktop"))) {
-    return outputDir = path.resolve(_outputDir, "cruster")
-  }
-
-  outputDir = path.resolved(os.homedir(), "cruster")
-})()
-
-ipcMain.on('get-output-dir', (event) => {
-  event.returnValue = outputDir
-})
-
-ipcMain.on('change-output-dir', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory']
-  })
-  if (!result.canceled) {
-    outputDir = result.filePaths[0]
-    storage.set("output-dir", outputDir)
-  }
-  mainWindow.send("output-dir-changed", {outputDir})
 })
