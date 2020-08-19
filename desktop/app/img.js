@@ -6,6 +6,7 @@ const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
 const stream = require('stream')
 const { ipcMain } = require('electron')
+const fetch = require('node-fetch')
 
 const VERSION = "0.0.1"
 
@@ -67,15 +68,21 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
   // zip.extractEntryTo("node.img", imgOutputPath)
 }
 
-const addSSHKeysByGithub = async () => {
+const addSSHKeysByGithub = async ({ghUsername, addKeysID, overwrite, imgPath, mainWindow}) => {
+  let keys = await fetch(`https://github.com/${ghUsername}.keys`)
   await interact(imgPath, 2, async fs => {
-  await promisify(fs.mkdir)('/home/pi/.ssh')
-  await promisify(fs.writeFile)('/home/pi/.ssh/id_rsa', 'this is my key', 'utf8')
-  const contents = await promisify(fs.readFile)('/home/pi/.ssh/id_rsa')
+    await promisify(fs.mkdir)('/home/pi/.ssh')
+    let prevContent = "";
+    if (await promisify(fs.exists)('/home/pi.ssh/authorized_keys')) {
+      prevContent = await promisify(fs.readFile)('/home/pi/.ssh/authorized_keys') + "\n"
+    }
+    if (!overwrite) {
+      keys += prevContent
+    }
+    await promisify(fs.writeFile)('/home/pi/.ssh/authorized_keys', keys, 'utf8')
+    mainWindow.send("keys-added")
   })
 }
-
-// addSSHKeysByGithub()
 
 module.exports = {
   unzipImg,

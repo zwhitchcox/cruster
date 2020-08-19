@@ -7,7 +7,7 @@ const isDev = require('electron-is-dev');
 const storage = require('electron-json-storage')
 const { runSSH } = require("./run-ssh.js")
 const { interactiveSSH } = require('./interactive-ssh')
-const { downloadImg, unzipImg } = require('./img')
+const { downloadImg, unzipImg, addSSHKeysByGithub } = require('./img')
 const { dialog } = require('electron')
 
 const {ipcMain} = electron
@@ -144,7 +144,7 @@ ipcMain.on('create-interactive', (_, msg) => {
 
 // directory
 const getDownloadDir = () => {
-  return path.resolve(crusterDir, ".downloads")
+  return path.resolve(crusterDir)
 }
 
 let crusterDir;
@@ -200,6 +200,7 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
   const outputPath = getDownloadDir()
   const zipPath = path.resolve(outputPath, "node.zip")
   if (!force && await fs.exists(path.resolve(outputPath, "node.img"))) {
+    mainWindow.send("already-unzipped", {unzipID})
     return
   }
   unzipImg({
@@ -208,4 +209,10 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
     unzipID,
     mainWindow,
   })
+})
+
+// add keys
+ipcMain.on("add-keys", ({addKeysID, overwrite, ghUsername}) => {
+  const imgPath = path.resolve(getDownloadDir(), "node.img")
+  addSSHKeysByGithub({ghUsername, addKeysID, overwrite, imgPath, mainWindow})
 })

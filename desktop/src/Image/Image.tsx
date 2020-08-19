@@ -19,7 +19,16 @@ const Image = () => {
     ADDING_KEYS,
     UNZIPPING,
   } = statuses
-  const addToLog = str => log += "\n" + str
+  const addToLog = str => {
+    log += "\n" + str
+    refresh()
+  }
+  const [_refresh, setRefresh] = useState(false)
+  const refresh = () => {
+    // in case in closure
+    setRefresh(true)
+    setRefresh(false)
+  }
   const [status, setStatus] = useState(INACTIVE)
   const [downloadPercentage, setDownloadPercentage] = useState(0)
   const [unzipPercentage, setUnzipPercentage] = useState(0)
@@ -42,8 +51,12 @@ const Image = () => {
     })
   })
 
-  const [ghUsername, setGHUsername] = useState("")
-  const [whyGHUsername, setWhyGHUsername] = useState(false)
+  const createImg = () => {
+    log = ""
+    refresh()
+    downloadImg()
+  }
+
 
   const downloadImg = () => {
     if (status !== "") return
@@ -89,22 +102,50 @@ const Image = () => {
     }
     ipcRenderer.on('unzip-progress', onUnzipProgress)
 
-    const onCompleted = (event, arg) => {
-      if (unzipID === arg.unzipID) {
-        addToLog("Unzipped successfully.")
-        setStatus(ADDING_KEYS)
-        ipcRenderer.off("unzip-complete", onCompleted)
-        ipcRenderer.off("unzip-progress", onUnzipProgress)
-        ipcRenderer.off("already-unzipped", onAlreadyUnzipped)
-      }
-    }
-    const onAlreadyUnzipped = (event, arg) => {
-      addToLog("Already unzipped.")
+    const off = () => {
       setStatus(ADDING_KEYS)
       ipcRenderer.off("unzip-complete", onCompleted)
       ipcRenderer.off("unzip-progress", onUnzipProgress)
+      ipcRenderer.off("already-unzipped", onAlreadyUnzipped)
+      addKeys()
+    }
+    const onCompleted = (event, arg) => {
+      if (unzipID === arg.unzipID) {
+        addToLog("Unzipped successfully.")
+        off()
+      }
+    }
+    const onAlreadyUnzipped = (event, arg) => {
+      if (unzipID === arg.unzipID) {
+        addToLog("Already unzipped.")
+        off()
+      }
     }
     ipcRenderer.on("unzip-complete", onCompleted)
+    ipcRenderer.on('already-unzipped', onAlreadyUnzipped)
+  }
+
+  const [ghUsername, setGHUsername] = useState("")
+  const [whyGHUsername, setWhyGHUsername] = useState(false)
+  const [overwriteKeys, setOverwriteKeys] = useState(false)
+  const addKeys = () => {
+    addToLog("Adding SSH keys from github.")
+    if (ghUsername === "") {
+      addToLog("No github username specified.")
+      setStatus(INACTIVE)
+      return
+    }
+    const addKeysID = v4()
+    ipcRenderer.send("add-keys", {addKeysID, overwrite: overwriteKeys, ghUsername})
+
+    const onCompleted = (event, arg) => {
+      if (addKeysID === arg.addKeysID) {
+        addToLog("Keys added.")
+        ipcRenderer.off("keys-added", onCompleted)
+        setStatus(INACTIVE)
+      }
+    }
+    ipcRenderer.on('keys-added', onCompleted)
   }
 
 
@@ -131,7 +172,7 @@ const Image = () => {
             onChange={() => setForceReunzip(!forceReunzip)}
           />
           <span className="checkmark" />
-          Force Re-Unzip
+          Overwrite node.img
         </label>
       </div>
       <div className="text-input-container">
@@ -139,7 +180,15 @@ const Image = () => {
           Github Username:&nbsp;&nbsp;
           <span className="modal-link" onClick={() => setWhyGHUsername(!whyGHUsername)}>?</span>
         </div>
-        <div><input placeholder="Your Github Username" className="text-field" type="text" /></div>
+        <div>
+          <input
+            placeholder="Your Github Username"
+            className="text-field"
+            type="text"
+            onChange={e => setGHUsername(e.target.value)}
+            value={ghUsername}
+          />
+        </div>
       </div>
       {!whyGHUsername ? "" : (
         <div>
@@ -148,8 +197,19 @@ const Image = () => {
           </p>
         </div>
       )}
-      <button onClick={downloadImg}>Create Image</button>
+      <label className="checkbox-container indent-1">
+        <input type="checkbox"
+          checked={overwriteKeys}
+          onChange={() => setOverwriteKeys(!overwriteKeys)}
+        />
+        <span className="checkmark" />
+        Overwrite Keys
+      </label>
       <br />
+      <button onClick={createImg}>Create Image</button>
+      <br />
+      <br />
+
       {status !== DOWNLOADING ? "" : <ProgressBar percentage={downloadPercentage} title={DOWNLOADING} />}
       {status !== UNZIPPING ? "" : <ProgressBar percentage={unzipPercentage} title={UNZIPPING} />}
       <pre>{log}</pre>
