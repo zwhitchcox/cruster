@@ -130,7 +130,7 @@ const Image = () => {
       <div className="dir-container">
         <div>Download Directory: &nbsp;{downloadDir}
         </div>
-        <button  onClick={changeDownloadDir}>Change</button>
+        <button onClick={changeDownloadDir}>Change</button>
       </div>
       <div className="checkbox-options">
         <label className="checkbox-container indent-1">
@@ -159,7 +159,7 @@ const Image = () => {
       </div>
       {!whyGHUsername ? "" : (
         <div>
-          <p>
+          <p className="note">
             {"We can retrieve the public keys from your github account, so the app you can communicate with your raspberry pi without having to copy your keys manually (from https://github.com/<your username>.keys)"}
           </p>
         </div>

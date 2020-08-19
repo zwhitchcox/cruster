@@ -1,3 +1,13 @@
+.note {
+  font-size: .90em;
+  margin: 0 0 0 1em;
+
+}
+
+/*
+ * Progress Bar
+ */
+
 .progress-bar {
   display: flex;
   justify-content: space-between;
