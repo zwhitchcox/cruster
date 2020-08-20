@@ -167,6 +167,8 @@ ipcMain.on('local-terminal', (event, {id}) => {
       if (line === DONE_LINE) {
         if (scriptQueue.length) {
           runScript(scriptQueue.shift())
+        } else {
+          mainWindow.send('local-terminal-complete', {id})
         }
       }
     })

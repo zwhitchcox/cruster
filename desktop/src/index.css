@@ -101,6 +101,20 @@ h3 {
   font-size: 1.6em;
 }
 
+h4 {
+  margin: .6em auto .6em;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.6em;
+}
+
+
+
+.second-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* button {
   padding: .4em .8em;
   font-size: 1em;
@@ -188,3 +202,5 @@ h3 {
   opacity: 0;
   transform: scale(0.1, 1);
 }
+
+

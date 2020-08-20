@@ -86,7 +86,7 @@ const addSSHKeysByGithub = async ({ghUsername, addKeysID, overwrite, imgPath, ma
       mainWindow.send("github-keys-added", {addKeysID})
     })
   } catch (error) {
-    console.log(error)
+    console.log("error", error)
   }
 }
 

@@ -1,13 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react'
 import "xterm/css/xterm.css"
 import { Terminal } from 'xterm'
+import "./LocalTerminal.css"
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { dialog } from 'electron'
 import {v4} from 'uuid'
 
 declare var ipcRenderer;
 
-const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir}) => {
+const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
   const ref:any = useRef({})
   useEffect(() => {
     if (!ref.current) return () => {}
@@ -38,6 +39,18 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir}) => {
             },
             scripts: scripts,
           })
+          const onCompleted = (event, msg) => {
+            if (msg.id === id) {
+              ipcRenderer.off('local-terminal-complete', onCompleted)
+              if (clear) {
+                ipcRenderer.send("local-terminal-data", {
+                  id,
+                  data: "clear\n",
+                })
+              }
+            }
+          }
+          ipcRenderer.on('local-terminal-complete', onCompleted)
         },500)
       }
       ipcRenderer.off("local-terminal-ready", onReady)
@@ -76,6 +89,13 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir}) => {
     ipcRenderer.on('local-terminal-error', onData)
     ipcRenderer.on('local-terminal-exit-code', onClose)
     const term = new Terminal({ cols: 80, rows: 24})
+    // term.fit()
+    // term.setOption('padding', {
+    //   top: 5,
+    //   left: 5,
+    //   right: 5,
+    //   bottom: 5
+    // })
     term.open(ref.current)
     term.onData(data => {
       ipcRenderer.send("local-terminal-data", {
