@@ -21,7 +21,8 @@ wss.on('connection', ws => {
     term.write(data)
   })
 })
-// var ptyProcess = pty.spawn(shell, [], {
+// var ptyProcess = pty.spawn(shell, [],t
+
 //   name: 'xterm-color',
 //   cols: 80,
 //   rows: 30,

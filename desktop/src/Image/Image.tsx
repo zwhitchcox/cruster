@@ -1,29 +1,37 @@
 import React, { useState, useEffect } from 'react'
 import { v4 } from 'uuid'
-import { homedir } from 'os'
 import "./Image.css"
-import { unzip } from 'zlib'
+import LocalTerminal from '../Terminals/LocalTerminal'
+const isDev = process.env.NODE_ENV === "development"
 
+const startPass = isDev ? "hi" : ""
 const statuses = {
   DOWNLOADING: "Downloading...",
   INACTIVE: "",
   UNZIPPING: "Unzipping...",
-  ADDING_KEYS: "Adding Keys"
+  ADDING_KEYS: "Adding Keys",
+  CHROOT: "In Chroot...",
+  UNMOUNT: "Unmounting...",
 }
 let log = ""
+
+const platform = ipcRenderer.sendSync("get-platform")
+let id
 
 const Image = () => {
   const {
     DOWNLOADING,
     INACTIVE,
     ADDING_KEYS,
+    UNMOUNT,
+    CHROOT,
     UNZIPPING,
   } = statuses
   const addToLog = str => {
     log += "\n" + str
     refresh()
   }
-  const [_refresh, setRefresh] = useState(false)
+  const [_, setRefresh] = useState(false)
   const refresh = () => {
     // in case in closure
     setRefresh(true)
@@ -136,18 +144,22 @@ const Image = () => {
       return
     }
     const addKeysID = v4()
-    ipcRenderer.send("add-keys", {addKeysID, overwrite: overwriteKeys, ghUsername})
+    ipcRenderer.send("add-keys-github", {addKeysID, overwrite: overwriteKeys, ghUsername})
 
     const onCompleted = (event, arg) => {
       if (addKeysID === arg.addKeysID) {
         addToLog("Keys added.")
-        ipcRenderer.off("keys-added", onCompleted)
+        ipcRenderer.off("github-keys-added", onCompleted)
         setStatus(INACTIVE)
       }
     }
-    ipcRenderer.on('keys-added', onCompleted)
+    ipcRenderer.on('github-keys-added', onCompleted)
   }
 
+  const [sudoPassword, setSudoPassword] = useState(startPass)
+  const imageExists = ipcRenderer.sendSync("image-exists")
+  const isMounted = platform === "linux" && ipcRenderer.sendSync("image-mounted")
+  const canChroot = platform === "linux" && imageExists && (status === INACTIVE || status === CHROOT)
 
   return (
     <div>
@@ -206,12 +218,38 @@ const Image = () => {
         Overwrite Keys
       </label>
       <br />
-      <button onClick={createImg}>Create Image</button>
+      <button className="button-two" onClick={createImg}>Create Image</button>
+      {!canChroot ? "" : (
+        <>
+          <div className="chroot-button">
+          <button className="button-two" onClick={() => setStatus(CHROOT)}>Chroot</button>
+          <div>
+            <input
+              placeholder="Your Sudo Password"
+              className="text-field"
+              type="password"
+              onChange={e => setSudoPassword(e.target.value)}
+              value={sudoPassword}
+            />
+          </div>
+          </div>
+        </>
+      )}
+      {!isMounted ? "" : <button className="button-two" onClick={() => setStatus(UNMOUNT)}>Unmount</button>}
       <br />
       <br />
-
       {status !== DOWNLOADING ? "" : <ProgressBar percentage={downloadPercentage} title={DOWNLOADING} />}
       {status !== UNZIPPING ? "" : <ProgressBar percentage={unzipPercentage} title={UNZIPPING} />}
+      {!(CHROOT === status && canChroot) ? "" : <LocalTerminal
+        sudo={true}
+        sudoPassword={sudoPassword}
+        scripts={["mount", "chroot"]}
+        crusterDir={crusterDir} />}
+      {!(UNMOUNT === status) ? "" : <LocalTerminal
+        sudo={true}
+        sudoPassword={sudoPassword}
+        scripts={["unmount"]}
+        crusterDir={crusterDir} />}
       <pre>{log}</pre>
     </div>
 

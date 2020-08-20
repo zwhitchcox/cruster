@@ -80,7 +80,7 @@ const addSSHKeysByGithub = async ({ghUsername, addKeysID, overwrite, imgPath, ma
       keys += prevContent
     }
     await promisify(fs.writeFile)('/home/pi/.ssh/authorized_keys', keys, 'utf8')
-    mainWindow.send("keys-added")
+    mainWindow.send("github-keys-added", {addKeysID})
   })
 }
 

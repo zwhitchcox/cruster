@@ -5,10 +5,12 @@ const electron = require('electron');
 const fetch = require('node-fetch')
 const isDev = require('electron-is-dev');
 const storage = require('electron-json-storage')
+const pty = require('node-pty');
 const { runSSH } = require("./run-ssh.js")
 const { interactiveSSH } = require('./interactive-ssh')
 const { downloadImg, unzipImg, addSSHKeysByGithub } = require('./img')
-const { dialog } = require('electron')
+const { dialog, ipcRenderer } = require('electron')
+const split = require('split2')
 
 const {ipcMain} = electron
 const app = electron.app;
@@ -49,6 +51,9 @@ app.on('activate', () => {
   }
 });
 
+ipcMain.on("get-platform", (event) => {
+  event.returnValue = process.platform
+})
 
 // Node Scanner
 
@@ -135,6 +140,79 @@ ipcMain.on('create-interactive', (_, msg) => {
   })
 })
 
+const DONE_LINE = "__DONE__"
+// Local Terminal
+const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+let curTerm;
+ipcMain.on('local-terminal', (event, {id}) => {
+  let scriptQueue = []
+  if (curTerm) {
+    curTerm.kill()
+  }
+  const term = curTerm = pty.spawn(shell, [], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 30,
+    cwd: process.env.HOME,
+    env: process.env,
+  })
+
+  term.on('data', data => {
+    mainWindow.send("local-terminal-data", {id, data})
+  })
+
+  term
+    .pipe(split())
+    .on('data', line => {
+      if (line === DONE_LINE) {
+        if (scriptQueue.length) {
+          runScript(scriptQueue.shift())
+        }
+      }
+    })
+
+  term.on('error', err => {
+    mainWindow.send("local-terminal-data", {id, data: err})
+  })
+
+  const writeData = (event, msg) => {
+    if (msg.id === id) {
+      term.write(msg.data)
+    }
+  }
+
+  const runScript = (script) => {
+    const scriptPath = path.resolve(__dirname, "scripts", script + ".sh")
+    term.write(`bash ${scriptPath}\n`)
+    term.write(`echo ${DONE_LINE}\n`)
+  }
+
+  const runScripts = async (event, msg) => {
+    if (msg.id === id) {
+      for (const key in (msg.env || {})) {
+        term.write(`export ${key}=${msg.env[key]}\n`)
+      }
+      scriptQueue = scriptQueue.concat(msg.scripts)
+      runScript(scriptQueue.unshift())
+    }
+  }
+
+  const endTerm = (event, msg) => {
+    if (msg.id === id) {
+      ipcMain.off('local-terminal-end', endTerm)
+      ipcMain.off("local-terminal-data", writeData)
+      ipcMain.off('local-terminal-run-scripts', runScripts)
+    }
+  }
+
+
+  ipcMain.on('local-terminal-run-scripts', runScripts)
+  ipcMain.on('local-terminal-end', endTerm)
+  ipcMain.on("local-terminal-data", writeData)
+  mainWindow.send("local-terminal-ready", {id})
+})
+
+
 
 /*
  *
@@ -146,6 +224,10 @@ ipcMain.on('create-interactive', (_, msg) => {
 const getDownloadDir = () => {
   return path.resolve(crusterDir)
 }
+
+
+
+
 
 let crusterDir;
 ;(async function getCrusterDir() {
@@ -165,7 +247,28 @@ let crusterDir;
   }
 
   crusterDir = path.resolved(os.homedir(), "cruster")
+  checkImageExists()
 })()
+
+let imageExists;
+const checkImageExists = async () => {
+  imageExists = await fs.exists(path.resolve(crusterDir, "node.img"))
+}
+// I know this won't give the actual value
+// but it will the next time, and renders happen often
+ipcMain.on("image-exists", event => {
+  checkImageExists()
+  event.returnValue = imageExists
+})
+
+let imageMounted;
+const checkImageMounted = async () => {
+  imageMounted = await fs.exists(path.resolve("/mnt", "node"))
+}
+ipcMain.on("image-mounted", event => {
+  checkImageMounted()
+  event.returnValue = imageMounted
+})
 
 ipcMain.on('get-cruster-dir', (event) => {
   event.returnValue = crusterDir
@@ -212,7 +315,7 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
 })
 
 // add keys
-ipcMain.on("add-keys", ({addKeysID, overwrite, ghUsername}) => {
+ipcMain.on("add-keys-github", ({addKeysID, overwrite, ghUsername}) => {
   const imgPath = path.resolve(getDownloadDir(), "node.img")
   addSSHKeysByGithub({ghUsername, addKeysID, overwrite, imgPath, mainWindow})
 })

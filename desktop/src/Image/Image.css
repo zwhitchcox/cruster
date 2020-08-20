@@ -4,6 +4,11 @@
 
 }
 
+.chroot-button {
+  display: flex;
+}
+
+
 /*
  * Progress Bar
  */
@@ -69,10 +74,6 @@
   width: 100%;
 }
 
-
-.checkbox-options {
-  /* display: flex; */
-}
 
 
 /* checkbox */

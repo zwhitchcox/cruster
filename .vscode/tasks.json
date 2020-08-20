@@ -9,25 +9,31 @@
 			"label": "Start React",
 			"detail": "export BROWSER=none && react-scripts start",
 			"presentation": {
-        "reveal": "always",
-        "panel": "dedicated"
-      },
+				"reveal": "never",
+				"panel": "dedicated"
+			}
 		},
 		{
-			"type": "npm",
-			"script": "start-electron",
-			"path": "desktop/",
-			"problemMatcher": [],
 			"label": "Start Electron",
+			"type": "shell",
+			"command": "npm run start-electron",
+			"options": {
+				"cwd": "${workspaceRoot}/desktop"
+			},
 			"detail": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
 			"presentation": {
-        "reveal": "always",
-        "panel": "dedicated"
-      },
+				"reveal": "always",
+				"panel": "dedicated"
+			},
+			"problemMatcher": []
 		},
 		{
 			"label": "electron/react",
-			"dependsOn": ["Start React", "Start Electron"]
+			"dependsOn": [
+				"Start React",
+				"Start Electron"
+			],
+			"problemMatcher": []
 		}
 	]
 }
