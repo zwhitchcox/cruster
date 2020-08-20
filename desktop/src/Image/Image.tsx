@@ -5,6 +5,7 @@ import LocalTerminal from '../Terminals/LocalTerminal'
 const isDev = process.env.NODE_ENV === "development"
 
 const startPass = isDev ? "hi" : ""
+const startGHUsername = isDev ? "zwhitchcox" : ""
 const statuses = {
   DOWNLOADING: "Downloading...",
   INACTIVE: "",
@@ -133,7 +134,7 @@ const Image = () => {
     ipcRenderer.on('already-unzipped', onAlreadyUnzipped)
   }
 
-  const [ghUsername, setGHUsername] = useState("")
+  const [ghUsername, setGHUsername] = useState(startGHUsername)
   const [whyGHUsername, setWhyGHUsername] = useState(false)
   const [overwriteKeys, setOverwriteKeys] = useState(false)
   const addKeys = () => {

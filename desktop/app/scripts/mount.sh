@@ -20,7 +20,7 @@ kpartx -v -a ${IMG_NAME}.img
 # e2fsck -f "/dev/mapper/loop${loopno}p2"
 
 # expand partition
-resize2fs "/dev/mapper/loop${loopno}p2"
+# resize2fs "/dev/mapper/loop${loopno}p2"
 mkdir -p /mnt/${IMG_NAME}
 
 # mount partition

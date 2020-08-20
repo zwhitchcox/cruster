@@ -69,19 +69,25 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
 }
 
 const addSSHKeysByGithub = async ({ghUsername, addKeysID, overwrite, imgPath, mainWindow}) => {
-  let keys = await fetch(`https://github.com/${ghUsername}.keys`)
-  await interact(imgPath, 2, async fs => {
-    await promisify(fs.mkdir)('/home/pi/.ssh')
-    let prevContent = "";
-    if (await promisify(fs.exists)('/home/pi.ssh/authorized_keys')) {
-      prevContent = await promisify(fs.readFile)('/home/pi/.ssh/authorized_keys') + "\n"
-    }
-    if (!overwrite) {
-      keys += prevContent
-    }
-    await promisify(fs.writeFile)('/home/pi/.ssh/authorized_keys', keys, 'utf8')
-    mainWindow.send("github-keys-added", {addKeysID})
-  })
+  try {
+    let keys = await fetch(`https://github.com/${ghUsername}.keys`).then(res => res.text())
+    await interact(imgPath, 2, async fs => {
+      if (!(await promisify(fs.exists)('/home/pi/.ssh'))) {
+        await promisify(fs.mkdir)('/home/pi/.ssh', {recursive: true})
+      }
+      let prevContent = "";
+      if (await promisify(fs.exists)('/home/pi/.ssh/authorized_keys')) {
+        prevContent = "\n" + await promisify(fs.readFile)('/home/pi/.ssh/authorized_keys')
+      }
+      if (!overwrite) {
+        keys += prevContent
+      }
+      await promisify(fs.writeFile)('/home/pi/.ssh/authorized_keys', keys, 'utf8')
+      mainWindow.send("github-keys-added", {addKeysID})
+    })
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 module.exports = {

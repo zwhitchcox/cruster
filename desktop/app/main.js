@@ -315,7 +315,7 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
 })
 
 // add keys
-ipcMain.on("add-keys-github", ({addKeysID, overwrite, ghUsername}) => {
+ipcMain.on("add-keys-github", (event, {addKeysID, overwrite, ghUsername}) => {
   const imgPath = path.resolve(getDownloadDir(), "node.img")
   addSSHKeysByGithub({ghUsername, addKeysID, overwrite, imgPath, mainWindow})
 })
