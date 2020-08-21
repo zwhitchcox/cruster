@@ -12,5 +12,6 @@ loopno=$(kpartx -l ${CRUSTER_DIR}/${IMG_NAME}.img | grep -o [0-9]* | head -n1)
 
 # unmount loopdevice
 ! kpartx -d /dev/loop${loopno}
+! kpartx -d ${CRUSTER_DIR}/${IMG_NAME}.img
 
 rmdir /mnt/${IMG_NAME}

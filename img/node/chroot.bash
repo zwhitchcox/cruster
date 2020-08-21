@@ -9,11 +9,11 @@ source /tmp/env
 
 USERNAME="${USERNAME:-pi}"
 
-apt update
-apt upgrade -y
 systemctl enable ssh
 
-# dev tools for convenience
+apt update
+# apt upgrade -y
+# # dev tools for convenience
 apt install vim tmux -y
 
 

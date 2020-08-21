@@ -103,7 +103,8 @@ const Download = ({crusterDir, addToLog}) => {
   }
 
   return (
-    <div>
+    <div className="boxed">
+      <h3>Download Disk Image</h3>
       <div className="dir-container">
         <div>Cruster Directory: &nbsp;{crusterDir}
         </div>

@@ -144,11 +144,17 @@ const DONE_LINE = "__DONE__"
 // Local Terminal
 const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
 let curTerm;
-ipcMain.on('local-terminal', (event, {id}) => {
-  let scriptQueue = []
+const killCurTerm = () => {
   if (curTerm) {
     curTerm.kill()
   }
+}
+process.on('exit', killCurTerm)
+process.on('unhandledException', killCurTerm)
+ipcMain.on('kill-cur-term', killCurTerm)
+ipcMain.on('local-terminal', (event, {id}) => {
+  let scriptQueue = []
+  killCurTerm()
   const term = curTerm = pty.spawn(shell, [], {
     name: 'xterm-color',
     cols: 80,
@@ -166,7 +172,8 @@ ipcMain.on('local-terminal', (event, {id}) => {
     .on('data', line => {
       if (line === DONE_LINE) {
         if (scriptQueue.length) {
-          runScript(scriptQueue.shift())
+          const script = scriptQueue.shift()
+          runScript(script)
         } else {
           mainWindow.send('local-terminal-complete', {id})
         }
@@ -195,7 +202,7 @@ ipcMain.on('local-terminal', (event, {id}) => {
         term.write(`export ${key}=${msg.env[key]}\n`)
       }
       scriptQueue = scriptQueue.concat(msg.scripts)
-      runScript(scriptQueue.unshift())
+      runScript(scriptQueue.shift())
     }
   }
 
@@ -226,11 +233,6 @@ ipcMain.on('local-terminal', (event, {id}) => {
 const getDownloadDir = () => {
   return path.resolve(crusterDir)
 }
-
-
-
-
-
 let crusterDir;
 ;(async function getCrusterDir() {
   let _crusterDir = storage.get("cruster-dir");
@@ -318,6 +320,23 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
 
 // add keys
 ipcMain.on("add-keys-github", (event, {addKeysID, overwrite, ghUsername}) => {
+// ;(async () => {
+//   try {
+//     // const imgPath = path.resolve(__dirname, "downloads", "node.img")
+//     const {interact} = require('balena-image-fs')
+//     const {promisify} = require('util')
+//     const imgPath = '/home/zwhitchcox/Desktop/cruster/node.img'
+//     console.log({imgPath})
+//     const contents = await interact(imgPath, 2, async (fs) => {
+//       if (!(await promisify(fs.exists)('/home/pi/.ssh'))) {
+//         console.log("making dir")
+//         await promisify(fs.mkdir)('/home/pi/.ssh', {recursive: true})
+//       }
+//       return await promisify(fs.readFile)('/etc/passwd')
+//     })
+//     console.log(contents.toString())
+//   } catch(err) {console.log(err)}
+// })()
   const imgPath = path.resolve(getDownloadDir(), "node.img")
   addSSHKeysByGithub({ghUsername, addKeysID, overwrite, imgPath, mainWindow})
 })

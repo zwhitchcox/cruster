@@ -1,0 +1,13 @@
+.text-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-field {
+  width: 80%;
+}
+
+.warning {
+  color: #EBCB8B;
+}

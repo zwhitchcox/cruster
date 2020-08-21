@@ -5,12 +5,12 @@ const platform = ipcRenderer.sendSync("get-platform")
 const Unmount = ({sudoPassword, setSudoPassword, crusterDir}) => {
   const [isUnmounting, setIsUnmounting] = useState(false)
   if (platform !== "linux") return <div>Mounting only supported on Ubuntu for now.</div>
-  if (!ipcRenderer.sendSync("image-mounted")) return <div><h4>Unmount</h4><div>Image is not mounted.</div></div>
+  if (!ipcRenderer.sendSync("image-mounted")) return <div className="boxed"><h3>Unmount</h3><div>Image is not mounted.</div></div>
   return (
-    <div>
+    <div className="boxed">
       <h3>Unmount</h3>
       <div>
-      Your Sudo Password Required: <input
+      Your Sudo Password For This Computer: <input
           placeholder="Your Sudo Password"
           className="text-field"
           type="password"

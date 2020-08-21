@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import "./AddKeys.css"
 import { v4 } from 'uuid'
 
 const isDev = process.env.NODE_ENV === "development"
@@ -8,6 +9,8 @@ const AddKeys = ({addToLog}) => {
   const [ghUsername, setGHUsername] = useState(startGHUsername)
   const [whyGHUsername, setWhyGHUsername] = useState(false)
   const [overwriteKeys, setOverwriteKeys] = useState(false)
+  const isMounted = ipcRenderer.sendSync("image-mounted")
+
   const addKeys = () => {
     addToLog("Adding SSH keys from github...")
     if (ghUsername === "") {
@@ -27,7 +30,9 @@ const AddKeys = ({addToLog}) => {
   }
 
   return (
-    <div>
+    <div className="boxed">
+      <h3>Add SSH Keys From Github</h3>
+      {!isMounted ? "" : <div className="warning">It looks like the disk image is currently mounted. This will not work while the image is mounted.</div>}
       <div className="text-input-container">
         <div className="label">
           Github Username:&nbsp;&nbsp;
@@ -36,7 +41,7 @@ const AddKeys = ({addToLog}) => {
         <div>
           <input
             placeholder="Your Github Username"
-            className="text-field"
+            className="text-field-github"
             type="text"
             onChange={e => setGHUsername(e.target.value)}
             value={ghUsername}
@@ -60,7 +65,7 @@ const AddKeys = ({addToLog}) => {
         Overwrite Keys
       </label>
       <br />
-      <button onClick={addKeys}>Add Keys From Github</button>
+      <button onClick={addKeys}>Add SSH Keys From Github</button>
 
     </div>
   )

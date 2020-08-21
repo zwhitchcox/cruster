@@ -8,7 +8,7 @@ const stream = require('stream')
 const { ipcMain } = require('electron')
 const fetch = require('node-fetch')
 
-const VERSION = "0.0.1"
+const VERSION = "v0.0.1"
 
 const downloadImg = async ({downloadID, mainWindow, force, downloadDir}) => {
   const downloadLocation = `https://github.com/zwhitchcox/cruster/releases/download/${VERSION}/node.zip`
@@ -60,33 +60,38 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
         }
       }
     }))
-
-
-
-
-  // const zip = new AdmZip(zipOutputPath)
-  // zip.extractEntryTo("node.img", imgOutputPath)
 }
+
+;(async () => {
+  try {
+    // const imgPath = path.resolve(__dirname, "downloads", "node.img")
+    const imgPath = '/home/zwhitchcox/Desktop/cruster/node.img'
+    console.log({imgPath})
+    const contents = await interact(imgPath, 2, async (fs) => {
+      if (!(await promisify(fs.exists)('/home/pi/.ssh'))) {
+        console.log("making dir")
+        await promisify(fs.mkdir)('/home/pi/.ssh', {recursive: true})
+      }
+      return await promisify(fs.readFile)('/etc/passwd')
+    })
+    console.log(contents.toString())
+  } catch(err) {console.log(err)}
+})()
 
 const addSSHKeysByGithub = async ({ghUsername, addKeysID, overwrite, imgPath, mainWindow}) => {
   try {
     let keys = await fetch(`https://github.com/${ghUsername}.keys`).then(res => res.text())
     await interact(imgPath, 2, async fs => {
-      if (!(await promisify(fs.exists)('/home/pi/.ssh'))) {
-        await promisify(fs.mkdir)('/home/pi/.ssh', {recursive: true})
-      }
-      let prevContent = "";
-      if (await promisify(fs.exists)('/home/pi/.ssh/authorized_keys')) {
-        prevContent = "\n" + await promisify(fs.readFile)('/home/pi/.ssh/authorized_keys')
-      }
       if (!overwrite) {
-        keys += prevContent
+        try {
+          keys += await promisify(fs.readFile)("/home/pi/.ssh/authorized_keys")
+        } catch(e) {}
       }
       await promisify(fs.writeFile)('/home/pi/.ssh/authorized_keys', keys, 'utf8')
       mainWindow.send("github-keys-added", {addKeysID})
     })
   } catch (error) {
-    console.log("error", error)
+    console.log("error", error.toString())
   }
 }
 

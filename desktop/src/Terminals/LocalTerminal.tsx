@@ -37,7 +37,7 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
               CRUSTER_DIR: crusterDir,
               IMG_NAME: "node"
             },
-            scripts: scripts,
+            scripts,
           })
           const onCompleted = (event, msg) => {
             if (msg.id === id) {
@@ -89,13 +89,6 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
     ipcRenderer.on('local-terminal-error', onData)
     ipcRenderer.on('local-terminal-exit-code', onClose)
     const term = new Terminal({ cols: 80, rows: 24})
-    // term.fit()
-    // term.setOption('padding', {
-    //   top: 5,
-    //   left: 5,
-    //   right: 5,
-    //   bottom: 5
-    // })
     term.open(ref.current)
     term.onData(data => {
       ipcRenderer.send("local-terminal-data", {
@@ -103,6 +96,8 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
         data,
       })
     })
+
+    return () => ipcRenderer.send("kill-cur-term")
   }, [ref])
 
 

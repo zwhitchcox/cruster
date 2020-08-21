@@ -9,9 +9,10 @@ IMG_NAME=${1:-node}
 
 cd ${OUTPUT_DIR}
 
+echo ${IMG_NAME}
 # mount disk
 loopno=$(kpartx -l ${IMG_NAME}.img | grep -o [0-9]* | head -n1)
-kpartx -v -a ${IMG_NAME}.img
+kpartx -va ${IMG_NAME}.img
 
 
 # check fs

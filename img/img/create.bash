@@ -22,6 +22,7 @@ done
 
 # clean old image
 loopno=$(kpartx -l ${OUTPUT_NAME}.img | grep -o [0-9]* | head -n1)
-! kpartx -d loopdev="/dev/loop${loopno}"
+! kpartx -d "/dev/loop${loopno}"
+! kpartx -d ${OUTPUT_NAME}.img
 rm -f ${OUTPUT_NAME}.img
 cp raspbian.img ${OUTPUT_NAME}.img
