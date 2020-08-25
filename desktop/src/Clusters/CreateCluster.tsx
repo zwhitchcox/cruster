@@ -108,6 +108,14 @@ const CreateCluster = ({nodes}) => {
     return !(cluster.slaves.some(s => s === url) || cluster.master === url)
   })
 
+  const nonresponsive = Object.entries(nodes)
+    .reduce((prev, [url, node]:any) => {
+      if (!node.apiResponded) {
+        prev.push(ipFromUrl(url))
+      }
+      return prev
+    }, [] as string[])
+
   return (
     <div className="boxed">
       <h3>Create Cluster</h3>
@@ -182,6 +190,13 @@ const CreateCluster = ({nodes}) => {
         ))}
       </tbody>
       </table>
+        {nonresponsive.length === 0 ? "" : <div>
+          The following ip addresses have a cluster, but the api didn't respond for some reason:
+
+          <ul>
+            {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
+          </ul>
+        </div>}
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import "./Clusters.css"
 import CreateCluster from './CreateCluster'
-import { ipFromUrl } from '../util'
 import {
   Switch,
   Route,
@@ -9,14 +8,18 @@ import {
 } from "react-router-dom";
 import ManageClusters from './ManageClusters';
 
-const Clusters = ({nodes}) => {
-  // const nonresponsive = Object.entries(nodes)
-  //   .reduce((prev, [url, node]:any) => {
-  //     if (!node.apiResponded) {
-  //       prev.push(ipFromUrl(url))
-  //     }
-  //     return prev
-  //   }, [] as string[])
+const useNodes = () => {
+  const [nodes, setNodes] = useState({})
+  useEffect(() => {
+    ipcRenderer.on('nodes', (event, nodes) => {
+      setNodes(nodes)
+    })
+    ipcRenderer.send('send-nodes', null)
+  }, [])
+  return nodes
+}
+const Clusters = () => {
+  const nodes = useNodes()
   return (
     <div>
       <div className="third-nav">

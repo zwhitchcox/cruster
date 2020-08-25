@@ -1,8 +1,9 @@
 var fs = require('fs');
 var url = require('url');
 module.exports.download = download
+module.exports.downloadStr = downloadStr
 
-function download (uri, filename, onProgress) {
+function download(uri, filename, onProgress) {
   let progress = 0;
   let total;
   let lastPercentage = 0
@@ -35,5 +36,27 @@ function download (uri, filename, onProgress) {
         rej(new Error(response.statusCode + ' ' + response.statusMessage));
       }
     }).on('error', onError);
+  })
+}
+
+function downloadStr(uri) {
+  return new Promise((res, rej) => {
+    const protocol = url.parse(uri).protocol.slice(0, -1);
+    require(protocol).get(uri, response => {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        response.setEncoding("utf8")
+        let body = ""
+        response.on("data", data => {
+          body += data
+        })
+        response.on("end", () => {
+          res(body)
+        })
+      } else if (response.headers.location) {
+        res(download(response.headers.location, filename, onProgress));
+      } else {
+        rej(new Error(response.statusCode + ' ' + response.statusMessage));
+      }
+    })
   })
 }

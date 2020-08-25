@@ -9,7 +9,6 @@ const statuses = {
 
 let log = ""
 const Download = ({crusterDir, addToLog}) => {
-  const changeCrusterDir = () => ipcRenderer.send("change-cruster-dir")
   const [_, setRefresh] = useState(false)
   const refresh = () => {
     // in case in closure
@@ -105,11 +104,6 @@ const Download = ({crusterDir, addToLog}) => {
   return (
     <div className="boxed">
       <h3>Download Disk Image</h3>
-      <div className="dir-container">
-        <div>Cruster Directory: &nbsp;{crusterDir}
-        </div>
-        <button onClick={changeCrusterDir}>Change</button>
-      </div>
       <div className="checkbox-options">
         <label className="checkbox-container indent-1">
           <input type="checkbox"

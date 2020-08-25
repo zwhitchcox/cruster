@@ -8,13 +8,14 @@ import {v4} from 'uuid'
 
 declare var ipcRenderer;
 
-const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
+const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear, unmount}) => {
   const ref:any = useRef({})
   useEffect(() => {
     if (!ref.current) return () => {}
     const id = v4()
     ipcRenderer.send("local-terminal", {
       id,
+      sudoPassword,
     })
 
     const onReady = (event, msg) => {
@@ -73,10 +74,10 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
         ipcRenderer.off('local-terminal-error', onData)
         ipcRenderer.off('local-terminal-exit-code', onClose)
         ipcRenderer.off('local-terminal-done', onDone)
-        ipcRenderer.send("local-terminal-data", {
-          id,
-          data: "exit\n",
-        })
+          ipcRenderer.send("local-terminal-data", {
+            id,
+            data: "exit\n",
+          })
       }
     }
 
@@ -97,7 +98,13 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear}) => {
       })
     })
 
-    return () => ipcRenderer.send("kill-cur-term")
+    return () => {
+      if (unmount) {
+        ipcRenderer.send("local-terminal-unmount-exit", {id})
+      } else {
+        ipcRenderer.send("local-terminal-end", {id})
+      }
+    }
   }, [ref])
 
 

@@ -19,6 +19,7 @@ apt install vim tmux -y
 
 # add public keys
 mkdir -p /root/.ssh
+touch /root/.ssh/authorized_keys
 mkdir -p /home/${USERNAME}/.ssh
 # curl https://github.com/${GITHUB_USERNAME}.keys -o /root/.ssh/authorized_keys
 # curl https://github.com/${GITHUB_USERNAME}.keys -o /home/${USERNAME}/.ssh/authorized_keys
@@ -65,6 +66,8 @@ sed -i "/CONF_SWAPSIZE=/c\CONF_SWAPSIZE=0" /etc/dphys-swapfile
 
 # allow booting without hdmi cable plugged in
 sed -i '/^#hdmi_force_hotplug=1/s/^#//' /boot/config.txt
+
+sed -i '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Enable net.bridge.bridge-nf-call-iptables and -iptables6
 # (see https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/#network-plugin-requirements)
@@ -113,5 +116,9 @@ sudo dphys-swapfile swapoff &
 exit 0" >> /etc/rc.local
 
 echo node > /etc/hostname
+
+rfkill unblock wifi
+rfkill unblock all
+chmod o+r /etc/resolv.conf
 
 echo UNINITIALIZED > /home/${USERNAME}/status

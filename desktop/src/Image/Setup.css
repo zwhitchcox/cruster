@@ -11,3 +11,13 @@
 .warning {
   color: #EBCB8B;
 }
+
+.top-margin {
+  margin-top: .8em;
+}
+
+.key-file {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -1,11 +1,10 @@
 const path = require('path')
-const { download } = require('./util/download')
+const { download, downloadStr } = require('./util/download')
 const fs = require('fs-extra')
 const unzipper = require('unzipper')
 const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
 const stream = require('stream')
-const { ipcMain } = require('electron')
 const fetch = require('node-fetch')
 
 const VERSION = "v0.0.1"
@@ -62,41 +61,70 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
     }))
 }
 
-;(async () => {
+const addSSHKeysByGithub = async ({ghUsername, overwrite, imgPath, mainWindow}) => {
+  const keysFile = "/home/pi/.ssh/authorized_keys"
+  const piUID = 1000
+  const piGID = 1000
   try {
-    // const imgPath = path.resolve(__dirname, "downloads", "node.img")
-    const imgPath = '/home/zwhitchcox/Desktop/cruster/node.img'
-    console.log({imgPath})
-    const contents = await interact(imgPath, 2, async (fs) => {
-      if (!(await promisify(fs.exists)('/home/pi/.ssh'))) {
-        console.log("making dir")
-        await promisify(fs.mkdir)('/home/pi/.ssh', {recursive: true})
-      }
-      return await promisify(fs.readFile)('/etc/passwd')
-    })
-    console.log(contents.toString())
-  } catch(err) {console.log(err)}
-})()
-
-const addSSHKeysByGithub = async ({ghUsername, addKeysID, overwrite, imgPath, mainWindow}) => {
-  try {
-    let keys = await fetch(`https://github.com/${ghUsername}.keys`).then(res => res.text())
+    let keys = await fetch(`https://github.com/${ghUsername}.keys`).then(resp => resp.text())
     await interact(imgPath, 2, async fs => {
       if (!overwrite) {
         try {
-          keys += await promisify(fs.readFile)("/home/pi/.ssh/authorized_keys")
+          keys += await promisify(fs.readFile)(keysFile)
         } catch(e) {}
       }
-      await promisify(fs.writeFile)('/home/pi/.ssh/authorized_keys', keys, 'utf8')
-      mainWindow.send("github-keys-added", {addKeysID})
+      await promisify(fs.writeFile)(keysFile, keys, 'utf8')
+      await promisify(fs.chown)(keysFile, piUID, piGID)
     })
   } catch (error) {
     console.log("error", error.toString())
   }
 }
 
+const addSSHKeyByFile = async ({overwrite, imgPath, file}) => {
+  if (!await fs.exists(file)) {
+    throw new Error(`Could not find file ${file}`)
+  }
+  let keys = (await fs.readFile(file)).toString()
+  await interact(imgPath, 2, async fs => {
+    if (!overwrite) {
+      try {
+        // can't get fs.exists to work right now
+        keys += await promisify(fs.readFile)("/root/.ssh/authorized_keys")
+      } catch(e) {}
+    }
+    await promisify(fs.writeFile)('/root/.ssh/authorized_keys', keys, 'utf8')
+  })
+}
+
+const addWifiCredentials = async ({ssid, wifiPassword, imgPath}) => {
+  const file = "/etc/wpa_supplicant/wpa_supplicant.conf"
+  const newWifiInfo = `
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="${ssid}"
+    psk="${wifiPassword}"
+}
+`
+  await interact(imgPath, 2, async fs => {
+    let wifiInfo = ""
+    // Commented code reads currentwifi file in case we want to append.
+    // try {
+    //   // can't get fs.exists to work right now
+    //   wifiInfo += await promisify(fs.readFile)(file)
+    // } catch(e) {
+    //   throw new Error("Couldn't find wifi supplicant file on this disk.")
+    // }
+    await promisify(fs.writeFile)(file, wifiInfo + newWifiInfo, 'utf8')
+  })
+}
+
 module.exports = {
   unzipImg,
   downloadImg,
   addSSHKeysByGithub,
+  addSSHKeyByFile,
+  addWifiCredentials,
 }

@@ -8,26 +8,8 @@ import {
 import './App.css';
 import Clusters from './Clusters/Clusters';
 import Image from './Image/Image'
-// import Terminal from './Terminal';
-// import SSHCmdTerminal from './Terminals/SSHCmdTerminal';
-// import SSHTerminal from './Clusters/Terminals/SSHTerminal';
-
-declare var ipcRenderer;
-
-const useNodes = () => {
-  const [nodes, setNodes] = useState({})
-  useEffect(() => {
-    ipcRenderer.on('nodes', (event, nodes) => {
-      setNodes(nodes)
-    })
-    ipcRenderer.send('send-nodes', null)
-  }, [])
-  return nodes
-}
-
 
 function App() {
-  const nodes = useNodes()
   return (
     <Router>
     <div className="App">
@@ -52,7 +34,7 @@ function App() {
       <main>
       <Switch>
         <Route path="/clusters">
-          <Clusters nodes={nodes}/>
+          <Clusters />
         </Route>
         <Route path="/image">
           <Image />

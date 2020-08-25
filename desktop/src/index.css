@@ -31,6 +31,7 @@ button {
   border: 0px solid black;
   background-color: white;
   margin: .4em .4em .4em 0;
+  box-shadow:inset 0 -0.6em 1em -0.35em rgba(0,0,0,0.37),inset 0 0.6em 2em -0.3em rgba(255,255,255,0.33),inset 0 0 0em 0.05em rgba(255,255,255,0.30);
 }
 button:last-child {
   margin-right: 0;
@@ -138,7 +139,7 @@ h4 {
   line-height: 50px;
   height: 50px;
   text-align: center;
-  width: 10em;
+  width: 7.5em;
   cursor: pointer;
   font-family: 'Aldrich', 'Open Sans Condensed', sans-serif;
   font-size: 1.2em;
@@ -203,4 +204,46 @@ h4 {
   transform: scale(0.1, 1);
 }
 
+/*
+========================
+      BUTTON THREE
+========================
+*/
+.btn-three {
+	color: #FFF;
+	transition: all 0.5s;
+	position: relative;
+}
+.btn-three::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	background-color: rgba(255,255,255,0.1);
+	transition: all 0.3s;
+}
+.btn-three:hover::before {
+	opacity: 0 ;
+	transform: scale(0.5,0.5);
+}
+.btn-three::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	opacity: 0;
+	transition: all 0.3s;
+	border: 1px solid rgba(255,255,255,0.5);
+	transform: scale(1.2,1.2);
+}
+.btn-three:hover::after {
+	opacity: 1;
+	transform: scale(1,1);
+}
 

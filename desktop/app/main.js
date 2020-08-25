@@ -2,15 +2,24 @@ const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const electron = require('electron');
-const fetch = require('node-fetch')
+const fetch = require('isomorphic-fetch')
 const isDev = require('electron-is-dev');
 const storage = require('electron-json-storage')
 const pty = require('node-pty');
 const { runSSH } = require("./run-ssh.js")
 const { interactiveSSH } = require('./interactive-ssh')
-const { downloadImg, unzipImg, addSSHKeysByGithub } = require('./img')
-const { dialog, ipcRenderer } = require('electron')
-const split = require('split2')
+const { dialog } = require('electron')
+const { interact } = require('balena-image-fs')
+const { downloadStr } = require('./util/download')
+const split = require('split2');
+const {
+  downloadImg,
+  unzipImg,
+  addSSHKeysByGithub,
+  addSSHKeyByFile,
+  addWifiCredentials,
+} = require('./img');
+const { kill } = require('process');
 
 const {ipcMain} = electron
 const app = electron.app;
@@ -152,7 +161,7 @@ const killCurTerm = () => {
 process.on('exit', killCurTerm)
 process.on('unhandledException', killCurTerm)
 ipcMain.on('kill-cur-term', killCurTerm)
-ipcMain.on('local-terminal', (event, {id}) => {
+ipcMain.on('local-terminal', (event, {id, sudoPassword}) => {
   let scriptQueue = []
   killCurTerm()
   const term = curTerm = pty.spawn(shell, [], {
@@ -164,6 +173,7 @@ ipcMain.on('local-terminal', (event, {id}) => {
   })
 
   term.on('data', data => {
+    // TODO: don't write DONE_LINE
     mainWindow.send("local-terminal-data", {id, data})
   })
 
@@ -208,20 +218,36 @@ ipcMain.on('local-terminal', (event, {id}) => {
 
   const endTerm = (event, msg) => {
     if (msg.id === id) {
+      killCurTerm()
       ipcMain.off('local-terminal-end', endTerm)
       ipcMain.off("local-terminal-data", writeData)
       ipcMain.off('local-terminal-run-scripts', runScripts)
+      ipcMain.off('local-terminal-unmount-exit', unmountExit)
     }
   }
 
-
+  const unmountExit = (event, msg) => {
+    if (id === msg.id) {
+      term.write("exit\n")
+      runScript("unmount")
+      // TODO: possible race condition if they switch back really quickly
+      // should put lock on
+      setTimeout(() => endTerm({}, {id}), 1000)
+    }
+  }
   ipcMain.on('local-terminal-run-scripts', runScripts)
   ipcMain.on('local-terminal-end', endTerm)
   ipcMain.on("local-terminal-data", writeData)
+  ipcMain.on('local-terminal-unmount-exit', unmountExit)
+  // const onKill = () => {
+  //   endTerm({}, {id})
+  //   killCurTerm()
+  //   // const unmountScriptPath = path.resolve(__dirname, "scripts", "unmount.sh")
+  // }
+
+  // ipcMain.on('kill-cur-term', onKill)
   mainWindow.send("local-terminal-ready", {id})
 })
-
-
 
 /*
  *
@@ -233,13 +259,12 @@ ipcMain.on('local-terminal', (event, {id}) => {
 const getDownloadDir = () => {
   return path.resolve(crusterDir)
 }
-let crusterDir;
+let crusterDir, imgPath;
 ;(async function getCrusterDir() {
   let _crusterDir = storage.get("cruster-dir");
   if (_crusterDir) {
     return crusterDir = _crusterDir
   }
-
 
   if (await fs.exists(_crusterDir = path.resolve(os.homedir(), "Desktop"))) {
     return crusterDir = path.resolve(_crusterDir, "cruster")
@@ -251,8 +276,25 @@ let crusterDir;
   }
 
   crusterDir = path.resolved(os.homedir(), "cruster")
+  imgPath = path.resolve(crusterDir, "node.img")
   checkImageExists()
 })()
+
+
+ipcMain.on('get-cruster-dir', (event) => {
+  event.returnValue = crusterDir
+})
+
+ipcMain.on('change-cruster-dir', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  })
+  if (!result.canceled) {
+    crusterDir = result.filePaths[0]
+    storage.set("cruster-dir", crusterDir)
+  }
+  mainWindow.send("cruster-dir-changed", {crusterDir})
+})
 
 let imageExists;
 const checkImageExists = async () => {
@@ -274,30 +316,19 @@ ipcMain.on("image-mounted", event => {
   event.returnValue = imageMounted
 })
 
-ipcMain.on('get-cruster-dir', (event) => {
-  event.returnValue = crusterDir
-})
-
-ipcMain.on('change-cruster-dir', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory']
-  })
-  if (!result.canceled) {
-    crusterDir = result.filePaths[0]
-    storage.set("cruster-dir", crusterDir)
-  }
-  mainWindow.send("cruster-dir-changed", {crusterDir})
-})
-
 // Download
 
-ipcMain.on('download-image', (event, {downloadID, force}) => {
-  downloadImg({
-    mainWindow,
-    downloadID,
-    force,
-    downloadDir: getDownloadDir(),
-  })
+ipcMain.on('download-image', async (event, {downloadID, force}) => {
+  try {
+    await downloadImg({
+      mainWindow,
+      downloadID,
+      force,
+      downloadDir: getDownloadDir(),
+    })
+  } catch (err) {
+    showError(err)
+  }
 })
 
 
@@ -310,33 +341,99 @@ ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
     mainWindow.send("already-unzipped", {unzipID})
     return
   }
-  unzipImg({
-    zipPath,
-    outputPath,
-    unzipID,
-    mainWindow,
-  })
+  try {
+    await unzipImg({
+      zipPath,
+      outputPath,
+      unzipID,
+      mainWindow,
+    })
+  } catch (err) {
+    showError
+  }
 })
 
 // add keys
-ipcMain.on("add-keys-github", (event, {addKeysID, overwrite, ghUsername}) => {
-// ;(async () => {
-//   try {
-//     // const imgPath = path.resolve(__dirname, "downloads", "node.img")
-//     const {interact} = require('balena-image-fs')
-//     const {promisify} = require('util')
-//     const imgPath = '/home/zwhitchcox/Desktop/cruster/node.img'
-//     console.log({imgPath})
-//     const contents = await interact(imgPath, 2, async (fs) => {
-//       if (!(await promisify(fs.exists)('/home/pi/.ssh'))) {
-//         console.log("making dir")
-//         await promisify(fs.mkdir)('/home/pi/.ssh', {recursive: true})
-//       }
-//       return await promisify(fs.readFile)('/etc/passwd')
-//     })
-//     console.log(contents.toString())
-//   } catch(err) {console.log(err)}
-// })()
+ipcMain.on("add-keys-github", async (event, {id, overwrite, ghUsername}) => {
   const imgPath = path.resolve(getDownloadDir(), "node.img")
-  addSSHKeysByGithub({ghUsername, addKeysID, overwrite, imgPath, mainWindow})
+  try {
+    await addSSHKeysByGithub({ghUsername, overwrite, imgPath, mainWindow})
+    mainWindow.send("github-keys-added", {id})
+  } catch (err) {
+    showError(err)
+  }
 })
+
+ipcMain.on('home-dir', (event) => {
+  event.returnValue = os.homedir()
+})
+
+let keyFile;
+;(async function getKeyFile() {
+  keyFile = storage.get("key-file");
+  if (!keyFile) {
+    keyFile = path.resolve(os.homedir(), ".ssh", "id_rsa.pub")
+  }
+})()
+
+
+ipcMain.on('get-key-file', (event) => {
+  event.returnValue = keyFile
+})
+
+ipcMain.on('change-key-file', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [
+      { name: "Pub Key File", extensions: ["pub"]}
+    ]
+  })
+  if (!result.canceled) {
+    keyFile = result.filePaths[0]
+    storage.set("key-file", keyFile)
+  }
+  mainWindow.send("file-picked")
+})
+
+ipcMain.on('add-key-file', async (event, {id, overwrite }) => {
+  const imgPath = path.resolve(crusterDir, "node.img")
+  try {
+    await addSSHKeyByFile({imgPath, overwrite, file: keyFile})
+    mainWindow.send('file-key-added', {id})
+  } catch (err) {
+    showError(err)
+  }
+})
+const showError = err => {
+  dialog.showErrorBox("Error", err.toString() + "\n" + err.stack)
+}
+
+// wifi
+
+ipcMain.on('add-wifi-credentials', async (event, {id, ssid, wifiPassword}) => {
+  const imgPath = path.resolve(crusterDir, "node.img")
+  try {
+    await addWifiCredentials({imgPath, ssid, wifiPassword})
+    mainWindow.send('wifi-credentials-added', {id})
+  } catch (err) {
+    showError(err)
+  }
+})
+
+// this breaks whole app for some reason...find out why
+// // hostname
+
+// let hostname = ""
+// const refreshHostname = async () => {
+//   const imgPath = path.resolve(crusterDir, "node.img")
+//   try {
+//     hostname = await readHostname({imgPath})
+//   } catch (err) {
+//     hostname = "Err: Could not read hostname"
+//   }
+// }
+// ipcMain.on('get-hostname', evt => (refreshHostname(), evt.returnValue = hostname))
+
+// const writeHostname = async (evt, msg) => {
+
+// }
