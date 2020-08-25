@@ -13,7 +13,7 @@ const Chroot = ({crusterDir, sudoPassword}) => {
   setTimeout(() => ipcRenderer.sendSync("image-mounted"), 2000)
   return (
     <div className="boxed">
-      <h3>Chroot</h3>
+      <h3 className="top-margin">Chroot</h3>
     <LocalTerminal
         sudo={true}
         sudoPassword={sudoPassword}

@@ -31,7 +31,10 @@ button {
   border: 0px solid black;
   background-color: white;
   margin: .4em .4em .4em 0;
-  box-shadow:inset 0 -0.6em 1em -0.35em rgba(0,0,0,0.37),inset 0 0.6em 2em -0.3em rgba(255,255,255,0.33),inset 0 0 0em 0.05em rgba(255,255,255,0.30);
+  box-shadow:inset 0 -0.6em 1em -0.35em rgba(0,0,0,0.47),inset 0 0.6em 2em -0.3em rgba(255,255,255,0.33),inset 0 0 0em 0.05em rgba(255,255,255,0.30);
+}
+button:hover {
+  box-shadow:inset 0 -0.6em 1em -0.35em rgba(0,0,0,0.37),inset 0 0.6em 2em -0.3em rgba(255,255,255,0.23),inset 0 0 0em 0.05em rgba(255,255,255,0.20);
 }
 button:last-child {
   margin-right: 0;
@@ -41,6 +44,7 @@ button:focus {
   outline: none;
 }
 button:active {
+  box-shadow: none;
   background-color: #D8DEE9;
 }
 
@@ -69,6 +73,13 @@ input:focus {
 
 label {
   margin: 0;
+}
+
+.top-margin {
+  margin-top: .4em;
+}
+.top-margin-2 {
+  margin-top: .8em;
 }
 
 .boxed {

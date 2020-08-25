@@ -103,7 +103,7 @@ const Download = ({crusterDir, addToLog}) => {
 
   return (
     <div className="boxed">
-      <h3>Download Disk Image</h3>
+      <h3 className="top-margin">Download Disk Image</h3>
       <div className="checkbox-options">
         <label className="checkbox-container indent-1">
           <input type="checkbox"

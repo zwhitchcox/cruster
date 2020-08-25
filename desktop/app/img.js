@@ -1,5 +1,5 @@
 const path = require('path')
-const { download, downloadStr } = require('./util/download')
+const { download, downloadStr } = require('./lib/download')
 const fs = require('fs-extra')
 const unzipper = require('unzipper')
 const { interact } = require('balena-image-fs')

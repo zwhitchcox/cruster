@@ -9,9 +9,9 @@ const pty = require('node-pty');
 const { runSSH } = require("./run-ssh.js")
 const { interactiveSSH } = require('./interactive-ssh')
 const { dialog } = require('electron')
-const { interact } = require('balena-image-fs')
-const { downloadStr } = require('./util/download')
 const split = require('split2');
+const { scanner } = require('./lib/scanner')
+
 const {
   downloadImg,
   unzipImg,
@@ -19,7 +19,6 @@ const {
   addSSHKeyByFile,
   addWifiCredentials,
 } = require('./img');
-const { kill } = require('process');
 
 const {ipcMain} = electron
 const app = electron.app;
@@ -420,20 +419,28 @@ ipcMain.on('add-wifi-credentials', async (event, {id, ssid, wifiPassword}) => {
   }
 })
 
-// this breaks whole app for some reason...find out why
-// // hostname
+// Drive Scanner
 
-// let hostname = ""
-// const refreshHostname = async () => {
-//   const imgPath = path.resolve(crusterDir, "node.img")
-//   try {
-//     hostname = await readHostname({imgPath})
-//   } catch (err) {
-//     hostname = "Err: Could not read hostname"
-//   }
-// }
-// ipcMain.on('get-hostname', evt => (refreshHostname(), evt.returnValue = hostname))
+scanner.on('attach', drive => {
+  mainWindow.send("drive-attached", drive)
+})
 
-// const writeHostname = async (evt, msg) => {
+scanner.on('detach', drive => {
+  mainWindow.send("drive-detached", drive)
+})
 
-// }
+scanner.on('error', error => {
+  mainWindow.send("scanner-error", drive)
+});
+ipcMain.on('restart-scanner', () => {
+  scanner.stop();
+  scanner.start();
+})
+
+scanner.start()
+
+// Writer
+
+ipcMain.on('write', (event, drives) => {
+  console.log("drives", drives)
+})

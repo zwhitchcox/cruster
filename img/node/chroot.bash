@@ -9,7 +9,7 @@ source /tmp/env
 
 USERNAME="${USERNAME:-pi}"
 
-systemctl enable ssh
+
 
 apt update
 # apt upgrade -y
@@ -18,12 +18,15 @@ apt install vim tmux -y
 
 
 # add public keys
+systemctl enable ssh
 mkdir -p /root/.ssh
-touch /root/.ssh/authorized_keys
 mkdir -p /home/${USERNAME}/.ssh
+touch /home/${USERNAME}/.ssh/authorized_keys
+chown -R 1000:1000 /home/${USERNAME}/.ssh
+chmod 644 /home/${USERNAME}/.ssh/authorized_keys
 # curl https://github.com/${GITHUB_USERNAME}.keys -o /root/.ssh/authorized_keys
 # curl https://github.com/${GITHUB_USERNAME}.keys -o /home/${USERNAME}/.ssh/authorized_keys
-chown -R ${USERNAME} /home/${USERNAME}/.ssh
+# chown -R ${USERNAME} /home/${USERNAME}/.ssh
 
 # this isn't actually implemented, because I realized
 # the image already had a default user, pi on it
@@ -111,10 +114,22 @@ pip3 install netifaces
 
 
 sed -i '/^exit/d' /etc/rc.local
-echo "sudo /usr/bin/python3 /home/pi/upnp-server.py &
+# if [ $(cat /etc/hostname) == "node" ]; then
+#   UUID=$(cat /proc/sys/kernel/random/uuid)
+#   id=$(expr substr $UUID 1 8)
+#   echo "node-${id}" > /etc/hostname
+# fi
+echo "
+if sudo grep -q network /etc/wpa_supplicant/wpa_supplicant.conf; then
+  sudo rfkill unblock wifi
+  sudo rfkill unblock all
+fi
+echo \"starting upnp-server\"
+sudo /usr/bin/python3 /home/pi/upnp-server.py &
 sudo dphys-swapfile swapoff &
 exit 0" >> /etc/rc.local
 
+touch /home/pi/first_time_boot
 echo node > /etc/hostname
 
 rfkill unblock wifi
@@ -122,3 +137,5 @@ rfkill unblock all
 chmod o+r /etc/resolv.conf
 
 echo UNINITIALIZED > /home/${USERNAME}/status
+
+# TODO: switch to k3s

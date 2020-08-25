@@ -24,10 +24,14 @@ const Clusters = () => {
     <div>
       <div className="third-nav">
         <Link to="/clusters/create">
-          <button className="button-two">Create</button>
+          <div className="btn btn-three">
+          Create
+          </div>
         </Link>
         <Link to="/clusters/manage">
-          <button className="button-two">Manage</button>
+          <div className="btn btn-three">
+          Manage
+          </div>
         </Link>
       </div>
       <Switch>

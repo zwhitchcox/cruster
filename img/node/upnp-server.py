@@ -42,7 +42,6 @@ def get_network_interface_ip_address(interface_names=['eth0', 'wlan0']):
             interface = ni.ifaddresses(interface_name)
             if (2 not in interface) or (len(interface[2]) == 0):
                 logger.warning('Could not find IP of interface %s. Sleeping.' % (interface,))
-                sleep(60)
                 continue
             return interface[2][0]['addr']
 

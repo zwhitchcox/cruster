@@ -8,18 +8,45 @@ import {
 import Download from './Download';
 import Setup from './Setup';
 import Chroot from './Chroot';
-// import Unmount from './Unmount';
+import Flash from './Flash';
 const isDev = process.env.NODE_ENV === "development"
 
 
 let _log = ""
 const startPass = isDev ? "hi" : ""
+let _drives = {}
+const useDrives = () => {
+  const [drives, _setDrives] = useState({})
+  const setDrives = (drives) => {
+    _setDrives(_drives = drives)
+  }
+  useEffect(() => {
+    ipcRenderer.send('restart-scanner')
+    ipcRenderer.on('drive-attached', (event, drive) => {
+      if (!drive.drive.isSystem) {
+        setDrives({
+          ..._drives,
+          [drive.path]: drive
+        })
+      }
+    })
+    ipcRenderer.on('drive-detached', (event, drive) => {
+      const newDrives = {..._drives}
+      delete newDrives[drive.path]
+      setDrives(newDrives)
+    })
+  }, [])
+  return drives
+}
 
 const Image = () => {
   // update cache
   ipcRenderer.send("image-exists")
   ipcRenderer.send("image-mounted")
   ipcRenderer.send("get-hostname")
+
+  const drives = useDrives()
+
   const [crusterDir, setCrusterDir] = useState(ipcRenderer.sendSync("get-cruster-dir"))
   useEffect(() => {
     ipcRenderer.on("cruster-dir-changed", (event, arg) => {
@@ -74,10 +101,13 @@ const Image = () => {
           Chroot
           </div>
         </Link>
-        {/* <Link to="/image/unmount">
-          <button className="button-two">Unmount</button>
-        </Link> */}
+        <Link to="/image/flash">
+          <div className="btn btn-three">
+          Flash
+          </div>
+        </Link>
       </div>
+      <br />
       <Switch>
         <Route path="/image/download">
           <Download {...({crusterDir, addToLog})} />
@@ -88,9 +118,9 @@ const Image = () => {
         <Route path="/image/chroot">
           <Chroot {...({crusterDir, addToLog, sudoPassword})} />
         </Route>
-        {/* <Route path="/image/unmount">
-          <Unmount {...({crusterDir, sudoPassword})} />
-        </Route> */}
+        <Route path="/image/flash">
+          <Flash {...({crusterDir, addToLog, sudoPassword, drives})} />
+        </Route>
       </Switch>
       <br />
       <pre>{log}</pre>

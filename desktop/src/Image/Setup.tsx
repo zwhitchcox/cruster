@@ -123,13 +123,13 @@ const Setup = ({addToLog}) => {
           Public key file: {pubKeyFile}
         </div>
         <div>
-          <button className="button-two" onClick={pickFile}>Change</button>
+          <button onClick={pickFile}>Change</button>
         </div>
       </div>
       <button onClick={addKeysFromFile}>Add SSH Keys From File</button>
       <hr />
       <div>
-        <h3 className="top-margin">Add Wifi Credentials</h3>
+        <h3 className="top-margin-2">Add Wifi Credentials</h3>
         <div className="text-input-container">
           <div className="label">
             SSID ( Wifi Name):&nbsp;&nbsp;
