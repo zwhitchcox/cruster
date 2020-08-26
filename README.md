@@ -11,7 +11,7 @@ https://www.vagrantup.com/downloads
 Vagrant makes things a lot simpler. Alternatively, follow these steps on an ubuntu distro, but I won't provide support for this.
 
 
-### Start Vargrant Machine and Create Images
+### Start Vagrant Machine and Create Images
 
 Clone this repo and start vagrant:
 
