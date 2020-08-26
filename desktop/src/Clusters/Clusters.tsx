@@ -9,9 +9,9 @@ import {
 import ManageClusters from './ManageClusters';
 
 const useNodes = () => {
-  const [nodes, setNodes] = useState({})
+  const [nodes, setNodes] = useState([])
   useEffect(() => {
-    ipcRenderer.on('nodes', (event, nodes) => {
+    ipcRenderer.on('nodes', (evt, nodes) => {
       setNodes(nodes)
     })
     ipcRenderer.send('send-nodes', null)

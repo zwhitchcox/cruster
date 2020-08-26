@@ -18,7 +18,7 @@
   position: relative;
   padding-left: 35px;
   margin-bottom: 12px;
-  cursor: pointer;
+  cursor: cursor;
   font-size: 22px;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -30,7 +30,7 @@
 .checkbox-container input {
   position: absolute;
   opacity: 0;
-  cursor: pointer;
+  cursor: default;
   height: 0;
   width: 0;
 }
@@ -43,7 +43,7 @@
   left: 0;
   height: 25px;
   width: 25px;
-  background-color: #eee;
+  background-color: white;
 }
 
 /* On mouse-over, add a grey background color */

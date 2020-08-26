@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron')
 
-module.exports.interactiveSSH = ({host, key, id, mainWindow}) => {
+module.exports.interactiveSSH = ({host, privateKey, id, mainWindow}) => {
   const Client = require('ssh2').Client;
 
   const conn = new Client();

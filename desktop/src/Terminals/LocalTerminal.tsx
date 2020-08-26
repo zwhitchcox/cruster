@@ -1,14 +1,17 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useContext } from 'react'
 import "xterm/css/xterm.css"
 import { Terminal } from 'xterm'
 import "./LocalTerminal.css"
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { dialog } from 'electron'
 import {v4} from 'uuid'
+import SettingsContext from '../SettingsContext';
 
 declare var ipcRenderer;
 
-const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear, unmount}) => {
+const LocalTerminal = ({su, scripts, clear, unmount}) => {
+  const settings = useContext(SettingsContext)
+  const {crusterDir, sudoPassword} = settings
   const ref:any = useRef({})
   useEffect(() => {
     if (!ref.current) return () => {}
@@ -20,7 +23,7 @@ const LocalTerminal = ({sudo, sudoPassword, scripts, crusterDir, clear, unmount}
 
     const onReady = (event, msg) => {
       if (msg.id === id) {
-        if (sudo) {
+        if (su) {
           ipcRenderer.send("local-terminal-data", {
             id,
             data: "sudo su\n",

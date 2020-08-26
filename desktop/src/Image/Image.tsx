@@ -47,12 +47,6 @@ const Image = () => {
 
   const drives = useDrives()
 
-  const [crusterDir, setCrusterDir] = useState(ipcRenderer.sendSync("get-cruster-dir"))
-  useEffect(() => {
-    ipcRenderer.on("cruster-dir-changed", (event, arg) => {
-      setCrusterDir(arg.crusterDir)
-    })
-  })
   const [log, setLog] = useState("")
   const addToLog = (str) => {
     if (_log.length > log.length) {
@@ -63,27 +57,9 @@ const Image = () => {
     }
   }
 
-  const changeCrusterDir = () => ipcRenderer.send("change-cruster-dir")
-
-  const [sudoPassword, setSudoPassword] = useState(startPass)
 
   return (
     <div>
-      <div className="dir-container">
-        <div>Cruster Directory: &nbsp;{crusterDir}
-        </div>
-        <button onClick={changeCrusterDir}>Change</button>
-      </div>
-      <label className="text-container">
-      <div className="text">Your Sudo Password For This Computer:</div>
-      <input
-          placeholder="Your Sudo Password"
-          className="text-field-sudo"
-          type="password"
-          onChange={e => setSudoPassword(e.target.value)}
-          value={sudoPassword}
-        />
-      </label>
       <br />
       <div className="second-nav">
         <Link to="/image/download">
@@ -110,16 +86,16 @@ const Image = () => {
       <br />
       <Switch>
         <Route path="/image/download">
-          <Download {...({crusterDir, addToLog})} />
+          <Download {...({addToLog})} />
         </Route>
         <Route path="/image/add-keys">
-          <Setup {...({crusterDir, addToLog})} />
+          <Setup {...({addToLog})} />
         </Route>
         <Route path="/image/chroot">
-          <Chroot {...({crusterDir, addToLog, sudoPassword})} />
+          <Chroot />
         </Route>
         <Route path="/image/flash">
-          <Flash {...({crusterDir, addToLog, sudoPassword, drives})} />
+          <Flash {...({addToLog, drives})} />
         </Route>
       </Switch>
       <br />

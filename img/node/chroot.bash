@@ -129,7 +129,6 @@ sudo /usr/bin/python3 /home/pi/upnp-server.py &
 sudo dphys-swapfile swapoff &
 exit 0" >> /etc/rc.local
 
-touch /home/pi/first_time_boot
 echo node > /etc/hostname
 
 rfkill unblock wifi

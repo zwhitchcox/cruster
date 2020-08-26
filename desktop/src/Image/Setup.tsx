@@ -1,21 +1,17 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import "./Setup.css"
 import { v4 } from 'uuid'
+import SettingsContext from '../SettingsContext';
 
-const isDev = process.env.NODE_ENV === "development"
-const startGHUsername = isDev ? "zwhitchcox" : ""
-const startWifiSSID = isDev ? "Home" : ""
-const startWifiPassword = isDev ? "cherokee" : ""
+// const isDev = process.env.NODE_ENV === "development"
+// const startGHUsername = isDev ? "zwhitchcox" : ""
+// const startWifiSSID = isDev ? "Home" : ""
+// const startWifiPassword = isDev ? "cherokee" : ""
 
 const Setup = ({addToLog}) => {
-  const [_, setRefresh] = useState(false)
-  // force update
-  const refresh = () => {
-    setRefresh(true)
-    setRefresh(false)
-  }
+  const settings = useContext(SettingsContext)
   // ssh keys
-  const [ghUsername, setGHUsername] = useState(startGHUsername)
+  const [ghUsername, setGHUsername] = useState(settings.defaultGithubUsername)
   const [whyGHUsername, setWhyGHUsername] = useState(false)
   const [overwriteKeys, setOverwriteKeys] = useState(false)
 
@@ -38,34 +34,23 @@ const Setup = ({addToLog}) => {
     }
     ipcRenderer.on('github-keys-added', onCompleted)
   }
-
-  const pubKeyFile = ipcRenderer.sendSync("get-key-file")
-
-  const pickFile = () => {
-    ipcRenderer.send("change-key-file")
-    const onChange = () => {
-      refresh()
-      ipcRenderer.off("file-picked", onChange)
-    }
-    ipcRenderer.on("file-picked", onChange)
-  }
   const addKeysFromFile = () => {
-    addToLog(`Adding SSH keys from ${pubKeyFile}...`)
+    addToLog(`Adding SSH keys from ${settings.publicKeyFile}...`)
     const id = v4()
-    ipcRenderer.send("add-key-file", {id, overwrite: overwriteKeys})
+    ipcRenderer.send("add-public-key-file", {id, overwrite: overwriteKeys})
 
     const onCompleted = (event, msg) => {
       if (id === msg.id) {
         addToLog("Key added.")
-        ipcRenderer.off("file-key-added", onCompleted)
+        ipcRenderer.off("public-file-key-added", onCompleted)
       }
     }
     ipcRenderer.on('file-key-added', onCompleted)
   }
 
   // wifi password
-  const [wifiPassword, setWifiPassword] = useState(startWifiPassword)
-  const [ssid, setSSID] = useState(startWifiSSID)
+  const [wifiPassword, setWifiPassword] = useState(settings.defaultPSK)
+  const [ssid, setSSID] = useState(settings.defaultSSID)
   const addWifi = () => {
     addToLog(`Adding Wifi Credentials for ${ssid}...`)
     const id = v4()
@@ -120,10 +105,10 @@ const Setup = ({addToLog}) => {
       <br />
       <div className="key-file">
         <div>
-          Public key file: {pubKeyFile}
+          Public key file: {settings.publicKeyFile}
         </div>
         <div>
-          <button onClick={pickFile}>Change</button>
+          {/* <button onClick={}>Change</button> */}
         </div>
       </div>
       <button onClick={addKeysFromFile}>Add SSH Keys From File</button>

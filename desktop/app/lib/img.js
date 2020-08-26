@@ -1,5 +1,5 @@
 const path = require('path')
-const { download, downloadStr } = require('./lib/download')
+const { download, downloadStr } = require('./download')
 const fs = require('fs-extra')
 const unzipper = require('unzipper')
 const { interact } = require('balena-image-fs')
@@ -61,20 +61,21 @@ const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
     }))
 }
 
-const addSSHKeysByGithub = async ({ghUsername, overwrite, imgPath, mainWindow}) => {
-  const keysFile = "/home/pi/.ssh/authorized_keys"
+const sshKeyFile = "/root/.ssh/authorized__keys"
+
+const addSSHKeysByGithub = async ({ghUsername, overwrite, imagePath}) => {
   const piUID = 1000
   const piGID = 1000
   try {
     let keys = await fetch(`https://github.com/${ghUsername}.keys`).then(resp => resp.text())
-    await interact(imgPath, 2, async fs => {
+    await interact(imagePath, 2, async fs => {
       if (!overwrite) {
         try {
-          keys += await promisify(fs.readFile)(keysFile)
+          keys += await promisify(fs.readFile)(sshKeyFile)
         } catch(e) {}
       }
-      await promisify(fs.writeFile)(keysFile, keys, 'utf8')
-      await promisify(fs.chown)(keysFile, piUID, piGID)
+      await promisify(fs.writeFile)(sshKeyFile, keys, 'utf8')
+      await promisify(fs.chown)(sshKeyFile, piUID, piGID)
     })
   } catch (error) {
     console.log("error", error.toString())
@@ -90,10 +91,10 @@ const addSSHKeyByFile = async ({overwrite, imgPath, file}) => {
     if (!overwrite) {
       try {
         // can't get fs.exists to work right now
-        keys += await promisify(fs.readFile)("/root/.ssh/authorized_keys")
+        keys += await promisify(fs.readFile)(sshKeyFile)
       } catch(e) {}
     }
-    await promisify(fs.writeFile)('/root/.ssh/authorized_keys', keys, 'utf8')
+    await promisify(fs.writeFile)(sshKeyFile, keys, 'utf8')
   })
 }
 

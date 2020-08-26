@@ -29,20 +29,19 @@ const validateCluster = (cluster) => {
 const CreateCluster = ({nodes}) => {
   const [isCreating, setIsCreating] = useState(false)
   const [attempted, setAttempted] = useState(false)
-  const uninitialized = Object.entries(nodes)
-    .reduce((prev, [url, node]: any) => {
-      if (node.status === UNINITIALIZED) {
-        prev.push(url)
-      }
-      return prev
-    }, [] as any)
-  uninitialized.sort(sortByIP)
+  // const uninitialized = Object.entries(nodes)
+  //   .reduce((prev, [url, node]: any) => {
+  //     if (node.status === UNINITIALIZED) {
+  //       prev.push(url)
+  //     }
+  //     return prev
+  //   }, [] as any)
+  // uninitialized.sort(sortByIP)
   const [clusterName, setClusterName] = useState("cruster")
   const [cluster, setCluster] = useState({
     master: "",
     slaves: [] as string[],
   })
-  const clusterErrors = validateCluster(cluster)
   if (isCreating) {
     return (
       <CreatingCluster
@@ -52,6 +51,7 @@ const CreateCluster = ({nodes}) => {
     )
   }
 
+  const clusterErrors = validateCluster(cluster)
   const addNode = url => {
     setCluster({
       ...cluster,
@@ -104,17 +104,17 @@ const CreateCluster = ({nodes}) => {
     setIsCreating(true)
   }
 
-  const available = uninitialized.filter(url => {
-    return !(cluster.slaves.some(s => s === url) || cluster.master === url)
-  })
+  // const available = uninitialized.filter(url => {
+  //   return !(cluster.slaves.some(s => s === url) || cluster.master === url)
+  // })
 
-  const nonresponsive = Object.entries(nodes)
-    .reduce((prev, [url, node]:any) => {
-      if (!node.apiResponded) {
-        prev.push(ipFromUrl(url))
-      }
-      return prev
-    }, [] as string[])
+  // const nonresponsive = Object.entries(nodes)
+  //   .reduce((prev, [url, node]:any) => {
+  //     if (!node.apiResponded) {
+  //       prev.push(ipFromUrl(url))
+  //     }
+  //     return prev
+  //   }, [] as string[])
 
   return (
     <div className="boxed">
@@ -175,10 +175,12 @@ const CreateCluster = ({nodes}) => {
         <button className="button-two" onClick={launch}>Launch</button>
       </div>}
       <h4>Available Nodes</h4>
-      {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""}
+      {/* {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""} */}
       <table className="available-node-list">
       <tbody>
-        {available.map(url => (
+        {nodes
+          .filter(url => url !== cluster.master && !cluster.slaves.includes(url))
+          .map(url => (
           <AvailableNode
             key={url}
             {...({
@@ -190,13 +192,13 @@ const CreateCluster = ({nodes}) => {
         ))}
       </tbody>
       </table>
-        {nonresponsive.length === 0 ? "" : <div>
+        {/* {nonresponsive.length === 0 ? "" : <div>
           The following ip addresses have a cluster, but the api didn't respond for some reason:
 
           <ul>
             {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
           </ul>
-        </div>}
+        </div>} */}
     </div>
   )
 }

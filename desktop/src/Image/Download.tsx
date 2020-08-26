@@ -8,7 +8,7 @@ const statuses = {
 }
 
 let log = ""
-const Download = ({crusterDir, addToLog}) => {
+const Download = ({addToLog}) => {
   const [_, setRefresh] = useState(false)
   const refresh = () => {
     // in case in closure
