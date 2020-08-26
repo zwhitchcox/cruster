@@ -1,100 +1,118 @@
 const { dialog, ipcMain } = require('electron')
+const path = require('path')
+const fs = require('fs-extra')
+const fetch = require('node-fetch')
 const {
   downloadImg,
   unzipImg,
-  addSSHKeysByGithub,
-  addSSHKeyByFile,
-  addWifiCredentials,
+  addSSHKeys,
+  addWifiCredentials: _addWifiCredentials,
 } = require('./lib/img');
 
 module.exports.actionsListen = ({mainWindow, settings}) => {
-  ipcMain.on("run-action", async (event, msg) => {
-    switch (msg.type) {
-      case "add-public-key-file":
-        addPublicKeyFile()
-      default:
-        console.error("Could not find action " + msg.type)
-    }
-
-  })
-  ipcMain.on('add-public-key-file', async (event, {id, overwrite }) => {
-    const { imgPath } = settings
-    try {
-      await addSSHKeyByFile({imgPath, overwrite, file: settings.publicKeyFile})
-      mainWindow.send('public-file-key-added', {id})
-    } catch (err) {
-      showError(err)
-    }
-  })
-
-
-  // Download
-
-  ipcMain.on('download-image', async (event, {downloadID, force}) => {
-    try {
-      await downloadImg({
-        mainWindow,
-        downloadID,
-        force,
-        downloadDir: settings.crusterDir,
-      })
-    } catch (err) {
-      showError(err)
-    }
-  })
-
-
-  // unzip
-
-  ipcMain.on('unzip-image', async (event, {unzipID, force}) => {
-    const outputPath = settings.crusterDir
-    const zipPath = path.resolve(outputPath, "node.zip")
-    if (!force && await fs.exists(path.resolve(outputPath, "node.img"))) {
-      mainWindow.send("already-unzipped", {unzipID})
-      return
-    }
-    try {
-      await unzipImg({
-        zipPath,
-        outputPath,
-        unzipID,
-        mainWindow,
-      })
-    } catch (err) {
-      showError
-    }
-  })
-
-  // add keys
-  ipcMain.on("add-keys-github", async (event, {id, overwrite, ghUsername}) => {
-    const { imagePath } = settings
-    try {
-      await addSSHKeysByGithub({ghUsername, overwrite, imagePath, mainWindow})
-      mainWindow.send("github-keys-added", {id})
-    } catch (err) {
-      showError(err)
-    }
-  })
-
   const showError = err => {
     dialog.showErrorBox("Error", err.toString() + "\n" + err.stack)
   }
 
-  // wifi
-
-  ipcMain.on('add-wifi-credentials', async (event, {id, ssid, wifiPassword}) => {
-    const { imgPath } = settings
+  ipcMain.on("run-action", async (event, msg) => {
+    let status
+    const {id} = msg
     try {
-      await addWifiCredentials({imgPath, ssid, wifiPassword})
-      mainWindow.send('wifi-credentials-added', {id})
-    } catch (err) {
-      showError(err)
+      switch (msg.type) {
+        case "add-public-keys-file":
+          status = await addPublicKeysFile(msg)
+          break
+        case "add-public-keys-github":
+          status = await addPublicKeysGithub(msg)
+          break
+        case "download-image":
+          status = await downloadImage(msg)
+          break
+        case "unzip-image":
+          status = await unzipImage(msg)
+          break
+        case "add-wifi-credentials":
+          status = await addWifiCredentials(msg)
+          break
+        case "write":
+          console.log("drives", drives)
+          break
+        default:
+          console.error("Could not find action " + msg.type)
+          break
+      }
+      mainWindow.send("complete", {id, status})
+    } catch (error) {
+      mainWindow.send("action-error", {id, error})
+      showError(error)
     }
   })
 
-  // Writer
+  // Keys
+  const addPublicKeysFile = async ({overwrite}) => {
+    const { imagePath } = settings
+    const keys = await fs.readFile(settings.publicKeyFile)
+    await addSSHKeys({imagePath, overwrite, keys})
+    return `Keys added from ${settings.publicKeyFile} successfully.`
+  }
 
-  ipcMain.on('write', (event, drives) => {
-    console.log("drives", drives)
-  })
+  const addPublicKeysGithub = async ({ghUsername, overwrite}) => {
+    let keys
+    try {
+      keys = await fetch(`https://github.com/${ghUsername}.keys`)
+        .then(resp => {
+          if (resp.status >= 400) {
+            throw new Error(resp.status)
+          }
+          return resp
+        })
+        .then(resp => resp.text())
+    } catch (error) {
+      throw new Error("There was an error retrieving keys for " + ghUsername + ". " + error.toString())
+    }
+    const { imagePath } = settings
+    addSSHKeys({keys, ghUsername, overwrite, imagePath})
+    return `Keys added from Github successfully.`
+  }
+
+  // Download
+  const downloadImage = async ({force, id}) => {
+    return await downloadImg({
+      onProgress: percentage => {
+        mainWindow.send("progress", {id, percentage})
+      },
+      force,
+      downloadDir: settings.crusterDir,
+    })
+  }
+
+
+  // Unzip
+  const unzipImage = async ({force, id}) => {
+    const outputPath = settings.crusterDir
+    const zipPath = path.resolve(outputPath, "node.zip")
+    let status = ""
+    if (await fs.exists(path.resolve(outputPath, "node.img"))) {
+      if (force) {
+        status += "Overwrote node.img. "
+      } else {
+        return "Already unzipped, not overwriting."
+      }
+    }
+    await unzipImg({
+      zipPath,
+      outputPath,
+      onProgress: percentage => {
+        mainWindow.send("progress", {id, percentage})
+      }
+    })
+    return status + "Unzipped sucessfully."
+  }
+
+
+  // wifi
+  const addWifiCredentials = async ({id, ssid, wifiPassword}) => {
+    const { imagePath } = settings
+    await _addWifiCredentials({imagePath, ssid, wifiPassword})
+  }
 }

@@ -1,9 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { UNINITIALIZED } from '../constants'
 import "./CreateCluster.css"
-import { ipFromUrl, getHostname } from '../util'
 import CreatingCluster from './CreatingCluster'
 
+export const ipFromUrl = url => url.replace("http://", "").replace(":9090", "")
+
+export const getHostname = ({clusterName, cluster, url, index}) => (
+  `${clusterName ? clusterName + "-" : ""}` +
+  `${cluster.master === url ? "master" : "slave-" +(index+1)}.local`
+)
 
 const validateClusterName = name => {
   if (!name.length) return true

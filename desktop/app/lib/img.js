@@ -9,96 +9,83 @@ const fetch = require('node-fetch')
 
 const VERSION = "v0.0.1"
 
-const downloadImg = async ({downloadID, mainWindow, force, downloadDir}) => {
+const downloadImg = async ({onProgress, force, downloadDir}) => {
   const downloadLocation = `https://github.com/zwhitchcox/cruster/releases/download/${VERSION}/node.zip`
   if (!await fs.exists(downloadDir)) {
-  await fs.mkdir(downloadDir, {recursive: true})
+    await fs.mkdir(downloadDir, {recursive: true})
   }
   const zipOutputPath = path.resolve(downloadDir, "node.zip")
   if (await fs.exists(zipOutputPath) && !force) {
-  mainWindow.send("already-downloaded", {downloadID})
-  return
+    return "Already downloaded."
   }
 
-  await download(downloadLocation, zipOutputPath, percentage => {
-  mainWindow.send("download-progress", {downloadID, percentage})
-  })
-
-  mainWindow.send("download-complete", {downloadID})
+  await download(downloadLocation, zipOutputPath, onProgress)
+  return "Download complete."
 }
 
-const unzipImg = async ({zipPath, outputPath, unzipID, mainWindow}) => {
+const unzipImg = async ({zipPath, outputPath, onProgress}) => {
   let lastPercentage = 0
   let progress = 0
-  fs.createReadStream(zipPath)
-    .pipe(unzipper.Parse())
-    .pipe(stream.Transform({
-      objectMode: true,
-      transform: (entry, e, cb) => {
-        const filename = entry.path;
-        const total = entry.vars.uncompressedSize
-        if (filename === "node.img") {
-          entry
-            .pipe(fs.createWriteStream(path.resolve(outputPath, "node.img")))
-          entry
-            .on('data', chunk => {
-              const percentage = progress / total
-              const diff = percentage - lastPercentage
-              if (diff > .0005) {
-                lastPercentage = percentage
-                mainWindow.send("unzip-progress", {unzipID, percentage: percentage*100})
-              }
-              progress += chunk.length
-            })
-            .on('finish', () => {
-              cb()
-              mainWindow.send('unzip-complete', {unzipID})
-            })
-        } else {
-          entry.autodrain()
+  return new Promise((res, rej) => {
+    fs.createReadStream(zipPath)
+      .pipe(unzipper.Parse())
+      .pipe(stream.Transform({
+        objectMode: true,
+        transform: (entry, e, cb) => {
+          const filename = entry.path;
+          const total = entry.vars.uncompressedSize
+          if (filename === "node.img") {
+            entry
+              .pipe(fs.createWriteStream(path.resolve(outputPath, "node.img")))
+
+            // measure percentage done
+            entry
+              .on('data', chunk => {
+                const percentage = progress / total
+                const diff = percentage - lastPercentage
+                if (diff > .0005) {
+                  lastPercentage = percentage
+                  onProgress(percentage*100)
+                }
+                progress += chunk.length
+              })
+              .on('error', (data) => {
+                rej('There was an error. ' + data.toString())
+              })
+              .on('finish', () => {
+                res("Unzipped sucessfully.")
+                cb()
+              })
+          } else {
+            entry.autodrain()
+          }
         }
-      }
-    }))
-}
-
-const sshKeyFile = "/root/.ssh/authorized__keys"
-
-const addSSHKeysByGithub = async ({ghUsername, overwrite, imagePath}) => {
-  const piUID = 1000
-  const piGID = 1000
-  try {
-    let keys = await fetch(`https://github.com/${ghUsername}.keys`).then(resp => resp.text())
-    await interact(imagePath, 2, async fs => {
-      if (!overwrite) {
-        try {
-          keys += await promisify(fs.readFile)(sshKeyFile)
-        } catch(e) {}
-      }
-      await promisify(fs.writeFile)(sshKeyFile, keys, 'utf8')
-      await promisify(fs.chown)(sshKeyFile, piUID, piGID)
-    })
-  } catch (error) {
-    console.log("error", error.toString())
-  }
-}
-
-const addSSHKeyByFile = async ({overwrite, imgPath, file}) => {
-  if (!await fs.exists(file)) {
-    throw new Error(`Could not find file ${file}`)
-  }
-  let keys = (await fs.readFile(file)).toString()
-  await interact(imgPath, 2, async fs => {
-    if (!overwrite) {
-      try {
-        // can't get fs.exists to work right now
-        keys += await promisify(fs.readFile)(sshKeyFile)
-      } catch(e) {}
-    }
-    await promisify(fs.writeFile)(sshKeyFile, keys, 'utf8')
+      }))
   })
 }
 
-const addWifiCredentials = async ({ssid, wifiPassword, imgPath}) => {
+const sshKeyFile = "/root/.ssh/authorized_keys"
+const addSSHKeys = async ({overwrite, imagePath, keys}) => {
+  await interact(imagePath, 2, async fs => {
+    if (!overwrite) {
+      try {
+        keys += await promisify(fs.readFile)(sshKeyFile)
+      } catch(e) {
+        console.error("couldn't read file")
+      }
+    }
+    await promisify(fs.writeFile)(sshKeyFile, keys, 'utf8')
+    // try {
+    //   console.log('trying file')
+    //   await promisify(fs.chown)(sshKeyFile, 0, 0)
+    // } catch (err) {
+    //   console.error(err, "chown")
+    // }
+  })
+}
+
+
+const addWifiCredentials = async ({ssid, wifiPassword, imagePath}) => {
   const file = "/etc/wpa_supplicant/wpa_supplicant.conf"
   const newWifiInfo = `
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -109,15 +96,8 @@ network={
     psk="${wifiPassword}"
 }
 `
-  await interact(imgPath, 2, async fs => {
+  await interact(imagePath, 2, async fs => {
     let wifiInfo = ""
-    // Commented code reads currentwifi file in case we want to append.
-    // try {
-    //   // can't get fs.exists to work right now
-    //   wifiInfo += await promisify(fs.readFile)(file)
-    // } catch(e) {
-    //   throw new Error("Couldn't find wifi supplicant file on this disk.")
-    // }
     await promisify(fs.writeFile)(file, wifiInfo + newWifiInfo, 'utf8')
   })
 }
@@ -125,7 +105,6 @@ network={
 module.exports = {
   unzipImg,
   downloadImg,
-  addSSHKeysByGithub,
-  addSSHKeyByFile,
+  addSSHKeys,
   addWifiCredentials,
 }

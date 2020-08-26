@@ -5,7 +5,7 @@ import "./LocalTerminal.css"
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { dialog } from 'electron'
 import {v4} from 'uuid'
-import SettingsContext from '../SettingsContext';
+import SettingsContext from '../Contexts/SettingsContext';
 
 declare var ipcRenderer;
 

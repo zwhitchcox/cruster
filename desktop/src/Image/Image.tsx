@@ -6,14 +6,10 @@ import {
   Link,
 } from "react-router-dom";
 import Download from './Download';
-import Setup from './Setup';
+import Setup from './Setup/Setup';
 import Chroot from './Chroot';
 import Flash from './Flash';
-const isDev = process.env.NODE_ENV === "development"
 
-
-let _log = ""
-const startPass = isDev ? "hi" : ""
 let _drives = {}
 const useDrives = () => {
   const [drives, _setDrives] = useState({})
@@ -47,17 +43,6 @@ const Image = () => {
 
   const drives = useDrives()
 
-  const [log, setLog] = useState("")
-  const addToLog = (str) => {
-    if (_log.length > log.length) {
-      _log = _log + "\n" + str
-      setLog(_log)
-    } else {
-      setLog(_log = (log + "\n" + str))
-    }
-  }
-
-
   return (
     <div>
       <br />
@@ -86,20 +71,19 @@ const Image = () => {
       <br />
       <Switch>
         <Route path="/image/download">
-          <Download {...({addToLog})} />
+          <Download />
         </Route>
         <Route path="/image/add-keys">
-          <Setup {...({addToLog})} />
+          <Setup />
         </Route>
         <Route path="/image/chroot">
           <Chroot />
         </Route>
         <Route path="/image/flash">
-          <Flash {...({addToLog, drives})} />
+          <Flash drives={drives} />
         </Route>
       </Switch>
       <br />
-      <pre>{log}</pre>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import "./Settings.css"
 import Modal from './Modal';
-import SettingsContext from './SettingsContext';
+import SettingsContext from '../Contexts/SettingsContext';
 import { settings } from 'cluster';
 
 const Settings = ({closeSettings, settingsOpen}) => {
