@@ -74,6 +74,7 @@ const addSSHKeys = async ({overwrite, imagePath, keys}) => {
       } catch(e) {} // if the file doesn't exist, that doesn't matter
     }
     await promisify(fs.writeFile)(rootSSHKeyFile, keys, 'utf8')
+    await promisify(fs.chmod)(rootSSHKeyFile, 0o644)
     await promisify(fs.writeFile)(piSSHKeyFile, keys, 'utf8')
     await promisify(fs.chown)(piSSHKeyFile, 1000, 1000)
   })

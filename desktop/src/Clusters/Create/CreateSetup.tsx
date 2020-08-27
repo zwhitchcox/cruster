@@ -1,21 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react'
-import "./CreateCluster.css"
-import CreatingCluster from './CreatingCluster'
+import React, { useState } from 'react'
+import { useHistory } from 'react-router-dom'
+import { useEffect } from 'react';
 
 export const ipFromUrl = url => url.replace("http://", "").replace(":9090", "")
-
 export const getHostname = ({clusterName, cluster, url, index}) => (
   `${clusterName ? clusterName + "-" : ""}` +
   `${cluster.master === url ? "master" : "slave-" +(index+1)}.local`
 )
-
 const validateClusterName = name => {
   if (!name.length) return true
   return /^[A-Za-z0-9]([A-Za-z0-9]|-){0,55}$/.test(name)
 }
 const lastNumIP = ip => Number(ipFromUrl(ip).split('.')[3])
 const sortByIP = (a, b) => lastNumIP(a) - lastNumIP(b)
-
 const validateCluster = (cluster) => {
   const errors: string[] = []
   if (!cluster.master) {
@@ -27,102 +24,31 @@ const validateCluster = (cluster) => {
   return errors
 }
 
-
-// necessary because of asynchronous code
-// capturing stale data in closures
-const CreateCluster = ({nodes}) => {
-  const [isCreating, setIsCreating] = useState(false)
-  const [attempted, setAttempted] = useState(false)
-  // const uninitialized = Object.entries(nodes)
-  //   .reduce((prev, [url, node]: any) => {
-  //     if (node.status === UNINITIALIZED) {
-  //       prev.push(url)
-  //     }
-  //     return prev
-  //   }, [] as any)
-  // uninitialized.sort(sortByIP)
-  const [clusterName, setClusterName] = useState("cruster")
-  const [cluster, setCluster] = useState({
-    master: "",
-    slaves: [] as string[],
-  })
-  if (isCreating) {
-    return (
-      <CreatingCluster
-        cluster={cluster}
-        clusterName={clusterName}
-      />
-    )
-  }
-
+const CreateSetup = ({
+  clusterName,
+  setClusterName,
+  cluster,
+  setMaster,
+  addNode,
+  removeNode,
+  nodes,
+  addNodes,
+  removeAll,
+}) => {
+  const history = useHistory()
   const clusterErrors = validateCluster(cluster)
-  const addNode = url => {
-    setCluster({
-      ...cluster,
-      slaves: [
-        ...cluster.slaves,
-        url,
-      ]
-    })
-  }
-
-  const removeNode = url => {
-    if (cluster.master === url) {
-      setCluster({
-        master: "",
-        slaves: cluster.slaves,
-      })
-    } else {
-      setCluster({
-        ...cluster,
-        slaves: cluster.slaves.filter(_url => _url !== url)
-      })
-    }
-  }
-
-  const setMaster = url => {
-    if (cluster.master !== "") {
-      if (url === cluster.master) return
-      setCluster({
-        master: url,
-        slaves: [
-          ...cluster.slaves.filter(n => n !== url),
-          cluster.master,
-        ]
-      })
-    } else {
-      setCluster({
-        slaves: [
-          ...cluster.slaves.filter(n => n !== url),
-        ],
-        master: url,
-      })
-    }
-  }
-
+  const [attempted, setAttempted] = useState(false)
   const launch = () => {
-    if (clusterErrors.length !== 0) {
-      setAttempted(true)
-      return
+    setAttempted(true)
+    if (!clusterErrors.length) {
+      history.push("/clusters/create/run")
     }
-    setIsCreating(true)
   }
-
-  // const available = uninitialized.filter(url => {
-  //   return !(cluster.slaves.some(s => s === url) || cluster.master === url)
-  // })
-
-  // const nonresponsive = Object.entries(nodes)
-  //   .reduce((prev, [url, node]:any) => {
-  //     if (!node.apiResponded) {
-  //       prev.push(ipFromUrl(url))
-  //     }
-  //     return prev
-  //   }, [] as string[])
+  const availableNodes = nodes
+    .filter(url => url !== cluster.master && !cluster.slaves.includes(url))
 
   return (
-    <div className="boxed">
-      <h3>Create Cluster</h3>
+    <div>
       <div className="upper-create">
         <label>
         Cluster Name<br />
@@ -152,7 +78,6 @@ const CreateCluster = ({nodes}) => {
               setMaster,
               clusterName,
               cluster,
-              nodes,
               addNode,
               removeNode,
               index: null,
@@ -166,7 +91,6 @@ const CreateCluster = ({nodes}) => {
                 clusterName,
                 setMaster,
                 cluster,
-                nodes,
                 addNode,
                 removeNode,
                 index,
@@ -175,6 +99,7 @@ const CreateCluster = ({nodes}) => {
           ))}
           </tbody>
         </table>
+        {cluster.master !== "" || cluster.slaves.length  ? <div onClick={removeAll} className="action indent-1 top-margin">Remove All</div> : ""}
         <br />
         <button className="button-two" onClick={launch}>Launch</button>
       </div>}
@@ -182,7 +107,7 @@ const CreateCluster = ({nodes}) => {
       {/* {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""} */}
       <table className="available-node-list">
       <tbody>
-        {nodes
+        {availableNodes
           .filter(url => url !== cluster.master && !cluster.slaves.includes(url))
           .map(url => (
           <AvailableNode
@@ -196,6 +121,7 @@ const CreateCluster = ({nodes}) => {
         ))}
       </tbody>
       </table>
+      {availableNodes.length ? <div onClick={() => addNodes(availableNodes)} className="action indent-1 top-margin">Add All</div> : ""}
         {/* {nonresponsive.length === 0 ? "" : <div>
           The following ip addresses have a cluster, but the api didn't respond for some reason:
 
@@ -206,6 +132,7 @@ const CreateCluster = ({nodes}) => {
     </div>
   )
 }
+export default CreateSetup
 
 const AvailableNode = ({url, addNode, setMaster}) => {
   return (
@@ -241,5 +168,3 @@ const ClusterNode = ({url, removeNode, setMaster, cluster, clusterName, index}) 
     </tr>
   )
 }
-
-export default CreateCluster

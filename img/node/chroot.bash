@@ -24,6 +24,8 @@ mkdir -p /home/${USERNAME}/.ssh
 touch /home/${USERNAME}/.ssh/authorized_keys
 chown -R 1000:1000 /home/${USERNAME}/.ssh
 chmod 644 /home/${USERNAME}/.ssh/authorized_keys
+touch /root/.ssh/authorized_keys
+chmod 644 /root/.ssh/authorized_keys
 # curl https://github.com/${GITHUB_USERNAME}.keys -o /root/.ssh/authorized_keys
 # curl https://github.com/${GITHUB_USERNAME}.keys -o /home/${USERNAME}/.ssh/authorized_keys
 # chown -R ${USERNAME} /home/${USERNAME}/.ssh
@@ -134,6 +136,8 @@ echo node > /etc/hostname
 rfkill unblock wifi
 rfkill unblock all
 chmod o+r /etc/resolv.conf
+
+echo 'root:raspberry' | chpasswd
 
 echo UNINITIALIZED > /home/${USERNAME}/status
 

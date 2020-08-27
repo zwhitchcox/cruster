@@ -16,6 +16,8 @@ import SettingsContext from './Contexts/SettingsContext'
 import { v4 } from 'uuid'
 import ActionsContext from './Contexts/ActionsContext';
 import SystemInfoContext from './Contexts/SystemInfoContext';
+import { Terminal } from 'xterm'
+import "xterm/css/xterm.css"
 
 let _log = ""
 function App() {
@@ -38,11 +40,16 @@ function App() {
     }
     setLog(_log = (log + "\n" + item))
   }
-  // TODO: could make this promise I guess
-  const runAction = ({type, status, args, onComplete, onProgress, onError}) => {
+  const runAction = ({type, status, args, onComplete, onProgress, onError, onData, id}) => {
     return new Promise((res,rej) => {
       addToLog(status)
-      const id = v4()
+      id = id || v4()
+      const _onData = (_, msg) => {
+        if (msg.id !== id) return
+        if (typeof onData === "function") {
+          onData(msg)
+        }
+      }
       const _onProgress = (_, msg) => {
         if (msg.id !== id) return
         if (typeof onProgress === "function") {
@@ -68,11 +75,13 @@ function App() {
         rej(msg)
       }
       const cleanUp = () => {
+        ipcRenderer.off("data", _onData)
         ipcRenderer.off("error", _onError)
         ipcRenderer.off("progress", _onProgress)
         ipcRenderer.off("complete", _onComplete)
       }
 
+      ipcRenderer.on("data", _onData)
       ipcRenderer.on("error", _onError)
       ipcRenderer.on("progress", _onProgress)
       ipcRenderer.on("complete", _onComplete)
@@ -80,6 +89,49 @@ function App() {
       ipcRenderer.send("run-action", {id, type, ...args})
     })
   }
+  const sshTerm = ({host, username}) => {
+    const term = new Terminal({ cols: 80, rows: 24})
+    const id = v4()
+    const startTerm = () => runAction(({
+      status: "Starting ssh term ",
+      type: "start-ssh-term",
+      args: {
+        host
+      },
+      id,
+    }) as any)
+    const runCmd = ({cmd, status}) => (
+      runAction(({
+        type: "run-ssh-cmd",
+        status,
+        id,
+        args: {cmd},
+        onData: msg => {
+          if (["data", "error"].includes(msg.type)) {
+            term.write(msg.data)
+          }
+          if (msg.type === "exit-code") {
+            addToLog("exit status: " + msg.code)
+          }
+        }
+      }) as any)
+    )
+    const endTerm = () => (
+      runAction(({
+        status: `Ending terminal session ${username}@${host}`,
+        type: "end-ssh-term",
+        id,
+      }) as any)
+    )
+
+    return {
+      term,
+      runCmd,
+      endTerm,
+      startTerm,
+    }
+  }
+
 
   const [systemInfo, setSystemInfo] = useState(ipcRenderer.sendSync("get-system-info"))
   useEffect(() => {
@@ -95,7 +147,7 @@ function App() {
       showSettings,
       closeSettings,
       }}>
-    <ActionsContext.Provider value={{runAction, addToLog}} >
+    <ActionsContext.Provider value={{runAction, addToLog, sshTerm}} >
     <SystemInfoContext.Provider value={systemInfo}>
     {showLog ? <Log log={log} /> : ""}
     <div className="App-container">

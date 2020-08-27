@@ -1,5 +1,3 @@
-const { ipcMain } = require('electron')
-
 const Client = require('ssh2').Client;
 module.exports.runSSH = ({cmd, host, key, id, mainWindow}) => {
 const conn = new Client();

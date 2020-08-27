@@ -86,7 +86,7 @@ def discovery_request(headers, host_port):
         response.append('ST: cruster:node')
         response.append('USN: uuid:{}::upnp:rootdevice'.format(device_uuid))
         response.append('MAN: local')
-        response.append('LOCATION: http://{}:{}'.format(local_ip_address, SERVICE_PORT))
+        response.append('LOCATION: {}'.format(local_ip_address))
         logger.info('\r\n'.join(response))
 
 

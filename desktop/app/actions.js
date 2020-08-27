@@ -1,3 +1,4 @@
+const Client = require('ssh2').Client;
 const { dialog, ipcMain } = require('electron')
 const path = require('path')
 const fs = require('fs-extra')
@@ -12,6 +13,7 @@ const {
 module.exports.actionsListen = ({mainWindow, settings}) => {
   const showError = err => {
     dialog.showErrorBox("Error", err.toString() + "\n" + err.stack)
+    throw new Error (err)
   }
 
   ipcMain.on("run-action", async (event, msg) => {
@@ -37,9 +39,17 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
         case "write":
           console.log("drives", drives)
           break
-        default:
-          console.error("Could not find action " + msg.type)
+        case "start-ssh-term":
+          status = await startSSHTerm(msg)
           break
+        case "run-ssh-cmd":
+          status = await runSSHCmd(msg)
+          break
+        case "end-ssh-term":
+          status = await endSSHTerm(msg)
+          break
+        default:
+          throw new Error("Could not find action " + msg.type)
       }
       mainWindow.send("complete", {id, status})
     } catch (error) {
@@ -111,8 +121,71 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
 
 
   // wifi
-  const addWifiCredentials = async ({id, ssid, wifiPassword}) => {
+  const addWifiCredentials = async ({ssid, wifiPassword}) => {
     const { imagePath } = settings
     await _addWifiCredentials({imagePath, ssid, wifiPassword})
+  }
+
+  const sshTerms = {}
+  const startSSHTerm = ({id, host, username}) => {
+    username = typeof username === "undefined" ? "root" : username
+    return new Promise(async (res, rej) => {
+      const privateKey = (await fs.readFile(settings.privateKeyFile)).toString()
+      const conn = new Client();
+      sshTerms[id] = conn
+      conn.on('ready', () => {
+        res(`Started ssh terminal at ${host} sucessfully.`)
+      })
+      .on("error", (err) => {
+        rej(`Could not connect to ssh term at ${host}.\n${err}`)
+      })
+      conn.connect({
+        host,
+        port: 22,
+        username: username,
+        privateKey,
+      })
+    })
+  }
+
+  const runSSHCmd = async ({id, cmd}) => {
+    return new Promise((res, rej) => {
+      const conn = sshTerms[id]
+      if (!conn) {
+        rej("Could not find that connection")
+      }
+      conn.exec(cmd, { pty: { cols: 80, rows: 24 } }, (err, stream) => {
+        if (err) {
+          rej(err)
+        }
+        stream.on('close', function(code, signal) {
+          mainWindow.send('data', {
+            id,
+            type: "exit-code",
+            code,
+            signal,
+          })
+          res(`Exit code: ${code}`)
+        }).on('data', data => {
+          mainWindow.send('data', {
+            id,
+            type: "data",
+            data: data.toString(),
+          })
+        }).stderr.on('data-error', data => {
+          mainWindow.send('data', {
+            type: "error",
+            id,
+            data: data.toString(),
+          })
+        })
+      })
+    })
+  }
+
+  const endSSHTerm = ({id}) => {
+    const conn = sshTerms[id]
+    conn.end()
+    delete sshTerms[id]
   }
 }
