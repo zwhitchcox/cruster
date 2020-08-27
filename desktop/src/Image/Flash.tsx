@@ -1,6 +1,8 @@
 
 import "./Flash.css"
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
+import SystemInfoContext from '../Contexts/SystemInfoContext';
+import ActionsContext from '../Contexts/ActionsContext';
 type Drive = {
   name: string;
   location: string;
@@ -11,7 +13,9 @@ const parseDrive = (drive): Drive => ({
   location: drive.path,
   size: drive.drive.size,
 })
-const Flash = ({drives}) => {
+const Flash = () => {
+  const {drives} = useContext(SystemInfoContext)
+  const {runAction} = useContext(ActionsContext)
   const [checkedDrives, setCheckedDrives] = useState({})
   const toggleChecked = (location) => setCheckedDrives({
     ...checkedDrives,
@@ -22,7 +26,12 @@ const Flash = ({drives}) => {
     parsedDrives[driveKey] = parseDrive(drives[driveKey])
   }
   const write = () => {
-    ipcRenderer.send("write", Object.keys(checkedDrives))
+    runAction({
+      status: "Writing to drives...",
+      args: {
+        drives: Object.keys(checkedDrives)
+      }
+    })
   }
 
   return (

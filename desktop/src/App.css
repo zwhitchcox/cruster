@@ -10,3 +10,13 @@
 .settings-icon:hover {
   opacity: 1;
 }
+
+.log-icon {
+  width: 1.5em;
+  height: auto;
+  position: absolute;
+  padding: .8em 1em;
+  right: 3em;
+  top: .25em;
+  opacity: .8;
+}

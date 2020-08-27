@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import "./Clusters.css"
 import CreateCluster from './CreateCluster'
 import {
@@ -7,19 +7,10 @@ import {
   Link,
 } from "react-router-dom";
 import ManageClusters from './ManageClusters';
+import SystemInfoContext from '../Contexts/SystemInfoContext';
 
-const useNodes = () => {
-  const [nodes, setNodes] = useState([])
-  useEffect(() => {
-    ipcRenderer.on('nodes', (evt, nodes) => {
-      setNodes(nodes)
-    })
-    ipcRenderer.send('send-nodes', null)
-  }, [])
-  return nodes
-}
 const Clusters = () => {
-  const nodes = useNodes()
+  const {nodes} = useContext(SystemInfoContext)
   return (
     <div>
       <div className="third-nav">

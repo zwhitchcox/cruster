@@ -10,39 +10,7 @@ import Setup from './Setup/Setup';
 import Chroot from './Chroot';
 import Flash from './Flash';
 
-let _drives = {}
-const useDrives = () => {
-  const [drives, _setDrives] = useState({})
-  const setDrives = (drives) => {
-    _setDrives(_drives = drives)
-  }
-  useEffect(() => {
-    ipcRenderer.send('restart-scanner')
-    ipcRenderer.on('drive-attached', (event, drive) => {
-      if (!drive.drive.isSystem) {
-        setDrives({
-          ..._drives,
-          [drive.path]: drive
-        })
-      }
-    })
-    ipcRenderer.on('drive-detached', (event, drive) => {
-      const newDrives = {..._drives}
-      delete newDrives[drive.path]
-      setDrives(newDrives)
-    })
-  }, [])
-  return drives
-}
-
 const Image = () => {
-  // update cache
-  ipcRenderer.send("image-exists")
-  ipcRenderer.send("image-mounted")
-  ipcRenderer.send("get-hostname")
-
-  const drives = useDrives()
-
   return (
     <div>
       <br />
@@ -80,7 +48,7 @@ const Image = () => {
           <Chroot />
         </Route>
         <Route path="/image/flash">
-          <Flash drives={drives} />
+          <Flash />
         </Route>
       </Switch>
       <br />

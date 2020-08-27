@@ -64,23 +64,18 @@ const unzipImg = async ({zipPath, outputPath, onProgress}) => {
   })
 }
 
-const sshKeyFile = "/root/.ssh/authorized_keys"
+const rootSSHKeyFile = "/root/.ssh/authorized_keys"
+const piSSHKeyFile = "/home/pi/.ssh/authorized_keys"
 const addSSHKeys = async ({overwrite, imagePath, keys}) => {
   await interact(imagePath, 2, async fs => {
     if (!overwrite) {
       try {
-        keys += await promisify(fs.readFile)(sshKeyFile)
-      } catch(e) {
-        console.error("couldn't read file")
-      }
+        keys += await promisify(fs.readFile)(rootSSHKeyFile)
+      } catch(e) {} // if the file doesn't exist, that doesn't matter
     }
-    await promisify(fs.writeFile)(sshKeyFile, keys, 'utf8')
-    // try {
-    //   console.log('trying file')
-    //   await promisify(fs.chown)(sshKeyFile, 0, 0)
-    // } catch (err) {
-    //   console.error(err, "chown")
-    // }
+    await promisify(fs.writeFile)(rootSSHKeyFile, keys, 'utf8')
+    await promisify(fs.writeFile)(piSSHKeyFile, keys, 'utf8')
+    await promisify(fs.chown)(piSSHKeyFile, 1000, 1000)
   })
 }
 

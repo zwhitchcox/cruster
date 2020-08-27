@@ -5,7 +5,7 @@ const isDev = require('electron-is-dev');
 const { getSettings } = require('./settings')
 const { termListen } = require('./terminal')
 const { actionsListen } = require('./actions')
-const { scan } = require('./scan')
+const { scan } = require('./system-info')
 
 
 

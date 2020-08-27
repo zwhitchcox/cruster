@@ -5,8 +5,9 @@ const Keys = () => {
   const settings = useContext(SettingsContext)
   const { runAction, addToLog } = useContext(ActionsContext)
   const [ghUsername, setGHUsername] = useState(settings.defaultGithubUsername)
+  // TODO: add help for every field
   const [whyGHUsername, setWhyGHUsername] = useState(false)
-  const [overwrite, setOverwrite] = useState(false)
+  const [overwrite, setOverwrite] = useState(true)
   const addKeysFromGithub = () => {
     if (ghUsername === "") {
       addToLog("No github username specified.")
@@ -37,7 +38,7 @@ const Keys = () => {
           onChange={() => setOverwrite(!overwrite)}
         />
         <span className="checkmark" />
-        Overwrite Keys
+        Overwrite Current Keys
       </label>
       <div className="text-input-container">
         <div className="label">

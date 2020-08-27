@@ -24,29 +24,27 @@ const Download = () => {
 
   const [forceRedownload, setForceRedownload] = useState(false)
   const [forceReunzip, setForceReunzip] = useState(false)
-  const run = () => {
+  const run = async () => {
     if (status !== INACTIVE) return
-    setStatus(DOWNLOADING)
-    runAction({
-      status: "Downloading image...",
-      type: "download-image",
-      args: {force: forceRedownload},
-      onError: () => setStatus(INACTIVE),
-      onComplete: runUnzip,
-      onProgress: ({percentage}) => setDownloadPercentage(percentage),
-    })
-  }
-
-  const runUnzip = () => {
-    setStatus(UNZIPPING)
-    runAction({
-      status: "Unzipping image...",
-      type: "unzip-image",
-      args: {force: forceReunzip},
-      onError: () => setStatus(INACTIVE),
-      onComplete: () => setStatus(INACTIVE),
-      onProgress: ({percentage}) => setUnzipPercentage(percentage),
-    })
+    try {
+      setStatus(DOWNLOADING)
+      await runAction({
+        status: "Downloading image...",
+        type: "download-image",
+        args: {force: forceRedownload},
+        onProgress: ({percentage}) => setDownloadPercentage(percentage),
+      })
+      setStatus(UNZIPPING)
+      await runAction({
+        status: "Unzipping image...",
+        type: "unzip-image",
+        args: {force: forceReunzip},
+        onProgress: ({percentage}) => setUnzipPercentage(percentage),
+      })
+      setStatus(INACTIVE)
+    } catch (err) {
+      setStatus(INACTIVE)
+    }
   }
 
   return (

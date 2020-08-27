@@ -7,9 +7,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #282c34;
   color: white;
+}
+.App-container {
+  max-width: 1600px;
+  width: 100%;
+  position: absolute
+}
+.App {
   margin: 1.2em auto;
   max-width: 800px;
   font-size: 1.2em;
+  position: relative;
 }
 
 
