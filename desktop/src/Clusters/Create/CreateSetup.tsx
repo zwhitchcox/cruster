@@ -2,16 +2,15 @@ import React, { useState } from 'react'
 import { useHistory, Link } from 'react-router-dom'
 import { useEffect } from 'react';
 
-export const ipFromUrl = url => url.replace("http://", "").replace(":9090", "")
-export const getHostname = ({clusterName, cluster, url, index}) => (
+export const getHostname = ({clusterName, cluster, ip, index}) => (
   `${clusterName ? clusterName + "-" : ""}` +
-  `${cluster.master === url ? "master" : "slave-" +(index+1)}.local`
+  `${cluster.master === ip ? "master" : "slave-" +(index+1)}.local`
 )
 const validateClusterName = name => {
   if (!name.length) return true
   return /^[A-Za-z0-9]([A-Za-z0-9]|-){0,55}$/.test(name)
 }
-const lastNumIP = ip => Number(ipFromUrl(ip).split('.')[3])
+const lastNumIP = ip => Number(ip.split('.')[3])
 const sortByIP = (a, b) => lastNumIP(a) - lastNumIP(b)
 const validateCluster = (cluster) => {
   const errors: string[] = []
@@ -44,8 +43,22 @@ const CreateSetup = ({
       history.push("/clusters/create/run")
     }
   }
-  const availableNodes = nodes
-    .filter(url => url !== cluster.master && !cluster.slaves.includes(url))
+  const ips = Object.keys(nodes)
+  const availableNodes = ips
+    .filter(ip => (
+      ip !== cluster.master &&
+      !cluster.slaves.includes(ip) &&
+      nodes[ip].apiResponded &&
+      nodes[ip].status === "UNINITIALIZED"))
+
+  const nonresponsive = ips
+      .filter(ip => !nodes[ip].apiResponded)
+  // const uninitialized = ips.filter(ip => {
+  //   nodes[ip].apiResponded &&
+  //   nodes[ip].status === "UNINITIALIZED"
+  // })
+  console.log(nodes)
+
 
   return (
     <div>
@@ -68,13 +81,14 @@ const CreateSetup = ({
             <tr>
             <th>ip</th>
             <th colSpan={2}>actions</th>
+            <th></th>
             <th>new hostname</th>
             </tr>
           </thead>
           <tbody>
           {cluster.master === ""  ? null : <ClusterNode
             {...({
-              url: cluster.master,
+              ip: cluster.master,
               setMaster,
               clusterName,
               cluster,
@@ -83,11 +97,11 @@ const CreateSetup = ({
               index: null,
             })}
           />}
-          {cluster.slaves.map((url, index) => (
+          {cluster.slaves.map((ip, index) => (
             <ClusterNode
-              key={url}
+              key={ip}
               {...({
-                url,
+                ip,
                 clusterName,
                 setMaster,
                 cluster,
@@ -103,17 +117,16 @@ const CreateSetup = ({
         <br />
         <button className="button-two" onClick={launch}>Launch</button>
       </div>}
-      <h4>Available Nodes</h4>
-      {/* {uninitialized.length === 0  && Object.values(nodes).length !== 0 ? "Couldn't find any uninitialized nodes...": ""} */}
+      {availableNodes.length ? <h4>Available Nodes</h4> : ""}
+      {/* {uninitialized.length && Object.values(nodes).length ? "Couldn't find any uninitialized nodes...": ""} */}
       <table className="available-node-list">
       <tbody>
         {availableNodes
-          .filter(url => url !== cluster.master && !cluster.slaves.includes(url))
-          .map(url => (
+          .map(ip => (
           <AvailableNode
-            key={url}
+            key={ip}
             {...({
-              url,
+              ip,
               setMaster,
               addNode,
             })}
@@ -122,52 +135,58 @@ const CreateSetup = ({
       </tbody>
       </table>
       {availableNodes.length ? <div onClick={() => addNodes(availableNodes)} className="action indent-1 top-margin">Add All</div> : ""}
-        {/* {nonresponsive.length === 0 ? "" : <div>
-          The following ip addresses have a cluster, but the api didn't respond for some reason:
+      <br />
+      <br />
+      {nonresponsive.length === 0 ? "" : <div>
+        The following ip addresses have a cluster, but the api didn't respond for some reason:
 
-          <ul>
-            {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
-          </ul>
-        </div>} */}
+        <ul>
+          {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
+        </ul>
+      </div>}
     </div>
   )
 }
 export default CreateSetup
 
-const AvailableNode = ({url, addNode, setMaster}) => {
+const AvailableNode = ({ip, addNode, setMaster}) => {
+  const history = useHistory()
   return (
     <tr>
       <td>
-      {ipFromUrl(url)}
+      {ip}
       </td>
       <td>
-      <span className="indent-1">
-        <span className="action" onClick={() => addNode(url)}>Add</span>
-        <span className="action" onClick={() => setMaster(url)}>Make Master</span>
-      </span>
+        <span className="action" onClick={() => addNode(ip)}>Add</span>
+      </td>
+      <td>
+        <span className="action" onClick={() => setMaster(ip)}>Make Master</span>
+      </td>
+      <td>
+        <span className="action" onClick={() => history.push(`/clusters/node-ssh/${ip}`)}>ssh</span>
       </td>
     </tr>
   )
 }
 
-const ClusterNode = ({url, removeNode, setMaster, cluster, clusterName, index}) => {
+const ClusterNode = ({ip, removeNode, setMaster, cluster, clusterName, index}) => {
   const history = useHistory()
   return (
     <tr>
       <td>
-      {ipFromUrl(url)}
+      {ip}
       </td>
       <td>
-      <span className="action" onClick={() => removeNode(url)}>Remove</span>
+      <span className="action" onClick={() => removeNode(ip)}>Remove</span>
       </td>
       <td>
-        {cluster.master === url ? " Master" : <span className="action" onClick={() => setMaster(url)}>Make Master</span>}
+        {cluster.master === ip ? " Master" : <span className="action" onClick={() => setMaster(ip)}>Make Master</span>}
       </td>
       <td>
-        {getHostname({clusterName, cluster, url, index})}
+        <span className="action" onClick={() => history.push(`/clusters/node-ssh/${ip}`)}>ssh</span>
       </td>
       <td>
-        <span className="action" onClick={() => history.push(`/clusters/node-ssh/${url}`)}>ssh</span>
+        {getHostname({clusterName, cluster, ip, index})}
       </td>
     </tr>
   )

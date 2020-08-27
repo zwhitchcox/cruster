@@ -13,32 +13,34 @@ import CreateRun from './CreateRun'
 // capturing stale data in closures
 const Create = () => {
   const {nodes} = useContext(SystemInfoContext)
+  const ips = Object.keys(nodes)
+  const availableIPs = ips.filter(ip => nodes[ip].apiResponded && nodes[ip].status === "UNINITIALIZED")
   const [cluster, setCluster] = useState({
-    master: (nodes.length && nodes[0]) || "",
-    slaves: (nodes.slice(1)) as string[],
+    master: (availableIPs.length && ips[0]) || "",
+    slaves: (availableIPs.slice(1)) as string[],
   })
   const [clusterName, setClusterName] = useState("cruster")
-  const addNode = url => {
+  const addNode = ip => {
     setCluster({
       ...cluster,
       slaves: [
         ...cluster.slaves,
-        url,
+        ip,
       ]
     })
   }
-  const addNodes = urls => {
+  const addNodes = ips => {
     setCluster({
       ...cluster,
       slaves: [
         ...cluster.slaves,
-        ...urls,
+        ...ips,
       ]
     })
   }
 
-  const removeNode = url => {
-    if (cluster.master === url) {
+  const removeNode = ip => {
+    if (cluster.master === ip) {
       setCluster({
         master: "",
         slaves: cluster.slaves,
@@ -46,7 +48,7 @@ const Create = () => {
     } else {
       setCluster({
         ...cluster,
-        slaves: cluster.slaves.filter(_url => _url !== url)
+        slaves: cluster.slaves.filter(_ip => _ip !== ip)
       })
     }
   }
@@ -58,22 +60,22 @@ const Create = () => {
     })
   }
 
-  const setMaster = url => {
+  const setMaster = ip => {
     if (cluster.master !== "") {
-      if (url === cluster.master) return
+      if (ip === cluster.master) return
       setCluster({
-        master: url,
+        master: ip,
         slaves: [
-          ...cluster.slaves.filter(n => n !== url),
+          ...cluster.slaves.filter(n => n !== ip),
           cluster.master,
         ]
       })
     } else {
       setCluster({
         slaves: [
-          ...cluster.slaves.filter(n => n !== url),
+          ...cluster.slaves.filter(n => n !== ip),
         ],
-        master: url,
+        master: ip,
       })
     }
   }

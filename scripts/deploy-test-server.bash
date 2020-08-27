@@ -1,10 +1,11 @@
 test_ips=(
-  "192.168.1.120"
-  "192.168.1.117"
-  "192.168.1.115"
+  "192.168.1.86"
+  "192.168.1.116"
+  "192.168.1.118"
+  "192.168.1.121"
 )
 
-scp pi@test-node.local:/home/pi/api-server.py ./img/node/api-server.py
+# scp pi@test-node.local:/home/pi/api-server.py ./img/node/api-server.py
 
 for ip in ${test_ips[@]};
 do

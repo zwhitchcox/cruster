@@ -119,6 +119,10 @@ function App() {
       },
       id,
     }) as any)
+    const curData = {
+      gathering: false,
+      data: "",
+    }
     const runCmd = ({cmd, status}) => (
       runAction(({
         type: "run-ssh-cmd",
@@ -127,6 +131,9 @@ function App() {
         args: {cmd},
         onData: msg => {
           if (["data", "error"].includes(msg.type)) {
+            if (curData.gathering) {
+              curData.data += msg.data
+            }
             term.write(msg.data)
           }
           if (msg.type === "exit-code") {
@@ -135,6 +142,16 @@ function App() {
         }
       }) as any)
     )
+
+    const getOutput = async ({cmd}) => {
+      curData.gathering = true
+      await runCmd({cmd, status: `Gathering output for ${cmd}`})
+      const result = curData.data
+      curData.gathering = false
+      curData.data = ""
+      return result
+    }
+
     const endTerm = () => (
       runAction(({
         status: `Ending terminal session ${username}@${host}`,
@@ -148,6 +165,7 @@ function App() {
       runCmd,
       endTerm,
       startTerm,
+      getOutput,
     }
   }
 

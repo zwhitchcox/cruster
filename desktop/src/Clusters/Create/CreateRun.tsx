@@ -15,7 +15,15 @@ const statuses = {
 const initMasterCmd =
 `kubeadm init  --pod-network-cidr=10.244.0.0/16
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-kubeadm token create --print-join-command`
+kubeadm token create --print-join-command
+echo INITIALIZED_MASTER > /home/pi/status
+`
+
+const joinSlaveCmd = joinCmd => (
+`${joinCmd}
+echo INITIALIZED_SLAVE > /home/pi/status
+`
+)
 
 const CreateRun = ({cluster, clusterName}) => {
   const {
@@ -23,29 +31,39 @@ const CreateRun = ({cluster, clusterName}) => {
     JOINING,
     INACTIVE,
   } = statuses
-  const history = useHistory()
   const {sshTerm} = useContext(ActionsContext)
   const [status, setStatus] = useState(INACTIVE)
   const [term, setTerm] = useState<any>()
+  const [note, setNote] = useState("Test Note")
   useEffect(() => {
-    const {term, runCmd, endTerm, startTerm} = sshTerm({
+    const {term, runCmd, endTerm, startTerm, getOutput} = sshTerm({
       host: cluster.master,
       username: "root",
     })
     setTerm(term)
+    const joinSlave = () => {
+
+    }
     ;(async () =>{
       await startTerm()
       setStatus(INITIALIZING_MASTER)
+      setNote("Pulling the images can take some time! Don't exit, or you will have to restart")
       await runCmd({
         status: INITIALIZING_MASTER,
-        cmd: "echo initializing\n",
+        cmd: initMasterCmd,
       })
+
+      // get rid of warning
+      const joinCmd = (await getOutput({cmd: "kubeadm token create --print-join-command"})).split("\n").pop()
+      await endTerm()
       setStatus(JOINING)
+
+
       await runCmd({
         status: JOINING,
         cmd: "echo joining\n"
       })
-      history.push("/clusters/manage")
+      // history.push("/clusters/manage")
     })()
     return endTerm
   }, [])
@@ -65,9 +83,9 @@ const CreateRun = ({cluster, clusterName}) => {
 
   return (
     <div>
-      {status}
+      <div>{status}</div>
+      <div className="note">Note: {note}</div>
       <SSHTerminal term={term} />
-      {JSON.stringify(cluster, null, 2)}
     </div>
 
 

@@ -3,34 +3,52 @@ const electron = require('electron')
 const { ipcMain } = electron
 const fs = require('fs-extra')
 const path = require('path')
+const fetch = require('node-fetch')
 
 const {stringify, parse} = JSON
 const copy = obj => parse(stringify(obj))
 const compare = (obj1, obj2) => stringify(obj1) === stringify(obj2)
-const ipFromUrl = url => url.replace("http://", "").replace(":9090", "")
-const lastNumIP = ip => Number(ipFromUrl(ip).split('.')[3])
-const sortByIP = (a, b) => lastNumIP(a) - lastNumIP(b)
 
 module.exports.scan = async ({mainWindow, settings}) => {
   // Nodes
-  let curNodes = []
+  let curNodes = {}
   let nodes = curNodes
   var Client = require('node-ssdp').Client
     , client = new Client();
   client.on('response', (headers, statusCode, rinfo) => {
     if (headers["ST"] && headers["ST"] == "cruster:node") {
-      const url = headers["LOCATION"]
-      if (!nodes.includes(url)) {
-        nodes.push(url)
-      }
-      curNodes.push(url)
+      const ip = headers["LOCATION"]
+      getNodeInfo(ip)
     }
   })
+  const getNodeInfo = ip => fetch(`http://${ip}:9090/node-info`)
+    .then(r => {
+      if (r.status > 399) {
+        return Promise.reject(`Something went wrong getting the status for ${url}`)
+      }
+      return r.json()
+    })
+    .then(nodeInfo => {
+      const newNodeInfo = {
+        ...nodeInfo,
+        ip,
+        apiResponded: true,
+      }
+      if (!Object.keys(nodes).includes(ip)) {
+        curNodes[ip] = newNodeInfo
+      }
+      curNodes[ip] = newNodeInfo
+    })
+    .catch(() => {
+      curNodes[ip] = {
+        ip,
+        apiResponded: false,
+      }
+    })
   setInterval(() => {
     // Give nodes 3 seconds to answer
     nodes = curNodes
-    nodes.sort(sortByIP)
-    curNodes = []
+    curNodes = {}
     client.search('cruster:node')
   }, 3000)
 
@@ -72,21 +90,3 @@ module.exports.scan = async ({mainWindow, settings}) => {
   })
   setInterval(loop, 1000)
 }
-
-  // const getNodeInfo = url => fetch(`${url}/node-info`)
-  //   .then(r => {
-  //     if (r.status > 399) {
-  //       return Promise.reject(`Something went wrong getting the status for ${url}`)
-  //     }
-  //     return r.json()
-  //   })
-  //   .then(nodeInfo => {
-  //     nodes[url] = {
-  //     ...nodeInfo,
-  //     apiResponded: true,
-  //   }})
-  //   .catch(() => {
-  //     nodes[url] = {
-  //       apiResponded: false,
-  //     }
-  //   })

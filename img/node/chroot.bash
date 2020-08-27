@@ -128,6 +128,7 @@ if sudo grep -q network /etc/wpa_supplicant/wpa_supplicant.conf; then
 fi
 echo \"starting upnp-server\"
 sudo /usr/bin/python3 /home/pi/upnp-server.py &
+sudo /usr/bin/python3 /home/pi/api-server.py &
 sudo dphys-swapfile swapoff &
 exit 0" >> /etc/rc.local
 
