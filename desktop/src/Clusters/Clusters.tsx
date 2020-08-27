@@ -7,6 +7,7 @@ import {
   Link,
 } from "react-router-dom";
 import ManageClusters from './ManageClusters';
+import NodeSSH from './NodeSSH';
 
 const Clusters = () => {
   return (
@@ -29,6 +30,9 @@ const Clusters = () => {
         </Route>
         <Route path="/clusters/manage">
           <ManageClusters />
+        </Route>
+        <Route path="/clusters/node-ssh/:ip">
+          <NodeSSH />
         </Route>
       </Switch>
     </div>

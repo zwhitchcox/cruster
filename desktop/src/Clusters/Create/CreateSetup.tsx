@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 import { useEffect } from 'react';
 
 export const ipFromUrl = url => url.replace("http://", "").replace(":9090", "")
@@ -151,6 +151,7 @@ const AvailableNode = ({url, addNode, setMaster}) => {
 }
 
 const ClusterNode = ({url, removeNode, setMaster, cluster, clusterName, index}) => {
+  const history = useHistory()
   return (
     <tr>
       <td>
@@ -164,6 +165,9 @@ const ClusterNode = ({url, removeNode, setMaster, cluster, clusterName, index}) 
       </td>
       <td>
         {getHostname({clusterName, cluster, url, index})}
+      </td>
+      <td>
+        <span className="action" onClick={() => history.push(`/clusters/node-ssh/${url}`)}>ssh</span>
       </td>
     </tr>
   )

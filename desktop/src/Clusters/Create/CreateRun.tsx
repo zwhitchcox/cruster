@@ -28,12 +28,12 @@ const CreateRun = ({cluster, clusterName}) => {
   const [status, setStatus] = useState(INACTIVE)
   const [term, setTerm] = useState<any>()
   useEffect(() => {
+    const {term, runCmd, endTerm, startTerm} = sshTerm({
+      host: cluster.master,
+      username: "root",
+    })
+    setTerm(term)
     ;(async () =>{
-      const {term, runCmd, endTerm, startTerm} = sshTerm({
-        host: cluster.master,
-        username: "root",
-      })
-      setTerm(term)
       await startTerm()
       setStatus(INITIALIZING_MASTER)
       await runCmd({
@@ -45,9 +45,9 @@ const CreateRun = ({cluster, clusterName}) => {
         status: JOINING,
         cmd: "echo joining\n"
       })
-      await endTerm()
       history.push("/clusters/manage")
     })()
+    return endTerm
   }, [])
   // useEffect(() => {
   //   const id = v4()

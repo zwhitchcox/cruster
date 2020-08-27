@@ -89,14 +89,33 @@ function App() {
       ipcRenderer.send("run-action", {id, type, ...args})
     })
   }
-  const sshTerm = ({host, username}) => {
+  const sshTerm = ({host, username, interactive}) => {
     const term = new Terminal({ cols: 80, rows: 24})
     const id = v4()
+    if (interactive) {
+      term.onData(data => {
+        ipcRenderer.send("run-action", {
+          type: "ssh-data",
+          id,
+          data,
+        })
+      })
+      ipcRenderer.on('data', (_, msg) => {
+        if (msg.id !== id) return
+        if (["data", "error"].includes(msg.type)) {
+          term.write(msg.data)
+        }
+        if (msg.type === "exit-code") {
+          addToLog("exit status: " + msg.code)
+        }
+      })
+    }
     const startTerm = () => runAction(({
       status: "Starting ssh term ",
       type: "start-ssh-term",
       args: {
-        host
+        host,
+        interactive,
       },
       id,
     }) as any)

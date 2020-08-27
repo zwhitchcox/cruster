@@ -45,6 +45,9 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
         case "run-ssh-cmd":
           status = await runSSHCmd(msg)
           break
+        case "ssh-data":
+          status = await sshData(msg)
+          break
         case "end-ssh-term":
           status = await endSSHTerm(msg)
           break
@@ -127,14 +130,45 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
   }
 
   const sshTerms = {}
-  const startSSHTerm = ({id, host, username}) => {
+  const sshStreams = {}
+  const startSSHTerm = ({id, host, username, interactive}) => {
     username = typeof username === "undefined" ? "root" : username
     return new Promise(async (res, rej) => {
       const privateKey = (await fs.readFile(settings.privateKeyFile)).toString()
       const conn = new Client();
       sshTerms[id] = conn
       conn.on('ready', () => {
-        res(`Started ssh terminal at ${host} sucessfully.`)
+        if (!interactive) {
+          console.log("not interactive")
+          res(`Started ssh terminal at ${host} sucessfully.`)
+        }
+        conn.shell((err, stream) => {
+          if (err) {
+            rej(err)
+          }
+          sshStreams[id] = stream
+          stream.on('close', (code, signal) => {
+            mainWindow.send('data', {
+              id,
+              type: "exit-code",
+              code,
+              signal,
+            })
+          }).on('data', data => {
+            mainWindow.send('data', {
+              id,
+              type: "data",
+              data: data.toString(),
+            })
+          }).stderr.on('data-error', data => {
+            mainWindow.send('data', {
+              type: "error",
+              id,
+              data: data.toString(),
+            })
+          })
+          res(`Started ssh terminal at ${host} sucessfully.`)
+        })
       })
       .on("error", (err) => {
         rej(`Could not connect to ssh term at ${host}.\n${err}`)
@@ -183,9 +217,29 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
     })
   }
 
+  const sshData = ({id, data}) => {
+    return new Promise((res, rej) => {
+      const conn = sshTerms[id]
+      const stream = sshStreams[id]
+      if (!conn) {
+        rej("Could not find that connection")
+      }
+      if (!stream) {
+        rej("That connection is not interactive")
+      }
+      stream.write(data)
+      res()
+    })
+  }
+
   const endSSHTerm = ({id}) => {
     const conn = sshTerms[id]
+    if (!conn) return
     conn.end()
     delete sshTerms[id]
+    if (sshStreams[id]) {
+      sshStreams[id].end()
+      delete sshStreams[id]
+    }
   }
 }
