@@ -48,6 +48,9 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
         case "ssh-data":
           status = await sshData(msg)
           break
+        case "run-interactive":
+          status = await runInteractive(msg)
+          break
         case "end-ssh-term":
           status = await endSSHTerm(msg)
           break
@@ -57,6 +60,7 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
       mainWindow.send("complete", {id, status})
     } catch (error) {
       mainWindow.send("action-error", {id, error})
+      console.log(error.stack)
       showError(error)
     }
   })
@@ -139,7 +143,6 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
       sshTerms[id] = conn
       conn.on('ready', () => {
         if (!interactive) {
-          console.log("not interactive")
           res(`Started ssh terminal at ${host} sucessfully.`)
         }
         conn.shell((err, stream) => {
@@ -188,6 +191,11 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
       if (!conn) {
         rej("Could not find that connection")
       }
+      mainWindow.send('data', {
+        id,
+        type: "data",
+        data: cmd,
+      })
       conn.exec(cmd, { pty: { cols: 80, rows: 24 } }, (err, stream) => {
         if (err) {
           rej(err)
@@ -207,6 +215,15 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
             data: data.toString(),
           })
         }).stderr.on('data-error', data => {
+          if (/^reboot/.test(cmd)) {
+            mainWindow.send('data', {
+              id,
+              type: "exit-code",
+              code: 0,
+              signal: "",
+            })
+            return
+          }
           mainWindow.send('data', {
             type: "error",
             id,
@@ -232,6 +249,39 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
     })
   }
 
+  const runInteractive = ({id, procID, cmd}) => {
+    return new Promise((res, rej) => {
+      const conn = sshTerms[procID]
+      const stream = sshStreams[procID]
+      if (!conn) {
+        rej("Interactive: Could not find that connection")
+      }
+      if (!stream) {
+        rej("Interactive: That connection is not interactive")
+      }
+      stream.write(cmd + "\n")
+      stream.write(`echo DONE > /tmp/${id}\n`)
+      const interval = setInterval(() => {
+        const conn = sshTerms[procID]
+        if (!conn) {
+          res()
+          return
+        }
+        conn.exec(`cat /tmp/${id}`, (err, stream) => {
+          if (err) console.error("error checking file", err);
+          stream.on('close', (code, signal) => {
+            if (code === 0) {
+              clearInterval(interval)
+              res(`ran ${cmd}`)
+            }
+          }).on('data', (data) => {
+          }).stderr.on('data', (data) => {
+          });
+        });
+      }, 1000)
+    })
+  }
+
   const endSSHTerm = ({id}) => {
     const conn = sshTerms[id]
     if (!conn) return
@@ -241,5 +291,37 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
       sshStreams[id].end()
       delete sshStreams[id]
     }
+  }
+
+
+  // not used - should delete
+  const cmdChecker = ({id, procID, ip}) => {
+    return new Promise((res, rej) => {
+      const conn = sshTerms[procID]
+      const stream = sshStreams[procID]
+      if (!conn) {
+        rej("Could not find that connection")
+      }
+      if (!stream) {
+        rej("That connection is not interactive")
+      }
+      stream.write(`echo DONE > /tmp/${procID}\n`)
+      const interval = setInterval(() => {
+        conn.exec(`cat /tmp/${id}`, (err, stream) => {
+          if (err) throw err;
+          stream.on('close', (code, signal) => {
+            if (code === 0) {
+              clearInterval(interval)
+              res()
+            }
+            conn.end();
+          }).on('data', function(data) {
+            console.log('STDOUT: ' + data);
+          }).stderr.on('data', function(data) {
+            console.log('STDERR: ' + data);
+          });
+        });
+      }, 1000)
+    })
   }
 }

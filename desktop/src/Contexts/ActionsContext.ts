@@ -4,6 +4,7 @@ const ActionsContext = React.createContext({
   runAction: (() => {}) as any,
   sshTerm: (() => {}) as any,
   addToLog: (() => {}) as any,
+  multiSSH: (() => {}) as any,
 })
 
 export default ActionsContext

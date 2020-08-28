@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { useHistory, Link } from 'react-router-dom'
-import { useEffect } from 'react';
+import { useHistory } from 'react-router-dom'
 
 export const getHostname = ({clusterName, cluster, ip, index}) => (
   `${clusterName ? clusterName + "-" : ""}` +
@@ -44,20 +43,26 @@ const CreateSetup = ({
     }
   }
   const ips = Object.keys(nodes)
-  const availableNodes = ips
-    .filter(ip => (
-      ip !== cluster.master &&
-      !cluster.slaves.includes(ip) &&
+  ips.sort(sortByIP)
+  const availableIPs = ips.filter(ip =>
       nodes[ip].apiResponded &&
-      nodes[ip].status === "UNINITIALIZED"))
+      nodes[ip].status === "UNINITIALIZED" &&
+      ip !== cluster.master &&
+      !cluster.slaves.includes(ip))
+  // const availableIPs = ips
+  //   .filter(ip => (
+  //     ip !== cluster.master &&
+  //     !cluster.slaves.includes(ip) &&
+  //     nodes[ip].apiResponded &&
+  //     nodes[ip].status === "UNINITIALIZED"))
 
   const nonresponsive = ips
       .filter(ip => !nodes[ip].apiResponded)
+  const takenIPs = ips.filter(ip => nodes[ip].apiResponded && nodes[ip].status !== "UNINITIALIZED")
   // const uninitialized = ips.filter(ip => {
   //   nodes[ip].apiResponded &&
   //   nodes[ip].status === "UNINITIALIZED"
   // })
-  console.log(nodes)
 
 
   return (
@@ -117,11 +122,11 @@ const CreateSetup = ({
         <br />
         <button className="button-two" onClick={launch}>Launch</button>
       </div>}
-      {availableNodes.length ? <h4>Available Nodes</h4> : ""}
+      {availableIPs.length ? <h4>Available Nodes</h4> : ""}
       {/* {uninitialized.length && Object.values(nodes).length ? "Couldn't find any uninitialized nodes...": ""} */}
       <table className="available-node-list">
       <tbody>
-        {availableNodes
+        {availableIPs
           .map(ip => (
           <AvailableNode
             key={ip}
@@ -134,20 +139,69 @@ const CreateSetup = ({
         ))}
       </tbody>
       </table>
-      {availableNodes.length ? <div onClick={() => addNodes(availableNodes)} className="action indent-1 top-margin">Add All</div> : ""}
+      {availableIPs.length ? <div onClick={() => addNodes(availableIPs)} className="action indent-1 top-margin">Add All</div> : ""}
       <br />
       <br />
       {nonresponsive.length === 0 ? "" : <div>
         The following ip addresses have a cluster, but the api didn't respond for some reason:
-
-        <ul>
-          {nonresponsive.map(ip => <li key={ip}>{ip}</li>)}
-        </ul>
+        <table className="available-node-list">
+        <tbody>
+          {nonresponsive
+            .map(ip => (
+            <NonResponsiveNode
+              key={ip}
+              ip={ip}
+            />
+          ))}
+        </tbody>
+        </table>
+      </div>}
+      {takenIPs.length === 0 ? "" : <div>
+        The following nodes are already in use:
+        <table>
+          <tbody>
+          {takenIPs.sort(sortByIP).map(ip => (
+            <tr key={ip}>
+            <td>
+              {ip}&nbsp;&nbsp;
+            </td>
+            <td>
+            <span
+                className="action"
+                onClick={() => history.push(`/clusters/node-ssh/${ip}`)}
+              >ssh</span>
+            <span
+                className="action"
+                onClick={() => history.push(`/clusters/node-ssh/${ip}/reset`)}
+              >reset</span>
+            </td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
       </div>}
     </div>
   )
 }
 export default CreateSetup
+
+const NonResponsiveNode = ({ip}) => {
+  const history = useHistory()
+  return <tr>
+    <td>
+    {ip}
+    </td>
+    <td>
+      <span className="action" onClick={() => history.push(`/clusters/node-ssh/${ip}`)}>ssh</span>
+    </td>
+    <td>
+    <span
+        className="action"
+        onClick={() => history.push(`/clusters/node-ssh/${ip}/reset`)}
+      >reset</span>
+    </td>
+  </tr>
+}
 
 const AvailableNode = ({ip, addNode, setMaster}) => {
   const history = useHistory()

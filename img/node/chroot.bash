@@ -133,6 +133,7 @@ sudo dphys-swapfile swapoff &
 exit 0" >> /etc/rc.local
 
 echo node > /etc/hostname
+touch /home/pi/clustername
 
 rfkill unblock wifi
 rfkill unblock all

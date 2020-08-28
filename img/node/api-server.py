@@ -32,6 +32,16 @@ def read_hostname():
   hostname = hostname_fd.read()
   hostname_fd.close()
   return hostname
+def read_clustername():
+  clustername_fd = open("/home/pi/clustername", "r+")
+  clustername = clustername_fd.read()
+  clustername_fd.close()
+  return clustername
+def read_masterip():
+  masterip_fd = open("/home/pi/masterip", "r+")
+  masterip = masterip_fd.read()
+  masterip_fd.close()
+  return masterip
 
 
 # def write_status(status_text):
@@ -112,9 +122,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
       self.send_header('Content-type', 'application/json')
       self.end_headers()
       status = read_status()
+      masterip = ""
+      try:
+        masterip = read_masterip().strip()
+        print(masterip)
+      except:
+        pass
       self.wfile.write(json.dumps({
         'status': status.strip(),
-        'hostname': read_hostname().strip()
+        'hostname': read_hostname().strip(),
+        'clustername': read_clustername().strip(),
+        'masterip': masterip,
       }).encode('utf-8'))
   # def do_POST(self):
   #   content_length = int(self.headers['Content-Length']) # <--- Gets the size of data

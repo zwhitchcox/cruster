@@ -9,14 +9,12 @@ import SystemInfoContext from '../../Contexts/SystemInfoContext';
 import CreateSetup from './CreateSetup';
 import CreateRun from './CreateRun'
 
-// necessary because of asynchronous code
-// capturing stale data in closures
 const Create = () => {
   const {nodes} = useContext(SystemInfoContext)
   const ips = Object.keys(nodes)
   const availableIPs = ips.filter(ip => nodes[ip].apiResponded && nodes[ip].status === "UNINITIALIZED")
   const [cluster, setCluster] = useState({
-    master: (availableIPs.length && ips[0]) || "",
+    master: (availableIPs.length && availableIPs[0]) || "",
     slaves: (availableIPs.slice(1)) as string[],
   })
   const [clusterName, setClusterName] = useState("cruster")

@@ -123,8 +123,10 @@ function App() {
       gathering: false,
       data: "",
     }
-    const runCmd = ({cmd, status}) => (
-      runAction(({
+    const runCmd = ({cmd, status}) => {
+      console.log("cmd")
+      console.log(cmd)
+      return runAction(({
         type: "run-ssh-cmd",
         status,
         id,
@@ -141,7 +143,23 @@ function App() {
           }
         }
       }) as any)
-    )
+    }
+    const runCmdInteractive = async ({cmd}) => {
+      // ipcRenderer.send("run-action", {
+      //   type: "ssh-data",
+      //   id,
+      //   data: cmd + "\n",
+      // })
+
+      await runAction({
+        type: "run-interactive",
+        args: {
+          cmd,
+          procID: id,
+          ip: host,
+        },
+      } as any)
+    }
 
     const getOutput = async ({cmd}) => {
       curData.gathering = true
@@ -162,10 +180,34 @@ function App() {
 
     return {
       term,
-      runCmd,
+      runCmd: interactive ? runCmdInteractive : runCmd,
       endTerm,
       startTerm,
       getOutput,
+    }
+  }
+
+  const multiSSH = ({ips, username, interactive}) => {
+    const processes = ips.map(ip => ({...sshTerm({host: ip, username, interactive}), ip}))
+    const runAll = async ({cmd, status}) => {
+      await Promise.all(processes.map(({ip, runCmd}) => runCmd({cmd, status: `${status} on ${ip}`})))
+    }
+    const startAll = async() => (
+      await Promise.all(processes.map(({startTerm}) => startTerm()))
+    )
+    const endAll = async() => (
+      await Promise.all(processes.map(({endTerm}) => endTerm()))
+    )
+    const getOutput = async({cmd}) => (
+      await Promise.all(processes.map(({getOutput}) => getOutput(cmd)))
+    )
+
+    return {
+      processes,
+      runAll,
+      startAll,
+      endAll,
+      getOutput
     }
   }
 
@@ -184,7 +226,7 @@ function App() {
       showSettings,
       closeSettings,
       }}>
-    <ActionsContext.Provider value={{runAction, addToLog, sshTerm}} >
+    <ActionsContext.Provider value={{runAction, addToLog, sshTerm, multiSSH}} >
     <SystemInfoContext.Provider value={systemInfo}>
     {showLog ? <Log log={log} /> : ""}
     <div className="App-container">
@@ -213,8 +255,6 @@ function App() {
           </div>
           </Link>
         </div>
-        <br />
-        <br />
         {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
       </nav>
       <main>

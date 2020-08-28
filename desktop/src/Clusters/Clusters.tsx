@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import "./Clusters.css"
 import Create from './Create/Create'
 import {
@@ -6,8 +6,9 @@ import {
   Route,
   Link,
 } from "react-router-dom";
-import ManageClusters from './ManageClusters';
-import NodeSSH from './NodeSSH';
+import ManageClusters from './Manage/ManageClusters';
+import NodeSSH from './Manage/NodeSSH';
+import ResetAll from './Manage/ResetAll';
 
 const Clusters = () => {
   return (
@@ -31,8 +32,14 @@ const Clusters = () => {
         <Route path="/clusters/manage">
           <ManageClusters />
         </Route>
+        <Route path="/clusters/node-ssh/:ip/:cmd">
+          <NodeSSH />
+        </Route>
         <Route path="/clusters/node-ssh/:ip">
           <NodeSSH />
+        </Route>
+        <Route path="/clusters/reset-all">
+          <ResetAll />
         </Route>
       </Switch>
     </div>
