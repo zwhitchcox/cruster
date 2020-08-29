@@ -4,7 +4,7 @@
 		{
 			"type": "npm",
 			"script": "start-react",
-			"path": "desktop/",
+			"path": "app/",
 			"problemMatcher": [],
 			"label": "Start React",
 			"detail": "export BROWSER=none && react-scripts start",
@@ -18,7 +18,7 @@
 			"type": "shell",
 			"command": "npm run start-electron",
 			"options": {
-				"cwd": "${workspaceRoot}/desktop"
+				"cwd": "${workspaceRoot}/app"
 			},
 			"detail": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
 			"presentation": {

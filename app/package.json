@@ -1,48 +1,107 @@
 {
-  "name": "app",
-  "version": "0.0.1",
+  "name": "desktop",
+  "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "windows": "react-native run-windows"
-  },
+  "main": "electron/main.js",
   "dependencies": {
-    "react": "16.11.0",
-    "react-native": "^0.62.0-0",
-    "react-native-ssdp": "github:zwhitchcox/react-native-ssdp",
-    "react-native-udp": "zwhitchcox/react-native-udp",
-    "react-native-windows": "^0.62.0-0"
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "@types/jest": "^26.0.9",
+    "@types/node": "^14.0.27",
+    "@types/react": "^16.9.44",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router-dom": "^5.1.5",
+    "adm-zip": "^0.4.16",
+    "balena-image-fs": "^7.0.1",
+    "electron-is-dev": "^1.2.0",
+    "electron-rebuild": "^1.11.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "etcher-sdk": "^4.1.23",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "node-fetch": "^2.6.0",
+    "node-pty": "^0.9.0",
+    "node-sass": "^4.14.1",
+    "node-ssdp": "^4.0.0",
+    "node-ssh": "^11.0.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1",
+    "scp2": "^0.5.0",
+    "split2": "^3.2.1",
+    "ssh2": "^0.8.9",
+    "typescript": "^3.9.7",
+    "unzipper": "^0.10.11",
+    "uuid": "^8.3.0",
+    "websocket-stream": "^5.5.2",
+    "ws": "^7.3.1",
+    "xterm": "^4.8.1",
+    "xterm-addon-attach": "^0.6.0",
+    "xterm-addon-web-links": "^0.4.0"
+  },
+  "scripts": {
+    "start-react": "export BROWSER=none && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "start-electron": "export ELECTRON_START_URL=http://localhost:3000 && electron .",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/runtime": "^7.6.2",
-    "@react-native-community/eslint-config": "^1.0.0",
-    "@types/jest": "^24.0.24",
-    "@types/react-native": "^0.62.0",
-    "@types/react-test-renderer": "16.9.2",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
-    "babel-jest": "^24.9.0",
-    "eslint": "^6.5.1",
-    "jest": "^24.9.0",
-    "metro-react-native-babel-preset": "^0.58.0",
-    "prettier": "^2.0.4",
-    "react-test-renderer": "16.11.0",
-    "typescript": "^3.8.3"
+    "@electron-forge/cli": "6.0.0-beta.53",
+    "@electron-forge/maker-deb": "6.0.0-beta.53",
+    "@electron-forge/maker-rpm": "6.0.0-beta.53",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.53",
+    "@electron-forge/maker-zip": "6.0.0-beta.53",
+    "concurrently": "^5.3.0",
+    "electron": "^9.1.2",
+    "wait-on": "^5.1.0"
   },
-  "jest": {
-    "preset": "react-native",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "desktop"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }
