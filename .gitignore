@@ -1,2 +1,7 @@
 node_modules
+out
+build
 /settings.json
+/yarn.lock
+/package.json
+/package-lock.json

@@ -81,12 +81,17 @@ module.exports.scan = async ({mainWindow, settings}) => {
       nodes: nodes,
       drives: drives,
     }
-    if (!compare(systemInfo, prevSystemInfo)) {
+    if (!compare(systemInfo, prevSystemInfo) && mainWindow) {
       mainWindow.send('system-info-changed', systemInfo)
     }
   }
   ipcMain.on('get-system-info', evt => {
     evt.returnValue = systemInfo
   })
-  setInterval(loop, 1000)
+  const interval = setInterval(loop, 1000)
+  const onClose = () => {
+    clearInterval(interval)
+    mainWindow.off('close', onClose)
+  }
+  mainWindow.on('close', onClose)
 }

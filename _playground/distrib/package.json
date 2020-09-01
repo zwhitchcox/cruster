@@ -2,60 +2,35 @@
   "name": "cruster",
   "version": "0.1.0",
   "private": true,
-  "author": "Zane Hitchcox <zwhitchcox@gmail.com>",
+  "descript": "blank",
+  "author": "Zane",
   "main": "src/electron/main.js",
   "homepage": "./",
-  "license": "Apache-2.0",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^26.0.9",
-    "@types/node": "^14.0.27",
-    "@types/react": "^16.9.44",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-router-dom": "^5.1.5",
-    "adm-zip": "^0.4.16",
-    "balena-image-fs": "^7.0.1",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.0",
+    "@types/react-dom": "^16.9.0",
     "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
-    "etcher-sdk": "^4.1.23",
-    "express": "^4.17.1",
-    "express-ws": "^4.0.0",
-    "fs-extra": "^9.0.1",
-    "node-fetch": "^2.6.0",
-    "node-pty": "^0.9.0",
-    "node-sass": "^4.14.1",
-    "node-ssdp": "^4.0.0",
-    "node-ssh": "^11.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-router": "^5.2.0",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1",
-    "scp2": "^0.5.0",
-    "split2": "^3.2.1",
-    "ssh2": "^0.8.9",
-    "typescript": "^3.9.7",
-    "unzipper": "^0.10.11",
-    "uuid": "^8.3.0",
-    "websocket-stream": "^5.5.2",
-    "ws": "^7.3.1",
-    "xterm": "^4.8.1",
-    "xterm-addon-attach": "^0.6.0",
-    "xterm-addon-web-links": "^0.4.0"
+    "react-scripts": "3.4.3",
+    "typescript": "~3.7.2",
+    "wait-on": "^5.2.0"
   },
   "scripts": {
     "start-react": "react-app-rewired start",
-    "build-react": "react-app-rewired build",
-    "start-electron": "wait-on tcp:3000 && electron-forge start",
-    "build-electron": "cp -r ./src/electron/. ./build/electron",
-    "build": "yarn build-react && yarn build-electron && yarn make",
-    "dev": "concurrently -k \"npm:start-react\" \"npm:start-electron\"",
+    "build": "react-app-rewired build",
     "test": "react-app-rewired test",
+    "start-electron": "wait-on tcp:3000 && electron-forge start",
     "eject": "react-app-rewired eject",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "react-app-rewired build && cp -r src/electron build/electron && electron-forge make",
+    "dev": "concurrently -k \"BROWSER=none npm start-react\" \"npm:electron\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -79,10 +54,9 @@
     "@electron-forge/maker-squirrel": "6.0.0-beta.53",
     "@electron-forge/maker-zip": "6.0.0-beta.53",
     "concurrently": "^5.3.0",
-    "electron": "^9.1.2",
-    "electron-rebuild": "^1.11.0",
-    "react-app-rewired": "^2.1.6",
-    "wait-on": "^5.1.0"
+    "electron": "10.1.1",
+    "electron-devtools-installer": "^3.1.1",
+    "react-app-rewired": "^2.1.6"
   },
   "config": {
     "forge": {
@@ -91,13 +65,14 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "cruster"
+            "name": "Cruster"
           }
         },
         {
           "name": "@electron-forge/maker-zip",
           "platforms": [
-            "darwin"
+            "darwin",
+            "linux"
           ]
         },
         {
