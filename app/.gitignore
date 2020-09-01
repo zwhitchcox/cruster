@@ -1,5 +1,6 @@
 /cruster-darwin-x64
 /cruster-linux-x64
+/release-builds
 downloads
 /out
 /src/settings.json
@@ -29,5 +30,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /*.log
-
-/.vagrant
+/app/.vagrant

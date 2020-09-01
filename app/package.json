@@ -48,12 +48,10 @@
     "start-react": "react-app-rewired start",
     "build-react": "react-app-rewired build",
     "start-electron": "wait-on tcp:3000 && NODE_ENV=development electron-forge start",
-    "build": "yarn build-react && yarn make",
+    "build": "bash _scripts/build.sh",
     "dev": "concurrently -k \"npm:start-react\" \"npm:start-electron\"",
     "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -72,42 +70,10 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.9",
-    "@electron-forge/cli": "6.0.0-beta.53",
-    "@electron-forge/maker-deb": "6.0.0-beta.53",
-    "@electron-forge/maker-rpm": "6.0.0-beta.53",
-    "@electron-forge/maker-squirrel": "6.0.0-beta.53",
-    "@electron-forge/maker-zip": "6.0.0-beta.53",
     "concurrently": "^5.3.0",
     "electron": "^9.1.2",
     "electron-rebuild": "^1.11.0",
     "react-app-rewired": "^2.1.6",
     "wait-on": "^5.1.0"
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "Cruster"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
-    }
   }
 }

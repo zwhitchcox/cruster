@@ -1,0 +1,1 @@
+electron-packager . cruster --overwrite --asar=true --platform=linux --arch=x64 --icon=../logo/icons/apple-icon.png --prune=true --out=release-builds

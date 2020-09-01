@@ -4,8 +4,9 @@ const fs = require('fs-extra')
 const path = require('path')
 const os = require('os')
 
+const isDev = process.argv.includes("-d") || process.argv.includes("--development")
+const storageFilePath = path.resolve(__dirname, "..", `settings${isDev ? "" : "-prod"}.json`)
 const getStorage = async () => {
-  const storageFilePath = path.resolve(__dirname, "../settings.json")
   if (!await fs.exists(storageFilePath)) {
     await fs.writeJSON(storageFilePath, {})
   }
