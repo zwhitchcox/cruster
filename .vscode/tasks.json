@@ -34,6 +34,43 @@
 				"Start Electron"
 			],
 			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "build-electron",
+			"path": "app/",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "Build Electron",
+			"detail": "cp -r ./electron/. ./build/electron"
+		},
+		{
+			"type": "npm",
+			"script": "build-react",
+			"path": "app/",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "Build React",
+			"detail": "react-scripts build"
+		},
+		{
+			"label": "build electron/react",
+			"dependsOn": [
+				"Build React",
+				"Build Electron"
+			],
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "package",
+			"path": "app/",
+			"problemMatcher": [],
+			"dependsOn": [
+				"build electron/react"
+			],
+			"label": "build/package",
+			"detail": "electron-builder build --mac --win --publish never -c.extraMetadata.main=build/electron/main.js"
 		}
 	]
 }

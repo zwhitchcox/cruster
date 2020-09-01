@@ -1,5 +1,8 @@
+/cruster-darwin-x64
+/cruster-linux-x64
 downloads
 /out
+/src/settings.json
 
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
