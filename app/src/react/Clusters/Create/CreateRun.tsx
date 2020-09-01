@@ -6,12 +6,12 @@ import RunMultipleSSH from '../Manage/RunMultipleSSH';
 import { useHistory } from 'react-router-dom';
 
 import {
+  IS_DEV,
   TEST_CLUSTER,
   USE_TEST_CLUSTER,
   CRUSTER_DIR,
 } from '../../constants'
 
-const isDev = process.env.NODE_ENV === "development"
 const statuses = {
   INITIALIZING_MASTER: "Initializing master...",
   INITIALIZING_SLAVES: "Initializing slaves...",
@@ -26,7 +26,7 @@ export const getHostname = ({clusterName, cluster, ip, index}) => (
 
 
 const CreateRun = ({cluster, clusterName}) => {
-  if (isDev && USE_TEST_CLUSTER) {
+  if (IS_DEV && USE_TEST_CLUSTER) {
     cluster = TEST_CLUSTER
   }
   const history = useHistory()

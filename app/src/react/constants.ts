@@ -1,4 +1,4 @@
-export const IS_DEV = process.env.NODE_ENV === "development"
+export const IS_DEV = ipcRenderer.sendSync("is-dev")
 
 // when you navigate to reset all, resetting the master
 // takes a long time, so you might want to reset the slaves,

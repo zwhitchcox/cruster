@@ -5,17 +5,16 @@
   "author": "Zane Hitchcox <zwhitchcox@gmail.com>",
   "main": "src/electron/main.js",
   "homepage": "./",
+  "description": "Create/Manage/Destroy Kubernetes Cluster on Raspberry Pis very easily",
   "license": "Apache-2.0",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^26.0.9",
     "@types/node": "^14.0.27",
     "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
-    "adm-zip": "^0.4.16",
     "balena-image-fs": "^7.0.1",
     "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
@@ -48,9 +47,8 @@
   "scripts": {
     "start-react": "react-app-rewired start",
     "build-react": "react-app-rewired build",
-    "start-electron": "wait-on tcp:3000 && electron-forge start",
-    "build-electron": "cp -r ./src/electron/. ./build/electron && mv ./build/electron/env-prod.json ./build/electron/env.json",
-    "build": "yarn build-react && yarn build-electron && yarn make",
+    "start-electron": "wait-on tcp:3000 && NODE_ENV=development electron-forge start",
+    "build": "yarn build-react && yarn make",
     "dev": "concurrently -k \"npm:start-react\" \"npm:start-electron\"",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
@@ -73,6 +71,7 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "^26.0.9",
     "@electron-forge/cli": "6.0.0-beta.53",
     "@electron-forge/maker-deb": "6.0.0-beta.53",
     "@electron-forge/maker-rpm": "6.0.0-beta.53",
@@ -91,7 +90,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "cruster"
+            "name": "Cruster"
           }
         },
         {

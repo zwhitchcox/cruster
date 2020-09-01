@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from 'react'
 import "./Settings.css"
 import Modal from './Modal';
 import SettingsContext from '../Contexts/SettingsContext';
+import { IS_DEV } from '../constants';
 
-const isDev = process.env.NODE_ENV == "development"
 const Settings = ({closeSettings, settingsOpen}) => {
   const settings = useContext(SettingsContext)
   const changeAsync = type => () => {
@@ -32,7 +32,7 @@ const Settings = ({closeSettings, settingsOpen}) => {
         <div>Cruster Directory: &nbsp;{settings.crusterDir}</div>
         <button onClick={changeAsync("cruster-dir")}>Change</button>
       </div>
-      {!isDev ? "" : <>
+      {!IS_DEV ? "" : <>
       <label className="text-container">
         <div className="text">Your Sudo Password For This Computer:</div>
         <input

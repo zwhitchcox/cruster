@@ -1,4 +1,5 @@
 // This optional code is used to register a service worker.
+import { IS_DEV } from './constants';
 // register() is not called by default.
 
 // This lets the app load faster on subsequent visits in production, and gives
@@ -26,7 +27,7 @@ type Config = {
 };
 
 export function register(config?: Config) {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  if (!IS_DEV && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(
       process.env.PUBLIC_URL,

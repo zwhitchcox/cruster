@@ -9,8 +9,8 @@ import Download from './Download';
 import Setup from './Setup/Setup';
 import Chroot from './Chroot';
 import Flash from './Flash';
+import { IS_DEV } from '../constants';
 
-const isDev = process.env.NODE_ENV === "development"
 
 const Image = () => {
   return (
@@ -27,7 +27,7 @@ const Image = () => {
           Set Up
           </div>
         </Link>
-        {!isDev ? "" : <>
+        {!IS_DEV ? "" : <>
           <Link to="/image/chroot">
             <div className="btn btn-three">
             Chroot

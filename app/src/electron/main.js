@@ -1,5 +1,4 @@
 const os = require('os')
-const fs = require('fs-extra')
 const path = require('path')
 const electron = require('electron');
 const { getSettings } = require('./settings')
@@ -10,8 +9,7 @@ const { scan } = require('./system-info')
 
 const {ipcMain} = electron
 const app = electron.app;
-const isDev = require('./env.json').NODE_ENV !== "production"
-// const { scanner } = require('./lib/scanner')
+const isDev = process.env.NODE_ENV === "development"
 const BrowserWindow = electron.BrowserWindow;
 
 let mainWindow, settings;
@@ -21,7 +19,7 @@ async function createMainWindow() {
     height: 1000, //680
     webPreferences: {
       nodeIntegration: true,
-      preload: path.resolve(__dirname, 'lib', 'preload.js')
+      preload: path.resolve(__dirname, 'lib', 'preload'),
     }
   });
   settings = await getSettings({mainWindow})
@@ -30,7 +28,7 @@ async function createMainWindow() {
   await scan({mainWindow, settings})
 
   const devUrl = 'http://localhost:3000'
-  const prodUrl = `file://${path.join(__dirname, '../build/index.html')}`
+  const prodUrl = `file://${path.join(__dirname, '../../build/index.html')}`
   mainWindow.loadURL(devUrl || isDev ? devUrl : prodUrl);
   // Prevent external resources from being loaded (like images)
   // when dropping them on the WebView.
@@ -87,3 +85,4 @@ ipcMain.on('home-dir', (event) => {
 ipcMain.on("kube-config-path", event => {
   event.returnValue = path.resolve(os.homedir(), ".kube", "config")
 })
+ipcMain.on("is-dev", e => e.returnValue = isDev)
