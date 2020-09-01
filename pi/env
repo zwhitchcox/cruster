@@ -1,0 +1,5 @@
+#!/bin/bash
+export HOST_DIR=/host
+export OUTPUT_DIR=${HOST_DIR}/output
+export OUTPUT_NAME=node
+export CRUSTER_DIR=/etc/cruster
