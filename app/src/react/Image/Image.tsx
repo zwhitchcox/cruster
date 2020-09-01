@@ -15,7 +15,6 @@ import { IS_DEV } from '../constants';
 const Image = () => {
   return (
     <div>
-      <br />
       <div className="third-nav">
         <Link to="/image/download">
           <div className="btn btn-three">

@@ -9,7 +9,7 @@ const { scan } = require('./system-info')
 
 const {ipcMain} = electron
 const app = electron.app;
-const isDev = process.env.NODE_ENV === "development"
+const isDev = process.argv.includes("--development") || process.argv.includes("-d")
 const BrowserWindow = electron.BrowserWindow;
 
 let mainWindow, settings;
@@ -29,7 +29,7 @@ async function createMainWindow() {
 
   const devUrl = 'http://localhost:3000'
   const prodUrl = `file://${path.join(__dirname, '../../build/index.html')}`
-  mainWindow.loadURL(devUrl || isDev ? devUrl : prodUrl);
+  mainWindow.loadURL(isDev ? devUrl : prodUrl);
   // Prevent external resources from being loaded (like images)
   // when dropping them on the WebView.
   // See https://github.com/electron/electron/issues/5919

@@ -258,6 +258,7 @@ function App() {
       </nav>
       <main>
       <Settings {...({closeSettings, settingsOpen})} />
+      <br />
       <Switch>
         <Route path="/clusters">
           <Clusters />
