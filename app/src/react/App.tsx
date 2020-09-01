@@ -19,6 +19,8 @@ import SystemInfoContext from './Contexts/SystemInfoContext';
 import { Terminal } from 'xterm'
 import "xterm/css/xterm.css"
 
+console.log("NODE_ENV", process.env.NODE_ENV)
+
 let _log = ""
 function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)

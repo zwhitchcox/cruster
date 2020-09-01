@@ -10,16 +10,17 @@
   opacity: 0;
   pointer-events: none;
   transition: all 0.3s;
-  &>div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &>div.modal-container {
     border-radius: .4em;
     width: 75%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     padding: 2em;
     background: #ECEFF4;
     color: #2E3440;
+    max-height: 80vh;
+    overflow-y: scroll;
   }
   header {
     font-weight: bold;

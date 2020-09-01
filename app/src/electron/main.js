@@ -2,7 +2,6 @@ const os = require('os')
 const fs = require('fs-extra')
 const path = require('path')
 const electron = require('electron');
-const isDev = require('electron-is-dev');
 const { getSettings } = require('./settings')
 const { termListen } = require('./terminal')
 const { actionsListen } = require('./actions')
@@ -11,6 +10,7 @@ const { scan } = require('./system-info')
 
 const {ipcMain} = electron
 const app = electron.app;
+const isDev = require('./env.json').NODE_ENV !== "production"
 // const { scanner } = require('./lib/scanner')
 const BrowserWindow = electron.BrowserWindow;
 

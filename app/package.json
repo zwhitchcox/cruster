@@ -49,7 +49,7 @@
     "start-react": "react-app-rewired start",
     "build-react": "react-app-rewired build",
     "start-electron": "wait-on tcp:3000 && electron-forge start",
-    "build-electron": "cp -r ./src/electron/. ./build/electron",
+    "build-electron": "cp -r ./src/electron/. ./build/electron && mv ./build/electron/env-prod.json ./build/electron/env.json",
     "build": "yarn build-react && yarn build-electron && yarn make",
     "dev": "concurrently -k \"npm:start-react\" \"npm:start-electron\"",
     "test": "react-app-rewired test",
