@@ -47,8 +47,8 @@
   "scripts": {
     "start-react": "react-app-rewired start",
     "build-react": "react-app-rewired build",
-    "start-electron": "wait-on tcp:3000 && NODE_ENV=development electron-forge start",
     "build": "bash _scripts/build.sh",
+    "start-electron": "wait-on tcp:3000 && electron . --development",
     "dev": "concurrently -k \"npm:start-react\" \"npm:start-electron\"",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
