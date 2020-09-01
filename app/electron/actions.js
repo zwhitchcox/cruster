@@ -10,12 +10,12 @@ const {
   addWifiCredentials: _addWifiCredentials,
   addGHUsername,
 } = require('./lib/img');
-const { readFileSync } = require('fs-extra');
 
 module.exports.actionsListen = ({mainWindow, settings}) => {
-  const showError = err => {
-    dialog.showErrorBox("Error", err.toString() + "\n" + err.stack)
-    throw new Error (err)
+  const showError = ({error, type}) => {
+    const errStr = error.toString()
+    const errorMsg = errStr + (errStr === error.stack ? "" : "\n\n" + error.stack)
+    dialog.showErrorBox("Error", `${type}\n${errorMsg}`)
   }
 
   ipcMain.on("run-action", async (event, msg) => {
@@ -69,7 +69,9 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
     } catch (error) {
       mainWindow.send("action-error", {id, error})
       console.log(error.stack)
-      showError(error)
+      console.log("msg", msg)
+      const type = msg.type
+      showError({error, type})
     }
   })
 
@@ -96,7 +98,7 @@ module.exports.actionsListen = ({mainWindow, settings}) => {
       throw new Error("There was an error retrieving keys for " + ghUsername + ". " + error.toString())
     }
     const { imagePath } = settings
-    await addSSHKeys({keys, ghUsername, overwrite, imagePath})
+    await addSSHKeys({keys, overwrite, imagePath})
     if (enableReset) {
       await addGHUsername({ghUsername, imagePath})
     }

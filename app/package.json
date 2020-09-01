@@ -1,8 +1,11 @@
 {
-  "name": "desktop",
+  "name": "cruster",
   "version": "0.1.0",
   "private": true,
   "main": "electron/main.js",
+  "author": "Zane Hitchcox <zwhitchcox@gmail.com>",
+  "description": "create and manage kubernetes pi clusters",
+  "license": "Apache-2.0",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",

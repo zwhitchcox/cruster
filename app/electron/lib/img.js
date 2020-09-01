@@ -5,7 +5,6 @@ const unzipper = require('unzipper')
 const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
 const stream = require('stream')
-const fetch = require('node-fetch')
 
 const VERSION = "v0.0.1"
 

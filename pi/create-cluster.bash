@@ -20,3 +20,10 @@ bash ${HOST_DIR}/img/mount.bash ${OUTPUT_NAME}
 bash ${HOST_DIR}/node/provision.bash
 # unmount node.img
 bash ${HOST_DIR}/img/umount.bash ${OUTPUT_NAME}
+# copy to test folder
+username=$(getent passwd $uid) | cut -d: -f1
+userdir=/home/$username
+if [ -d userdir ]; then
+    mkdir -p ${userdir}/Desktop/cruster
+    cp ${OUTPUT_DIR}/node.img ${userdir}/Desktop/cruster/node.img
+fi
