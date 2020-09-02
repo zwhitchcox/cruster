@@ -1,4 +1,4 @@
-const { scanner } = require('./lib/scanner')
+// const { scanner } = require('./lib/scanner')
 const electron = require('electron')
 const { ipcMain } = electron
 const fs = require('fs-extra')
@@ -55,15 +55,15 @@ module.exports.scan = async ({mainWindow, settings}) => {
 
   // Drives
   const drives = {}
-  scanner.on('attach', drive => {
-    if (!drive.drive.isSystem) {
-      drives[drive.path] = drive
-    }
-  })
-  scanner.on('detach', drive => {
-    delete drives[drive.path]
-  })
-  scanner.start()
+  // scanner.on('attach', drive => {
+  //   if (!drive.drive.isSystem) {
+  //     drives[drive.path] = drive
+  //   }
+  // })
+  // scanner.on('detach', drive => {
+  //   delete drives[drive.path]
+  // })
+  // scanner.start()
 
   // loop through system info and emit when changed every second
   let systemInfo = {

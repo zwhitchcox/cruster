@@ -1,5 +1,5 @@
 {
-  "dest": "release-builds/",
+  "dest": "release",
   "icon": "../logo/icons/apple-icon.png",
   "categories": [
     "Utility"
