@@ -65,9 +65,7 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
-ipcMain.on("get-dir", event => {
-  event.returnValue = __dirname
-})
+
 electron.app.on('before-quit', () => {
 	electron.app.releaseSingleInstanceLock();
 	process.exit(0);
