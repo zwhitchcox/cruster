@@ -1,8 +1,8 @@
 # have to use vagrant to install snap (see https://github.com/electron-userland/electron-installer-snap/issues/83)
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "hashicorp/bionic64"
 
-  config.vm.synced_folder ".", "/home/vagrant"
+  config.vm.synced_folder ".", "/home/vagrant/app"
 
   config.vm.provider "vmware_fusion" do |v|
     # Customize the amount of memory on the VM:
@@ -17,10 +17,10 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
   apt-get update
   apt-get dist-upgrade -y
+  sudo apt install -y build-essential
   # install nvm if not already
   NVM_DIR="$HOME/.nvm"
-  if [ ! -d "$NVM_DIR" ]
-  then
+  if [ ! -d "$NVM_DIR" ]; then
   NVM_VERSION="v12.4.0"
   mkdir $HOME/.nvm
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
