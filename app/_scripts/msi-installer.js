@@ -6,7 +6,7 @@ const msiCreator = new MSICreator({
   description: 'Create/Manage Raspberry PI Kubernetes Clusters',
   exe: 'cruster',
   name: 'Cruster',
-  icon: '../logo/icons/apple-icon.png',
+  iconPath: './public/icon.ico',
   manufacturer: 'Zane Hitchcox',
   version: '0.1.0',
   outputDirectory: 'release'

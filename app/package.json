@@ -10,6 +10,7 @@
   "dependencies": {
     "balena-image-fs": "^7.0.1",
     "electron-rebuild": "^2.0.1",
+    "electron-squirrel-startup": "^1.0.0",
     "fs-extra": "^9.0.1",
     "node-fetch": "^2.6.0",
     "node-pty": "^0.9.0",
@@ -77,5 +78,33 @@
     "xterm": "^4.8.1",
     "xterm-addon-attach": "^0.6.0",
     "xterm-addon-web-links": "^0.4.0"
+  },
+  "build": {
+    "appId": "yourappid",
+    "category": "Utility",
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "squirrel",
+      "icon": "build/icon.ico"
+    }
   }
 }

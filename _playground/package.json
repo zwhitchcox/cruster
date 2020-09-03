@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "balena-image-fs": "^7.0.1"
+    "balena-image-fs": "^7.0.1",
+    "bonjour": "^3.5.0"
   }
 }

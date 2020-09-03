@@ -38,9 +38,8 @@ const getInitialCrusterDir = async () => {
     return path.resolve(_crusterDir, "cruster")
   }
 
-  crusterDir = path.resolved(os.homedir(), "cruster")
+  crusterDir = path.resolve(os.homedir(), "cruster")
   imgPath = path.resolve(crusterDir, "node.img")
-  checkImageExists()
   return crusterDir
 }
 
