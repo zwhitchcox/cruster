@@ -5,8 +5,11 @@ const path = require('path')
 const os = require('os')
 
 const isDev = process.argv.includes("-d") || process.argv.includes("--development")
-const storageFilePath = path.resolve(__dirname, "..", `settings${isDev ? "" : "-prod"}.json`)
+const storageDir = path.resolve(os.homedir(), ".config", "cruster")
+// const storageDir = process.platform === "linux" ? linuxDir : path.resolve(__dirname, "..")
+const storageFilePath = path.resolve(storageDir, `settings${isDev ? "" : "-prod"}.json`)
 const getStorage = async () => {
+  await fs.mkdirp(storageDir)
   if (!await fs.exists(storageFilePath)) {
     await fs.writeJSON(storageFilePath, {})
   }

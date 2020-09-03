@@ -1,5 +1,6 @@
 // const { scanner } = require('./lib/scanner')
 const electron = require('electron')
+const os = require('os')
 const { ipcMain } = electron
 const fs = require('fs-extra')
 const path = require('path')
@@ -10,8 +11,11 @@ const copy = obj => parse(stringify(obj))
 const compare = (obj1, obj2) => stringify(obj1) === stringify(obj2)
 
 const isDev = process.argv.includes("-d") || process.argv.includes("--development")
-const storageFilePath = path.resolve(__dirname, "..", `ip-cache${isDev ? "" : "-prod"}.json`)
+const storageDir = path.resolve(os.homedir(), ".config", "cruster")
+// const storageDir = process.platform === "linux" ? linuxDir : path.resolve(__dirname, "..")
+const storageFilePath = path.resolve(storageDir, `ip-cache${isDev ? "" : "-prod"}.json`)
 const getStorage = async () => {
+  await fs.mkdirp(storageDir)
   if (!await fs.exists(storageFilePath)) {
     await fs.writeJSON(storageFilePath, {})
   }
@@ -37,7 +41,6 @@ module.exports.scan = async ({mainWindow, settings}) => {
   client.on('response', (headers, statusCode, rinfo) => {
     if (headers["ST"] && headers["ST"] == "cruster:node") {
       const ip = headers["LOCATION"]
-      console.log({ip})
       if (ip in curIPs) return
       ipCache[ip] = true
       curIPs[ip] = true
@@ -118,7 +121,6 @@ module.exports.scan = async ({mainWindow, settings}) => {
       drives,
     }
     if (!compare(systemInfo, prevSystemInfo) && mainWindow) {
-      console.log('changed')
       mainWindow.send('system-info-changed', systemInfo)
     }
   }
