@@ -216,6 +216,7 @@ function App() {
     ipcRenderer.on("system-info-changed", (evt, msg) => {
       setSystemInfo(msg)
     })
+    setSystemInfo(ipcRenderer.sendSync('get-system-info'))
   }, [])
 
   return (
