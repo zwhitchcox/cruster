@@ -89,6 +89,9 @@ const Create = () => {
       })
     }
   }
+  useEffect(() => {
+    ipcRenderer.send("refresh-nodes")
+  }, [])
 
   return (
     <div className="boxed">

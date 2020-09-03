@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
+const platform = ipcRenderer.sendSync("get-platform")
+
 export const getHostname = ({clusterName, cluster, ip, index}) => (
   `${clusterName ? clusterName + "-" : ""}` +
   `${cluster.master === ip ? "master" : "slave-" +(index+1)}.local`
@@ -80,7 +82,7 @@ const CreateSetup = ({
       </div>
       <h4>Cluster Nodes</h4>
       {!attempted ? "" : clusterErrors.map(err => <div className="error">{err}</div>)}
-      {(!cluster.master && !cluster.slaves.length) ? "You have not added any nodes." : <div>
+      {(!cluster.master && !cluster.slaves.length) ? "You have not added any nodes." + (platform === "win32" ? " This may take a few minutes on Windows. You might have to restart your computer." : "") : <div>
         <table className="node-list">
           <thead>
             <tr>

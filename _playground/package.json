@@ -1,14 +1,4 @@
 {
-  "name": "playground",
-  "version": "1.0.0",
-  "description": "",
-  "main": "img-fs.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "balena-image-fs": "^7.0.1",
     "bonjour": "^3.5.0"
