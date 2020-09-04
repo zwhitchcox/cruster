@@ -1,6 +1,6 @@
 set -eux
 
-yarn react-scripts build
+yarn build-react
 rm -rf dist
 mkdir -p dist
 cp -r electron dist/electron
@@ -12,8 +12,8 @@ pushd dist
 popd
 
 if [ ${1} == "deb" ]; then
-yarn electron-packager dist cruster --overwrite --asar --platform=linux --arch=x64 --icon=../logo/CrusterLogo.png --prune=true --out=release
-# yarn electron-installer-debian --src release/cruster-linux-x64/ --arch amd64 --config _scripts/debian.json --overwrite
+yarn electron-packager dist cruster --overwrite --asar --platform=linux --arch=x64 --icon=../logo/icons/log.icns --prune=true --out=release
+yarn electron-installer-debian --src release/cruster-linux-x64/ --arch amd64 --config _scripts/debian.json --overwrite
 fi
 
 if [ ${1} == "windows" ]; then

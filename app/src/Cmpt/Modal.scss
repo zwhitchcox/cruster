@@ -14,6 +14,7 @@
   align-items: center;
   justify-content: center;
   &>div.modal-container {
+    position: relative;
     border-radius: .4em;
     width: 75%;
     padding: 2em;
@@ -43,8 +44,8 @@
   font-size: 87%;
   position: absolute;
   text-align: center;
-  top: 4em;
-  right: 6em;
+  top: 1em;
+  right: 1em;
   width: 4em;
   text-decoration: none;
   border-radius: 0 .4em 0;
