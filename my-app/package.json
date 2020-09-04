@@ -1,0 +1,71 @@
+{
+  "name": "my-app",
+  "productName": "my-app",
+  "version": "1.0.0",
+  "description": "My Electron application description",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "Zane Hitchcox",
+    "email": "zwhitchcox@gmail.com"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "icon.icns",
+        "osxSign": {
+          "identity": "Developer ID Application: Zane Hitchcox (9C3K4KBV67)",
+          "hardened-runtime": true,
+          "entitlements": "entitlements.plist",
+          "signature-flags": "library"
+        },
+        "osxNotarize": {
+          "appleId": "zwhitchcox@me.com",
+          "appleIdPassword": "nwpm-mqos-xbho-tzjj"
+        }
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "my_app"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "electron-osx-sign": "^0.4.17",
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "6.0.0-beta.53",
+    "@electron-forge/maker-deb": "6.0.0-beta.53",
+    "@electron-forge/maker-rpm": "6.0.0-beta.53",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.53",
+    "@electron-forge/maker-zip": "6.0.0-beta.53",
+    "electron": "10.1.1"
+  }
+}

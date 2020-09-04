@@ -93,7 +93,7 @@
         "osxSign": {
           "identity": "Developer ID Application: Zane Hitchcox (9C3K4KBV67)",
           "hardened-runtime": true,
-          "entitlements": "package/entitlements.plist",
+          "entitlements": "public/entitlements.plist",
           "signature-flags": "library"
         },
         "osxNotarize": {
