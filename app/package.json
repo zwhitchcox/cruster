@@ -69,7 +69,6 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
     "typescript": "^3.9.7",
-    "react-snapshot": "^1.3.0",
     "wait-on": "^5.1.0",
     "websocket-stream": "^5.5.2",
     "ws": "^7.3.1",
@@ -82,17 +81,10 @@
     "electron-installer-dmg": "^3.0.0",
     "electron-installer-windows": "^3.0.0"
   },
-  "reactSnapshot": {
-    "include": [
-      "/image",
-      "/cluster",
-      "/image/create",
-      "/image/download",
-      "/image/add-keys",
-      "/clusters/manage",
-      "/clusters/setup",
-      "/clusters/reset-all",
-      "/clusters/run-cmd-all"
-    ]
+  "build": {
+    "appId": "com.cruster.app",
+    "mac": {
+      "category": "Utility"
+    }
   }
 }

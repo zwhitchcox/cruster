@@ -10,8 +10,8 @@ try {
     authors: 'Zane Hitchcox',
     outputDirectory: path.join(outPath, 'windows-installer'),
     exe: 'cruster.exe',
-    setupExe: 'CrusterInstaller.exe',
-    setupIcon: path.join(rootPath, '..', 'logo', 'icons', 'windows.ico')
+    setupExe: 'cruster-setup-x64-windows.exe',
+    setupIcon: path.join(rootPath, 'public', 'icon.ico')
   });
   console.log('It worked!');
 } catch (e) {

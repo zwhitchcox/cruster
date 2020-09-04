@@ -16,7 +16,7 @@ yarn electron-packager dist cruster --overwrite --asar --platform=linux --arch=x
 yarn electron-installer-debian --src release/cruster-linux-x64/ --arch amd64 --config _scripts/debian.json --overwrite
 fi
 
-if [ ${1} == "windows" ]; then
+if [ ${1} == "win" ]; then
 yarn electron-packager dist cruster --overwrite --asar --platform=win32 --arch=x64 --icon=../logo/icons/windows.ico --prune=true --out=release --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName="Cruster"
 fi
 
