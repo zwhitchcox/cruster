@@ -90,7 +90,7 @@ module.exports.scan = async ({mainWindow, settings}) => {
     client.search('cruster:node')
     refreshNodes()
     saveIPCache()
-  }, 10000)
+  }, 3000)
 
   // Drives
   const drives = {}
@@ -120,7 +120,7 @@ module.exports.scan = async ({mainWindow, settings}) => {
       nodes,
       drives,
     }
-    if (!compare(systemInfo, prevSystemInfo) && mainWindow) {
+    if (true || !compare(systemInfo, prevSystemInfo) && mainWindow) {
       mainWindow.send('system-info-changed', systemInfo)
     }
   }
