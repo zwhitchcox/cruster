@@ -16,8 +16,7 @@ mac:
   entitlements: "entitlements.mac.plist"
   entitlementsInherit: "entitlements.mac.plist"
 dmg:
-  background: assets/dmg/background.tiff
-  icon: assets/icon.icns
+  icon: public/icon.icns
   iconSize: 110
   contents:
     - x: 140
@@ -30,12 +29,12 @@ dmg:
     width: 540
     height: 405
 win:
-  icon: assets/icon.ico
+  icon: public/icon.ico
 nsis:
   oneClick: true
   runAfterFinish: true
-  installerIcon: assets/icon.ico
-  uninstallerIcon: assets/icon.ico
+  installerIcon: public/icon.ico
+  uninstallerIcon: public/icon.ico
   deleteAppDataOnUninstall: true
   license: LICENSE
   artifactName: "${productName}-Setup-${version}.${ext}"
@@ -45,9 +44,9 @@ portable:
 linux:
   category: Utility
   packageCategory: utils
-  executableName: balena-etcher-electron
-  synopsis: balenaEtcher is a powerful OS image flasher built with web technologies to ensure flashing an SDCard or USB drive is a pleasant and safe experience. It protects you from accidentally writing to your hard-drives, ensures every byte of data was written correctly and much more.
-  icon: assets/iconset
+  executableName: cruster
+  synopsis: cruster enables you to create and manage kubernetes clusters on Raspberry Pis
+  icon: public/iconset
 deb:
   priority: optional
   depends:
