@@ -34,14 +34,16 @@ const ManageClusters = () => {
   return (
     <div className="boxed">
       <h3>Manage Clusters</h3>
-      {Object.values(clusters).map((cluster:any) => <Cluster key={cluster.masterip} cluster={cluster} />)}
-      <Link to="/clusters/reset-all">
-        <button>Go Nuclear - Reset All</button>
-      </Link>
-      <br />
-      <Link to="/clusters/run-cmd-all">
-        <button>Run Command on All Pis At Once</button>
-      </Link>
+      {!clustersArr.length ? "No clusters found on this network." : <>
+        {Object.values(clusters).map((cluster:any) => <Cluster key={cluster.masterip} cluster={cluster} />)}
+        <Link to="/clusters/reset-all">
+          <button>Go Nuclear - Reset All</button>
+        </Link>
+        <br />
+        <Link to="/clusters/run-cmd-all">
+          <button>Run Command on All Pis At Once</button>
+        </Link>
+      </>}
     </div>
   )
 }
@@ -66,6 +68,18 @@ const Cluster = ({cluster}) => {
     }
     setKubeStatus("Copied successfully!")
   }
+  const [resetGHStatus, setResetGHStatus] = useState("")
+  const resetGithubKeys = async ({ip}) => {
+    setResetGHStatus("Attempting to fetch keys from github...")
+    try {
+      await fetch(`http:${ip}:9090/reset-github-keys`)
+      setResetGHStatus("Success!")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    } catch (err) {
+      setResetGHStatus("Could not reset github keys")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    }
+  }
 
   return (
     <div>
@@ -76,7 +90,11 @@ const Cluster = ({cluster}) => {
         <span
             className="action"
             onClick={() => history.push(`/clusters/node-ssh/${cluster.master.ip}/reset`)}
-          >reset</span>
+          >reset kubernetes</span>
+      <span
+          className="action"
+          onClick={() => resetGithubKeys({ip: cluster.master.ip})}
+        >reset github keys</span>
         </div>
       Slaves: <table className="indent-1">
         <tbody>
@@ -92,6 +110,18 @@ const Cluster = ({cluster}) => {
 }
 const SlaveNode = ({ip}) => {
   const history = useHistory()
+  const [resetGHStatus, setResetGHStatus] = useState("")
+  const resetGithubKeys = async ({ip}) => {
+    setResetGHStatus("Attempting to fetch keys from github...")
+    try {
+      await fetch(`http:${ip}:9090/reset-github-keys`)
+      setResetGHStatus("Success!")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    } catch (err) {
+      setResetGHStatus("Could not reset github keys")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    }
+  }
   return <tr>
     <td>
     {ip}&nbsp;&nbsp;
@@ -103,7 +133,14 @@ const SlaveNode = ({ip}) => {
     <span
         className="action"
         onClick={() => history.push(`/clusters/node-ssh/${ip}/reset`)}
-      >reset</span>
+      >reset kubernetes</span>
+    </td>
+    <td>
+    <span
+        className="action"
+        onClick={() => resetGithubKeys({ip})}
+      >reset github keys</span>
+      {resetGHStatus}
     </td>
   </tr>
 }
