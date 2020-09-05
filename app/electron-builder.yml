@@ -1,20 +1,15 @@
-appId: io.balena.etcher
-copyright: Copyright 2016-2020 Balena Ltd
-productName: balenaEtcher
+appId: io.ivan.cruster
+copyright: Copyright Cruster
+productName: cruster
 npmRebuild: true
 nodeGypRebuild: false
 publish: null
-beforeBuild: "./beforeBuild.js"
-afterPack: "./afterPack.js"
-asar: false
-files:
-  - build
 mac:
   icon: public/icon.icns
   category: public.app-category.developer-tools
   hardenedRuntime: true
-  entitlements: "entitlements.mac.plist"
-  entitlementsInherit: "entitlements.mac.plist"
+  entitlements: public/entitlements.plist
+  entitlementsInherit: public/entitlements.plist
 dmg:
   icon: public/icon.icns
   iconSize: 110
@@ -29,7 +24,7 @@ dmg:
     width: 540
     height: 405
 win:
-  icon: public/icon.ico
+  icon: build/icon.ico
 nsis:
   oneClick: true
   runAfterFinish: true
@@ -90,6 +85,6 @@ rpm:
   depends:
     - util-linux
 protocols:
-  name: etcher
+  name: cruster
   schemes:
-    - etcher
+    - cruster
