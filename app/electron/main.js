@@ -12,13 +12,10 @@ const { termListen } = require('./terminal')
 const { actionsListen } = require('./actions')
 const { scan } = require('./system-info')
 
-
 const {ipcMain} = electron
 const app = electron.app;
 const isDev = process.argv.includes("--development") || process.argv.includes("-d")
 const BrowserWindow = electron.BrowserWindow;
-
-
 
 
 let mainWindow, settings;
@@ -26,6 +23,7 @@ async function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: isDev ? 900 + 600 : 900,
     height: 1000, //680
+    icon: isDev ? path.join(__dirname, "../public/icons/512x512.png") : path.join(__dirname, '../icons/512x512.png'),
     webPreferences: {
       nodeIntegration: true,
       preload: path.resolve(__dirname, 'lib', 'preload'),

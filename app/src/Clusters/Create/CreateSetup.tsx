@@ -65,6 +65,13 @@ const CreateSetup = ({
   //   nodes[ip].apiResponded &&
   //   nodes[ip].status === "UNINITIALIZED"
   // })
+  const [resetGHStatus, setResetGHStatus] = useState({})
+  const resetGithubKeys = async ({ip}) => {
+    setResetGHStatus({...resetGHStatus, [ip]: "Attempting to fetch keys from github..."})
+    await fetch(`http:${ip}:9090/reset-github-keys`)
+    setResetGHStatus({...resetGHStatus, [ip]: "Success!"})
+    setTimeout(() => setResetGHStatus({...resetGHStatus, [ip]: ""}), 2500)
+  }
 
 
   return (
@@ -175,7 +182,11 @@ const CreateSetup = ({
             <span
                 className="action"
                 onClick={() => history.push(`/clusters/node-ssh/${ip}/reset`)}
-              >reset</span>
+              >reset kubernetes</span>
+            <span
+                className="action"
+                onClick={() => resetGithubKeys({ip})}
+              >reset github keys</span>
             </td>
             </tr>
           ))}
@@ -189,6 +200,18 @@ export default CreateSetup
 
 const NonResponsiveNode = ({ip}) => {
   const history = useHistory()
+  const [resetGHStatus, setResetGHStatus] = useState("")
+  const resetGithubKeys = async ({ip}) => {
+    setResetGHStatus("Attempting to fetch keys from github...")
+    try {
+      await fetch(`http:${ip}:9090/reset-github-keys`)
+      setResetGHStatus("Success!")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    } catch (err) {
+      setResetGHStatus("Could not reset github keys")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    }
+  }
   return <tr>
     <td>
     {ip}
@@ -200,13 +223,32 @@ const NonResponsiveNode = ({ip}) => {
     <span
         className="action"
         onClick={() => history.push(`/clusters/node-ssh/${ip}/reset`)}
-      >reset</span>
+      >reset kubernetes</span>
+    </td>
+    <td>
+    <span
+        className="action"
+        onClick={() => resetGithubKeys({ip})}
+      >reset github keys</span>
+      {resetGHStatus}
     </td>
   </tr>
 }
 
 const AvailableNode = ({ip, addNode, setMaster}) => {
   const history = useHistory()
+  const [resetGHStatus, setResetGHStatus] = useState("")
+  const resetGithubKeys = async ({ip}) => {
+    setResetGHStatus("Attempting to fetch keys from github...")
+    try {
+      await fetch(`http:${ip}:9090/reset-github-keys`)
+      setResetGHStatus("Success!")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    } catch (err) {
+      setResetGHStatus("Could not reset github keys")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    }
+  }
   return (
     <tr>
       <td>
@@ -221,12 +263,28 @@ const AvailableNode = ({ip, addNode, setMaster}) => {
       <td>
         <span className="action" onClick={() => history.push(`/clusters/node-ssh/${ip}`)}>ssh</span>
       </td>
+      <td>
+        <span className="action" onClick={() => resetGithubKeys({ip})}>reset github keys</span>
+        {resetGHStatus}
+      </td>
     </tr>
   )
 }
 
 const ClusterNode = ({ip, removeNode, setMaster, cluster, clusterName, index}) => {
   const history = useHistory()
+  const [resetGHStatus, setResetGHStatus] = useState("")
+  const resetGithubKeys = async ({ip}) => {
+    setResetGHStatus("Attempting to fetch keys from github...")
+    try {
+      await fetch(`http:${ip}:9090/reset-github-keys`)
+      setResetGHStatus("Success!")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    } catch (err) {
+      setResetGHStatus("Could not reset github keys")
+      setTimeout(() => setResetGHStatus(""), 2500)
+    }
+  }
   return (
     <tr>
       <td>
@@ -240,6 +298,10 @@ const ClusterNode = ({ip, removeNode, setMaster, cluster, clusterName, index}) =
       </td>
       <td>
         <span className="action" onClick={() => history.push(`/clusters/node-ssh/${ip}`)}>ssh</span>
+      </td>
+      <td>
+        <span className="action" onClick={() => resetGithubKeys({ip})}>reset github keys</span>
+        {resetGHStatus}
       </td>
       <td>
         {getHostname({clusterName, cluster, ip, index})}

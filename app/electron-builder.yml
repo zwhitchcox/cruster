@@ -10,6 +10,8 @@ mac:
   hardenedRuntime: true
   entitlements: public/entitlements.plist
   entitlementsInherit: public/entitlements.plist
+snap:
+  confinement: classic
 dmg:
   icon: public/icon.icns
   iconSize: 110
@@ -41,7 +43,6 @@ linux:
   packageCategory: utils
   executableName: cruster
   synopsis: cruster enables you to create and manage kubernetes clusters on Raspberry Pis
-  icon: public/iconset
 deb:
   priority: optional
   depends:

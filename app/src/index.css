@@ -19,6 +19,9 @@ body {
   font-size: 1.2em;
   position: relative;
 }
+td {
+  padding-right: 8px;
+}
 
 
 h1 {
