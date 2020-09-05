@@ -1,16 +1,16 @@
 set -eux
 
+rm -rf build
 yarn build-react
-rm -rf generated
-mkdir -p generated
-cp -r electron generated/electron
-mv build generated/react
-cp package.json generated/package.json
-yarn --cwd generated --production
-pushd generated
-./node_modules/.bin/electron-rebuild
-yarn make
-popd
+mkdir -p _build
+mv build _build/react
+mv _build build
+cp -r electron build/electron
+cp package.json build/package.json
+yarn --cwd build --production
+mv build/react/icon* build
+mv build/react/electron.js build
+yarn electron-builder
 
 
 # if [ ${1} == "deb" ]; then
