@@ -1,0 +1,90 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
+@import url(https://fonts.googleapis.com/css?family=Aldrich);
+
+*{
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+
+	font-weight: 300;
+}
+
+a {
+	text-decoration: none;
+}
+
+body{
+	font-family: 'Source Sans Pro', sans-serif;
+	color: white;
+	font-weight: 300;
+
+	::-webkit-input-placeholder { /* WebKit browsers */
+		font-family: 'Source Sans Pro', sans-serif;
+			color:    white;
+		font-weight: 300;
+	}
+	:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+		font-family: 'Source Sans Pro', sans-serif;
+		 color:    white;
+		 opacity:  1;
+		font-weight: 300;
+	}
+	::-moz-placeholder { /* Mozilla Firefox 19+ */
+		font-family: 'Source Sans Pro', sans-serif;
+		 color:    white;
+		 opacity:  1;
+		font-weight: 300;
+	}
+	:-ms-input-placeholder { /* Internet Explorer 10+ */
+		font-family: 'Source Sans Pro', sans-serif;
+		 color:    white;
+		font-weight: 300;
+	}
+}
+$pn1: #2E3440;
+$pn2: #3B4252;
+$pn3: #434C5E;
+$pn4: #4C566A;
+
+
+.App {
+	background: $pn2;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(to bottom right, $pn1 0%, $pn3 100%);
+	overflow: hidden;
+	margin: 0 auto;
+	position: absolute;
+	padding: 2em;
+	z-index:-2;
+}
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+.nav-list {
+	list-style-type: none;
+	.btn {
+		margin: 0 auto;
+	}
+	li {
+		margin-bottom: .2em;
+	}
+}
+@media screen and (min-width: 600px) {
+	.nav-list {
+		display: flex;
+		justify-content: space-between;
+	}
+}
+
+h1{
+	text-align: center;
+	font-family: 'Aldrich', Roboto, Arial, Helvetica, sans-serif;
+	font-size: 4em;
+	text-transform: uppercase;
+	transition-duration: 1s;
+	transition-timing-function: ease-in-put;
+	font-weight: 200;
+	line-height: 2.5;
+}
