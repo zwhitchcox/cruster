@@ -21,11 +21,7 @@
 #
 
 # Check dependencies.
-set -e
-xargs=$(which gxargs || which xargs)
-
-# Validate settings.
-[ "$TRACE" ] && set -x
+set -ex
 
 CONFIG=$@
 
@@ -75,5 +71,5 @@ echo "Uploading asset... "
 GH_ASSET="https://uploads.github.com/repos/${owner}/${repo}/releases/${release_id}/assets?name=$(basename ${filename})"
 echo $GH_ASSET
 
-curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $github_api_token" -H "Content-Type: application/octet-stream" $GH_ASSET
+curl --data-binary @"$filename" -H "Authorization: token ${github_api_token}" -H "Content-Type: application/octet-stream" $GH_ASSET
 echo

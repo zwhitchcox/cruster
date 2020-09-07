@@ -1,5 +1,5 @@
 const electron = require('electron')
-const { ipcMain } = electron
+const { ipcMain, dialog } = electron
 const fs = require('fs-extra')
 const path = require('path')
 const os = require('os')
@@ -99,7 +99,7 @@ const changePrivateKeyFile = async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
     filters: [
-      { name: "Private Key File", extensions: [""]}
+      { name: "Private Key File" }
     ]
   })
   if (!result.canceled) {
