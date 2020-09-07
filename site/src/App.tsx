@@ -3,45 +3,43 @@ import './bg.scss';
 import './cool-btns.scss'
 import './App.scss';
 import {
-  BrowserRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
+  useLocation
 } from "react-router-dom"
-import Install from './Install/Install';
+import Download from './Download/Download';
 import Learn from './Learn/Learn';
 import Home from './Home/Home';
 
-function App() {
-  return (
-    <Router>
-    <div className="App">
-    <div className="container">
-      <h1>Cruster</h1>
-        <nav>
-          <ul className="nav-list">
-            <li>
-              <Link to="/install">
-                <div className="btn btn-one">
-                  Install
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link to="/learn">
-                <div className="btn btn-one">
-                  Learn
-                </div>
-              </Link>
-            </li>
-          </ul>
-        </nav>
 
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
+function App() {
+  const location = useLocation()
+  const displayMainNav = location.pathname === "/" || window.innerWidth > 600 ? "block" : "none"
+  return (
+    <div className="container">
+      <Link to="/"><h1>Cruster</h1></Link>
+      <nav style={{display: displayMainNav}}>
+        <ul className="nav-list">
+          <li>
+            <Link to="/download">
+              <div className="btn btn-one">
+                Download
+              </div>
+            </Link>
+          </li>
+          <li>
+            <Link to="/learn">
+              <div className="btn btn-one">
+                Learn
+              </div>
+            </Link>
+          </li>
+        </ul>
+      </nav>
         <Switch>
-          <Route path="/install">
-            <Install />
+          <Route path="/download">
+            <Download />
           </Route>
           <Route path="/learn">
             <Learn />
@@ -50,20 +48,8 @@ function App() {
             <Home />
           </Route>
         </Switch>
-
-
-
-      <Bubbles />
     </div>
-    </div>
-    </Router>
   );
 }
 
 export default App
-
-const Bubbles = () => (
-  <ul className="bg-bubbles">
-    {[...new Array(20)].map((_, i) => <li key={i} />)}
-  </ul>
-)

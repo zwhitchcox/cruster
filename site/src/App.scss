@@ -5,35 +5,31 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-
-	font-weight: 300;
 }
 
 a {
 	text-decoration: none;
+	color: white;
 }
 
 body{
 	font-family: 'Source Sans Pro', sans-serif;
 	color: white;
-	font-weight: 300;
+	font-size: 1.3rem;
 
 	::-webkit-input-placeholder { /* WebKit browsers */
 		font-family: 'Source Sans Pro', sans-serif;
-			color:    white;
-		font-weight: 300;
+		color:    white;
 	}
 	:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
 		font-family: 'Source Sans Pro', sans-serif;
-		 color:    white;
-		 opacity:  1;
-		font-weight: 300;
+		color:    white;
+		opacity:  1;
 	}
 	::-moz-placeholder { /* Mozilla Firefox 19+ */
 		font-family: 'Source Sans Pro', sans-serif;
-		 color:    white;
-		 opacity:  1;
-		font-weight: 300;
+		color:    white;
+		opacity:  1;
 	}
 	:-ms-input-placeholder { /* Internet Explorer 10+ */
 		font-family: 'Source Sans Pro', sans-serif;
@@ -55,7 +51,7 @@ $pn4: #4C566A;
 	overflow: hidden;
 	margin: 0 auto;
 	position: absolute;
-	padding: 2em;
+	padding: 1em 2em 2em;
 	z-index:-2;
 }
 .container {
@@ -74,17 +70,19 @@ $pn4: #4C566A;
 @media screen and (min-width: 600px) {
 	.nav-list {
 		display: flex;
-		justify-content: space-between;
+		justify-content: space-around;
+	}
+	h1 {
+		 font-size: 3em;
 	}
 }
 
 h1{
 	text-align: center;
 	font-family: 'Aldrich', Roboto, Arial, Helvetica, sans-serif;
-	font-size: 4em;
 	text-transform: uppercase;
 	transition-duration: 1s;
 	transition-timing-function: ease-in-put;
 	font-weight: 200;
-	line-height: 2.5;
+	line-height: 2;
 }
