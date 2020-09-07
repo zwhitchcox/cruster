@@ -1,6 +1,6 @@
 appId: io.ivan.cruster
 copyright: Copyright Cruster
-productName: cruster
+productName: Cruster
 npmRebuild: true
 nodeGypRebuild: false
 publish: null
