@@ -6,7 +6,7 @@ const { interact } = require('balena-image-fs')
 const { promisify } = require('util')
 const stream = require('stream')
 
-const VERSION = "v0.0.1"
+const VERSION = "v0.1.0"
 
 const downloadImg = async ({onProgress, force, downloadDir}) => {
   const downloadLocation = `https://github.com/zwhitchcox/cruster/releases/download/${VERSION}/node.zip`
