@@ -2,7 +2,6 @@
   "python.pythonPath": "/usr/bin/python3",
   "files.exclude": {
     "**/node_modules": true,
-    "**/node_modules.*": true,
-    "app/dist": true
+    "**/node_modules.*": true
   }
 }
