@@ -33,7 +33,7 @@ function download(uri, filename, onProgress) {
       } else if (response.headers.location) {
         res(download(response.headers.location, filename, onProgress));
       } else {
-        rej(new Error(response.statusCode + ' ' + response.statusMessage));
+        rej(new Error("Error downloading " + uri + "\n" + response.statusCode + ' ' + response.statusMessage));
       }
     }).on('error', onError);
   })

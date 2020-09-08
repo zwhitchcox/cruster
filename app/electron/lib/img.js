@@ -4,6 +4,7 @@ const fs = require('fs-extra')
 const unzipper = require('unzipper')
 const { platform } = process
 const isWin = platform === "win32"
+throw new Error("platform")
 const { interact } = require(isWin ? "./image-fs-prebuilt" : 'balena-image-fs')
 const { promisify } = require('util')
 const stream = require('stream')

@@ -1,1 +1,0 @@
-xcrun altool --notarize-app -f ./dist/cruster-0.1.0.dmg  --primary-bundle-id io.ivan.cruster -u zwhitchcox@me.com -p
