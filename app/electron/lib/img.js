@@ -2,10 +2,16 @@ const path = require('path')
 const { download, downloadStr } = require('./download')
 const fs = require('fs-extra')
 const unzipper = require('unzipper')
-const { platform } = process
-const isWin = platform === "win32"
-throw new Error("platform")
-const { interact } = require(isWin ? "./image-fs-prebuilt" : 'balena-image-fs')
+const { interact } = (() => {
+  // process.platform not reliable
+  let result
+  try {
+    result = require('balena-image-fs')
+  } catch(e) {
+    result = require('./image-fs-prebuilt')
+  }
+  return result
+})()
 const { promisify } = require('util')
 const stream = require('stream')
 

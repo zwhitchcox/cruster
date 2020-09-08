@@ -77,5 +77,6 @@
     "xterm-addon-web-links": "^0.4.0"
   },
   "optionalDependencies": {
+    "balena-image-fs": "^7.0.1"
   }
 }
