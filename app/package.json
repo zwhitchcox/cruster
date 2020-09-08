@@ -9,7 +9,6 @@
   "description": "Create/Manage/Destroy Kubernetes Cluster on Raspberry Pis very easily",
   "license": "LICENSE.md",
   "dependencies": {
-    "balena-image-fs": "^7.0.1",
     "electron-squirrel-startup": "^1.0.0",
     "fs-extra": "^9.0.1",
     "node-fetch": "^2.6.0",
@@ -51,11 +50,6 @@
     ]
   },
   "devDependencies": {
-    "@electron-forge/cli": "6.0.0-beta.53",
-    "@electron-forge/maker-deb": "6.0.0-beta.53",
-    "@electron-forge/maker-rpm": "6.0.0-beta.53",
-    "@electron-forge/maker-squirrel": "6.0.0-beta.53",
-    "@electron-forge/maker-zip": "6.0.0-beta.53",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -78,8 +72,6 @@
     "react-scripts": "^3.4.3",
     "typescript": "^3.9.7",
     "wait-on": "^5.1.0",
-    "websocket-stream": "^5.5.2",
-    "ws": "^7.3.1",
     "xterm": "^4.8.1",
     "xterm-addon-attach": "^0.6.0",
     "xterm-addon-web-links": "^0.4.0"
@@ -87,6 +79,7 @@
   "optionalDependencies": {
     "electron-installer-debian": "^3.1.0",
     "electron-installer-dmg": "^3.0.0",
-    "electron-installer-windows": "^3.0.0"
+    "electron-installer-windows": "^3.0.0",
+    "balena-image-fs": "^7.0.1",
   }
 }

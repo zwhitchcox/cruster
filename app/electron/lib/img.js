@@ -2,7 +2,9 @@ const path = require('path')
 const { download, downloadStr } = require('./download')
 const fs = require('fs-extra')
 const unzipper = require('unzipper')
-const { interact } = require('balena-image-fs')
+const { platform } = process
+const isWin = platform === "win32"
+const { interact } = require(isWin ? "./image-fs-prebuilt" : 'balena-image-fs')
 const { promisify } = require('util')
 const stream = require('stream')
 

@@ -16,8 +16,6 @@ const {ipcMain} = electron
 const app = electron.app;
 const isDev = process.argv.includes("--development") || process.argv.includes("-d")
 const BrowserWindow = electron.BrowserWindow;
-console.log('starting')
-
 
 let mainWindow, settings;
 async function createMainWindow() {
