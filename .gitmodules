@@ -1,0 +1,3 @@
+[submodule "app/electron/lib/image-fs-prebuilt"]
+	path = app/electron/lib/image-fs-prebuilt
+	url = https://github.com/zwhitchcox/image-fs-prebuilt
