@@ -53,10 +53,10 @@ def read_gh_username():
 
 def write_keys(keys):
   root_auth_keys_fd = open("/root/.ssh/authorized_keys", "w")
-  root_auth_keys_fd.write(keys)
+  root_auth_keys_fd.write(keys.decode('utf-8'))
   root_auth_keys_fd.close()
   pi_auth_keys_fd = open("/home/pi/.ssh/authorized_keys", "w")
-  pi_auth_keys_fd.write(keys)
+  pi_auth_keys_fd.write(keys.decode('utf-8'))
   pi_auth_keys_fd.close()
 
 # def write_hostname(new_hostname):
@@ -128,21 +128,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     # if self.path == "/node-info":
     if self.path == "/reset-github-keys":
       username = read_gh_username().strip().encode('utf-8')
-      url = "https://github.com/{}.keys".format(username)
-      r = requests.get()
+      url = "https://github.com/{}.keys".format(username.decode('utf-8'))
+      print(url)
+      r = requests.get(url)
       if r.status_code < 400:
         write_keys(r.content)
         self.send_response(HTTPStatus.OK)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
-        self.wfile.write("Success!")
+        self.wfile.write(b"Success!")
       else:
         self.send_response(r.status_code)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
-        self.wfile.write("Couldn't get that github username....might not exist")
+        self.wfile.write(b"Couldn't get that github username....might not exist")
 
     if self.path == "/node-info":
       self.send_response(HTTPStatus.OK)
@@ -151,9 +152,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
       self.end_headers()
       status = read_status()
       masterip = ""
+      can_reset_keys = False
       try:
         masterip = read_masterip().strip()
-        print(masterip)
+      except:
+        pass
+      try:
+        gh_username = read_gh_username()
+        if gh_username != "":
+          can_reset_keys = true
       except:
         pass
       self.wfile.write(json.dumps({
@@ -161,6 +168,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         'hostname': read_hostname().strip(),
         'clustername': read_clustername().strip(),
         'masterip': masterip,
+        'canresetkeys': can_reset_keys,
       }).encode('utf-8'))
   # def do_POST(self):
   #   content_length = int(self.headers['Content-Length']) # <--- Gets the size of data

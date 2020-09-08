@@ -1,0 +1,10 @@
+.note {
+  margin-top: 1em;
+  font-size: .8em;
+  text-align: center;
+}
+@media screen and (min-width: 600px) {
+  .nav-download {
+    margin-top: 6em;
+  }
+}
