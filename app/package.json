@@ -77,9 +77,6 @@
     "xterm-addon-web-links": "^0.4.0"
   },
   "optionalDependencies": {
-    "electron-installer-debian": "^3.1.0",
-    "electron-installer-dmg": "^3.0.0",
-    "electron-installer-windows": "^3.0.0",
-    "balena-image-fs": "^7.0.1",
+    "balena-image-fs": "^7.0.1"
   }
 }
