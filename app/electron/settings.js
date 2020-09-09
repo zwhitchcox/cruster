@@ -78,6 +78,7 @@ const changeCrusterDir = async () => {
     crusterDir = result.filePaths[0]
     storage.set("cruster-dir", crusterDir)
   }
+  return crusterDir
 }
 
 const changePublicKeyFile = async () => {
