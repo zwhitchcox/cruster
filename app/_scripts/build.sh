@@ -10,4 +10,3 @@ cp package.json build/package.json
 yarn --cwd build --production
 mv build/react/icon* build
 mv build/react/electron.js build
-yarn electron-builder

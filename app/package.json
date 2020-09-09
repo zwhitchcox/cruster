@@ -32,7 +32,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "deploy": "bash _scripts/deploy.sh"
   },
   "eslintConfig": {
     "extends": "react-app"
