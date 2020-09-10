@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './bg.scss';
 import './cool-btns.scss'
 import './App.scss';
 import {
@@ -19,6 +18,9 @@ function App() {
   const displayMainNav = location.pathname === "/" || windowSize.width > 600 ? "block" : "none"
   return (
     <div className="container">
+      <a className="github" href="https://github.com/zwhitchcox/cruster">
+        <img className="gh-icon" src="/github.png" />
+      </a>
       <Link to="/"><h1>Cruster</h1></Link>
       <nav style={{display: displayMainNav}}>
         <ul className="nav-list">
