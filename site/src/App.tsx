@@ -8,7 +8,7 @@ import {
   Link,
   useLocation
 } from "react-router-dom"
-import Download from './Download/Download';
+import Install from './Install/Install';
 import Learn from './Learn/Learn';
 import Home from './Home/Home';
 
@@ -23,9 +23,9 @@ function App() {
       <nav style={{display: displayMainNav}}>
         <ul className="nav-list">
           <li>
-            <Link to="/download">
+            <Link to="/Download">
               <div className="btn btn-one">
-                Download
+                Install
               </div>
             </Link>
           </li>
@@ -40,7 +40,7 @@ function App() {
       </nav>
         <Switch>
           <Route path="/download">
-            <Download />
+            <Install />
           </Route>
           <Route path="/learn">
             <Learn />

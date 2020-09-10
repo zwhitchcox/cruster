@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import "./Download.scss"
+import "./Install.scss"
 
 const Install = () => {
   const [instructions, setInstructions] = useState(<div />)
