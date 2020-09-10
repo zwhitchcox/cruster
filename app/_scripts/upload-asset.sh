@@ -1,27 +1,4 @@
-#!/usr/bin/env bash
-#
-# Author: Stefan Buck
-# License: MIT
-# https://gist.github.com/stefanbuck/ce788fee19ab6eb0b4447a85fc99f447
-#
-#
-# This script accepts the following parameters:
-#
-# * owner
-# * repo
-# * tag
-# * filename
-# * github_api_token
-#
-# Script to upload a release asset using the GitHub API v3.
-#
-# Example:
-#
-# upload-github-release-asset.sh github_api_token=TOKEN owner=stefanbuck repo=playground tag=v0.1.0 filename=./build.zip
-#
-
-# Check dependencies.
-set -ex
+# set -ex
 
 CONFIG=$@
 

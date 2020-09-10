@@ -1,4 +1,4 @@
-yarn build
+# yarn build
 unameOut="$(uname -s)"
 case "${unameOut}" in
     Linux*)     machine=Linux;;
@@ -10,11 +10,13 @@ case "${unameOut}" in
 esac
 VERSION="0.1.0"
 pushd dist > /dev/null
+token=$(cat ${HOME}/.PAT)
 if [ "${machine}" == "Linux" ]; then
-  token=$(cat ${HOME}/.PAT)
+  # yarn electron-builder
+  mv Cruster-${VERSION}.AppImage Linux-Cruster-${VERSION}.AppImage
+  bash ../_scripts/upload-asset.sh owner=zwhitchcox repo=cruster tag="v${VERSION}" filename=Linux-Cruster-${VERSION}.AppImage github_api_token=${token}
 fi
 if [ "${machine}" == "Mac" ]; then
-  token=$(cat ${HOME}/.PAT)
   notarize_password=$(cat ~/.NotarizePassword)
   mv Cruster-${VERSION}.dmg Mac-OS-X-Cruster-${VERSION}.dmg
   xcrun altool --notarize-app -f ./Mac-OS-X-Cruster-${VERSION}.dmg  --primary-bundle-id io.ivan.cruster -u zwhitchcox@me.com -p ${notarize_password}
@@ -27,7 +29,6 @@ if [ "${machine}" == "Mac" ]; then
   bash ../_scripts/upload-asset.sh owner=zwhitchcox repo=cruster tag="v${VERSION}" filename=Linux-Cruster-${VERSION}.AppImage github_api_token=${token}
 fi
 if [ "${machine}" == "MSys" ]; then
-  token="$(cat "${HOME}/.PAT" | cut -c 3-)" # idk
   echo ${token}
   oldname="Cruster-Setup-${VERSION}.exe"
   newname="Windows-${oldname}"
