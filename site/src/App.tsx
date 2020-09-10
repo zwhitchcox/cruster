@@ -23,7 +23,7 @@ function App() {
       <nav style={{display: displayMainNav}}>
         <ul className="nav-list">
           <li>
-            <Link to="/Download">
+            <Link to="/install">
               <div className="btn btn-one">
                 Install
               </div>
@@ -39,7 +39,7 @@ function App() {
         </ul>
       </nav>
         <Switch>
-          <Route path="/download">
+          <Route path="/install">
             <Install />
           </Route>
           <Route path="/learn">
