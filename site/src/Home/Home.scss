@@ -1,0 +1,36 @@
+.intro {
+  h3 {
+    font-weight: normal;
+    text-align: center;
+    margin: 1.5em auto;
+    font-size: 2em;
+  }
+  .demo-button {
+    margin: 0 auto;
+    background-color: rgba(255,255,255,.1);
+    border-radius: .2em;
+  }
+  .demo-button::before {
+    border-radius: .2em;
+  }
+  .demo-button::after {
+    border-radius: .2em;
+  }
+  .key-features {
+    font-size: 1.8em;
+    margin: 2em auto;
+    width: 50%;
+    .key {
+      font-size: 1em;
+      font-weight: bold;
+    }
+  }
+}
+@media (min-width: 600px) {
+  .intro {
+    h3 {
+      margin: 1.5em auto;
+      font-size: 3.7em;
+    }
+  }
+}

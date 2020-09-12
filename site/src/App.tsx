@@ -32,7 +32,7 @@ function App() {
             </Link>
           </li>
           <li>
-            <Link to="/learn">
+            <Link to="/learn/demo">
               <div className="btn btn-one">
                 Learn
               </div>
