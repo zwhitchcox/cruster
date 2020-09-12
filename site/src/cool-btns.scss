@@ -1,10 +1,20 @@
 .btn {
-	line-height: 2.3em;
-	height: 2.3em;
+	line-height: 2em;
+	height: 2em;
 	text-align: center;
 	width: 11em;
 	cursor: pointer;
-	font-size: 1.5em;
+	font-size: 1.3em;
+}
+@media (min-width: 600px) {
+	.btn {
+		line-height: 2.3em;
+		height: 2.3em;
+		text-align: center;
+		width: 11em;
+		cursor: pointer;
+		font-size: 1.5em;
+	}
 }
 
 /*
