@@ -1,5 +1,6 @@
 set -eux
 
+yarn
 rm -rf build
 yarn build-react
 mkdir -p _build
