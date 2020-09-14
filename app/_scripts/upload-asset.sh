@@ -21,7 +21,6 @@
 #
 
 # Check dependencies.
-set -ex
 
 CONFIG=$@
 

@@ -10,21 +10,28 @@ case "${unameOut}" in
 esac
 VERSION="0.1.0"
 pushd dist > /dev/null
-if [ "${machine}" == "Linux" ]; then
-  token=$(cat ${HOME}/.PAT)
-fi
 if [ "${machine}" == "Mac" ]; then
   token=$(cat ${HOME}/.PAT)
+
+  # mac
+  # build
+  yarn electron-builder
   notarize_password=$(cat ~/.NotarizePassword)
   mv Cruster-${VERSION}.dmg Mac-OS-X-Cruster-${VERSION}.dmg
   xcrun altool --notarize-app -f ./Mac-OS-X-Cruster-${VERSION}.dmg  --primary-bundle-id io.ivan.cruster -u zwhitchcox@me.com -p ${notarize_password}
-  yarn electron-builder
-  bash _scripts/build-linux-docker.sh
-  # upload mac
+  # upload
   bash ../_scripts/upload-asset.sh owner=zwhitchcox repo=cruster tag="v${VERSION}" filename=Mac-OS-X-Cruster-${VERSION}.dmg github_api_token=${token}
-  # upload linux
+
+  # build
+  cd ..
+  bash _scripts/build-linux-docker.sh
+  cd dist
+  # upload
   mv Cruster-${VERSION}.AppImage Linux-Cruster-${VERSION}.AppImage
   bash ../_scripts/upload-asset.sh owner=zwhitchcox repo=cruster tag="v${VERSION}" filename=Linux-Cruster-${VERSION}.AppImage github_api_token=${token}
+
+  # build and upload windows
+  ssh zwhit@192.168.1.22 "cd ~/dev/cruster/app; bash _scripts/build-windows.sh"
 fi
 if [ "${machine}" == "MSys" ]; then
   token="$(cat "${HOME}/.PAT" | cut -c 3-)" # idk

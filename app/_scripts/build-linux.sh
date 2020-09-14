@@ -1,3 +1,4 @@
 #!/bin/bash
+yarn
 yarn build
-yarn electron-builder -w
+yarn electron-builder -l
