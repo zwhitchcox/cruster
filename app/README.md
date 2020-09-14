@@ -7,3 +7,5 @@ shrink img (https://superuser.com/questions/1373289/how-do-i-shrink-the-partitio
 add flash
 reset keys
 clean up the Node component
+Have stuff run in background
+Detect when download is already running and attach
