@@ -1,5 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
-@import url(https://fonts.googleapis.com/css?family=Aldrich);
+@import url(https://fonts.googleapis.com/css2?family=Aldrich&display=swap);
 
 *{
 	box-sizing: border-box;
@@ -44,15 +44,11 @@ $pn4: #4C566A;
 
 
 .App {
-	background: $pn2;
 	width: 100%;
 	height: 100%;
-	background: linear-gradient(to bottom right, $pn1 0%, $pn3 100%);
-	overflow: hidden;
 	margin: 0 auto;
 	position: absolute;
 	padding: 1em 2em 2em;
-	z-index:-2;
 }
 .container {
 	max-width: 1200px;
@@ -67,13 +63,25 @@ $pn4: #4C566A;
 		margin-bottom: .2em;
 	}
 }
-@media screen and (min-width: 600px) {
+
+
+.github {
+	top: 1em;
+	right: 1em;
+	display: none;
+	position: absolute;
+}
+
+@media  (min-width: 600px) {
+	.github {
+		display: block;
+	}
 	.nav-list {
 		display: flex;
 		justify-content: space-around;
 	}
 	h1 {
-		 font-size: 3em;
+		 font-size: 3.5em;
 	}
 }
 
@@ -85,4 +93,16 @@ h1{
 	transition-timing-function: ease-in-put;
 	font-weight: 200;
 	line-height: 2;
+}
+
+.gh-icon {
+	width: 1.5em;
+	opacity: .5;
+	height: auto;
+}
+
+.gh-icon:hover {
+	width: 1.5em;
+	opacity: .9;
+	height: auto;
 }

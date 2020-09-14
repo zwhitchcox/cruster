@@ -24,11 +24,10 @@ export const getHostname = ({clusterName, cluster, ip, index}) => (
   `${cluster.master === ip ? "master" : "slave-" +(index+1)}`
 )
 
-
 const CreateRun = ({cluster, clusterName}) => {
-  if (IS_DEV && USE_TEST_CLUSTER) {
-    cluster = TEST_CLUSTER
-  }
+  // if (IS_DEV && USE_TEST_CLUSTER) {
+  //   cluster = TEST_CLUSTER
+  // }
   const history = useHistory()
   const {
     INITIALIZING_MASTER,
@@ -51,15 +50,15 @@ const CreateRun = ({cluster, clusterName}) => {
       })
     await runCmd({
       status: `Setting hostname ${hostname} for ${ip}`,
-      cmd: `echo ${hostname} > /etc/hostname\nsudo hostnamectl set-hostname ${hostname}`
+      cmd: `echo ${hostname} > /etc/hostname\nsudo hostnamectl set-hostname ${hostname}\n`
     })
     await runCmd({
       status: `Setting clustername ${clusterName} for ${ip}`,
-      cmd: `echo ${clusterName} > ${CRUSTER_DIR}/clustername`
+      cmd: `echo ${clusterName} > ${CRUSTER_DIR}/clustername\n`
     })
     await runCmd({
       status: `Setting masterip ${cluster.master} for ${ip}`,
-      cmd: `echo ${cluster.master} > ${CRUSTER_DIR}/masterip`
+      cmd: `echo ${cluster.master} > ${CRUSTER_DIR}/masterip\n`
     })
   }
   const joinSlaves = async (joinCmd: string) => {
@@ -74,11 +73,11 @@ const CreateRun = ({cluster, clusterName}) => {
     await startAll()
     await new Promise((res, rej) => setTimeout(res, 1000))
     await Promise.all(processes.map(async ({ip, runCmd}, index) => {
+      await common({runCmd, ip, index})
       await runCmd({
         status: `Initializing slave ${ip}`,
         cmd: joinCmd,
       })
-      await common({runCmd, ip, index})
       await runCmd({
         status: "",
         cmd: `echo SLAVE > ${CRUSTER_DIR}/status`
@@ -116,6 +115,7 @@ const CreateRun = ({cluster, clusterName}) => {
     ;(async () =>{
       await startTerm()
       setStatus(INITIALIZING_MASTER)
+      await common({runCmd, ip: cluster.master, index: 0})
       setNote("Pulling the images can take some time. Don't exit, or you will have to redo it!")
       await runCmd({
         status: INITIALIZING_MASTER,
@@ -126,7 +126,6 @@ const CreateRun = ({cluster, clusterName}) => {
         cmd: `echo ${clusterName} > ${CRUSTER_DIR}/clustername`
       })
 
-      await common({runCmd, ip: cluster.master, index: 0})
 
       // get rid of warning
       const outputLines = (await getOutput({cmd: "kubeadm token create --print-join-command"})).split("\n")

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './bg.scss';
 import './cool-btns.scss'
 import './App.scss';
 import {
@@ -8,7 +7,7 @@ import {
   Link,
   useLocation
 } from "react-router-dom"
-import Download from './Download/Download';
+import Install from './Install/Install';
 import Learn from './Learn/Learn';
 import Home from './Home/Home';
 
@@ -19,18 +18,21 @@ function App() {
   const displayMainNav = location.pathname === "/" || windowSize.width > 600 ? "block" : "none"
   return (
     <div className="container">
+      <a className="github" href="https://github.com/zwhitchcox/cruster">
+        <img className="gh-icon" src="/github.png" />
+      </a>
       <Link to="/"><h1>Cruster</h1></Link>
       <nav style={{display: displayMainNav}}>
         <ul className="nav-list">
           <li>
-            <Link to="/download">
+            <Link to="/install">
               <div className="btn btn-one">
-                Download
+                Install
               </div>
             </Link>
           </li>
           <li>
-            <Link to="/learn">
+            <Link to="/learn/demo">
               <div className="btn btn-one">
                 Learn
               </div>
@@ -39,8 +41,8 @@ function App() {
         </ul>
       </nav>
         <Switch>
-          <Route path="/download">
-            <Download />
+          <Route path="/install">
+            <Install />
           </Route>
           <Route path="/learn">
             <Learn />

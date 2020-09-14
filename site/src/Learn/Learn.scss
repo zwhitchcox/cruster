@@ -1,0 +1,19 @@
+.nav-learn {
+  margin-top: 1em;
+  .btn {
+    background-color: rgba(255,255,255,.09);
+  }
+}
+
+h3.learn-header {
+  font-size: 1.5em;
+  margin: 1.2em 0 0 ;
+  text-align: center;
+}
+
+@media (min-width: 600px) {
+  h3.learn-header {
+    font-size: 2em;
+    margin: 1em;
+  }
+}

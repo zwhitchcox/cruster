@@ -1,16 +1,29 @@
 
+$pn1: #2E3440;
+$pn2: #3B4252;
+$pn3: #434C5E;
+$pn4: #4C566A;
 $prim: #53e3a6;
 
 
+.bg-bubbles-container {
+	width: 100%;
+	height: 100%;
+	background: $pn2;
+	background: linear-gradient(to bottom right, $pn1 0%, $pn3 100%);
+	position: fixed;
+}
+
 .bg-bubbles{
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	height: 100%;
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
 	opacity: .2;
-
-	z-index: -1;
+	overflow: hidden;
 
 	li{
 		position: absolute;

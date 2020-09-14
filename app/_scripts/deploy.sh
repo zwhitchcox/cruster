@@ -1,4 +1,4 @@
-yarn build
+# yarn build
 unameOut="$(uname -s)"
 case "${unameOut}" in
     Linux*)     machine=Linux;;
@@ -34,7 +34,6 @@ if [ "${machine}" == "Mac" ]; then
   ssh zwhit@192.168.1.22 "cd ~/dev/cruster/app; bash _scripts/build-windows.sh"
 fi
 if [ "${machine}" == "MSys" ]; then
-  token="$(cat "${HOME}/.PAT" | cut -c 3-)" # idk
   echo ${token}
   oldname="Cruster-Setup-${VERSION}.exe"
   newname="Windows-${oldname}"

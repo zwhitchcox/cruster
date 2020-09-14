@@ -1,5 +1,5 @@
 .note {
-  margin-top: 1em;
+  margin-top: 2em;
   font-size: .8em;
   text-align: center;
 }
@@ -7,6 +7,9 @@
   .nav-download {
     margin-top: 6em;
   }
+}
+.nav-download .btn {
+  background-color: rgba(255,255,255, .09)
 }
 
 .instructions {
