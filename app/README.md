@@ -7,3 +7,6 @@ shrink img (https://superuser.com/questions/1373289/how-do-i-shrink-the-partitio
 add flash
 reset keys
 clean up the Node component
+join new nodes to existing cluster
+watch `describe` and `get nodes`, etc. terminal commands on linux
+add error checking to each step in creating cluster

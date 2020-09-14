@@ -96,6 +96,7 @@ const CreateSetup = ({
             <th>ip</th>
             <th colSpan={2}>actions</th>
             <th></th>
+            <th></th>
             <th>new hostname</th>
             </tr>
           </thead>

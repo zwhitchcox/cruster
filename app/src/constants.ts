@@ -22,6 +22,7 @@ export const TEST_CLUSTER = {
 export const CRUSTER_DIR="/etc/cruster"
 export const RESET_CMD = `kubeadm reset -f
 echo node > /etc/hostname
+hostnamectl set-hostname node
 echo UNINITIALIZED > ${CRUSTER_DIR}/status
 echo "" > ${CRUSTER_DIR}/clustername
 echo "" > ${CRUSTER_DIR}/masterip

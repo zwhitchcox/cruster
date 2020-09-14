@@ -13,7 +13,7 @@ SERVICE_PORT=9090
 logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
 logger = logging.getLogger()
 
-fileHandler = logging.FileHandler("api.log")
+fileHandler = logging.FileHandler("/etc/cruster/api.log")
 fileHandler.setFormatter(logFormatter)
 logger.addHandler(fileHandler)
 

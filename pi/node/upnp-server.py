@@ -18,7 +18,7 @@ device_uuid = uuid.uuid4()
 logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
 logger = logging.getLogger()
 
-fileHandler = logging.FileHandler("upnp.log")
+fileHandler = logging.FileHandler("/etc/cruster/upnp.log")
 fileHandler.setFormatter(logFormatter)
 logger.addHandler(fileHandler)
 
