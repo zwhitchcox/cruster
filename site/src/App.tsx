@@ -22,12 +22,12 @@ function App() {
   const windowSize = useWindowSize()
   const displayMainNav = location.pathname === "/" || windowSize.width > 600 ? "block" : "none"
   useEffect(() => {
-    history.listen(location => {
-      if (process.env.NODE_ENV === "production") {
-        ReactGA.initialize('G-VP5JKR4EEG')
-        ReactGA.pageview(location.pathname + location.search)
-      }
-    })
+    if (process.env.NODE_ENV === "production") {
+      ReactGA.initialize('G-VP5JKR4EEG')
+      history.listen(location => {
+          ReactGA.pageview(location.pathname + location.search)
+      })
+    }
   }, [])
   return (
     <div className="container">
