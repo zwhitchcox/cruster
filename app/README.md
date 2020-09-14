@@ -10,3 +10,5 @@ clean up the Node component
 join new nodes to existing cluster
 watch `describe` and `get nodes`, etc. terminal commands on linux
 add error checking to each step in creating cluster
+Have stuff run in background
+Detect when download is already running and attach
