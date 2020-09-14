@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useContext} from "react"
-import { v4 } from 'uuid'
+import React, {useState, useContext} from "react"
+import ReactGA from 'react-ga'
 import ActionsContext from '../Contexts/ActionsContext';
 
 const statuses = {
@@ -25,6 +25,14 @@ const Download = () => {
   const [forceRedownload, setForceRedownload] = useState(false)
   const [forceReunzip, setForceReunzip] = useState(false)
   const run = async () => {
+    try {
+      ReactGA.event({
+        category: 'App',
+        action: 'Download Image'
+      })
+    } catch (e) {
+      // want users to be able to use offline
+    }
     if (status !== INACTIVE) return
     try {
       setStatus(DOWNLOADING)

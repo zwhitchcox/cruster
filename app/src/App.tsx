@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import ReactGA from 'react-ga'
 import {
   HashRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
 } from "react-router-dom";
 import './App.css';
 import Clusters from './Clusters/Clusters';
@@ -218,6 +219,14 @@ function App() {
     })
     setSystemInfo(ipcRenderer.sendSync('get-system-info'))
   }, [])
+  useEffect(() => {
+    try {
+      ReactGA.initialize('G-VP5JKR4EEG')
+    } catch(e) {
+      // want users to be able to use even with no internet
+    }
+  }, [])
+
 
   return (
     <Router>

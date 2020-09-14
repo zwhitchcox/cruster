@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import ReactGA from 'react-ga'
 import { useHistory } from 'react-router-dom'
 
 const platform = ipcRenderer.sendSync("get-platform")
@@ -41,6 +42,15 @@ const CreateSetup = ({
   const launch = () => {
     setAttempted(true)
     if (!clusterErrors.length) {
+      try {
+        ReactGA.event({
+          category: 'App',
+          action: 'Create Cluster'
+        })
+      } catch (e) {
+        // want users to be able to use offline
+      }
+
       history.push("/clusters/create/run")
     }
   }
