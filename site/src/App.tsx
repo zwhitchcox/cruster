@@ -1,23 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet'
+import ReactGA from 'react-ga'
 import './cool-btns.scss'
 import './App.scss';
 import {
   Switch,
   Route,
   Link,
-  useLocation
+  useLocation,
+  useHistory,
 } from "react-router-dom"
 import Install from './Install/Install';
 import Learn from './Learn/Learn';
 import Home from './Home/Home';
 
+declare var ga: any;
 
 function App() {
   const location = useLocation()
+  const history = useHistory()
   const windowSize = useWindowSize()
   const displayMainNav = location.pathname === "/" || windowSize.width > 600 ? "block" : "none"
+  useEffect(() => {
+    history.listen(location => {
+      if (process.env.NODE_ENV === "production") {
+        ReactGA.initialize('G-VP5JKR4EEG')
+        ReactGA.pageview(location.pathname + location.search)
+      }
+    })
+  }, [])
   return (
     <div className="container">
+      <Helmet>
+      <title>Cruster</title>
+      </Helmet>
       <a className="github" href="https://github.com/zwhitchcox/cruster">
         <img className="gh-icon" src="/github.png" />
       </a>

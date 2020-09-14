@@ -1,10 +1,14 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import "./GettingStarted.scss"
+import { Helmet } from 'react-helmet';
 
 const GettingStarted = () => {
   return (
     <div>
+      <Helmet>
+        <title>Cruster - Getting Started</title>
+      </Helmet>
       <h3 className="learn-header">Getting Started</h3>
       <ol className="getting-started-steps">
         <li><Link to="/install">Install Cruster</Link></li>

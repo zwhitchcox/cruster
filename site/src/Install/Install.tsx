@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
 import "./Install.scss"
+import { Helmet } from 'react-helmet';
 
 const Install = () => {
   const [instructions, setInstructions] = useState(<div />)
   return (
     <div>
+      <Helmet>
+        <title>Cruster - Install</title>
+      </Helmet>
       <nav>
         <ul className="nav-list nav-download">
           <li onClick={() => setInstructions(<div />)}>

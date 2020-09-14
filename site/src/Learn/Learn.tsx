@@ -4,10 +4,14 @@ import { Link } from 'react-router-dom';
 import Demo from './Demo';
 import "./Learn.scss"
 import GettingStarted from './GettingStarted';
+import { Helmet } from 'react-helmet';
 
 const Learn = () => {
   return (
     <div>
+      <Helmet>
+        <title>Cruster - Learn</title>
+      </Helmet>
       <nav>
         <ul className="nav-list nav-learn">
           <li>
