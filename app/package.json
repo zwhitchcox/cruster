@@ -64,7 +64,7 @@
     "electron-builder": "^22.8.0",
     "electron-rebuild": "^2.0.1",
     "electron-wix-msi": "^3.0.0",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "react": "^16.13.1",
     "react-app-rewired": "^2.1.6",
     "react-dom": "^16.13.1",
